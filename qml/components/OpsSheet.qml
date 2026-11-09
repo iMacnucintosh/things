@@ -59,16 +59,23 @@ Rectangle {
                 anchors.rightMargin: 10
                 spacing: 14
 
-                MaterialIcon {
+                Item {
                     Layout.alignment: Qt.AlignVCenter
-                    icon: root.stateIcon
-                    size: 26
-                    fill: root.working ? 0 : 1
-                    colour: root.stateColour
-                    RotationAnimator on rotation {
-                        running: root.working && !Ops.awaitingPassword
-                        from: 0; to: 360; duration: 1000; loops: Animation.Infinite
-                        onRunningChanged: if (!running) parent.rotation = 0
+                    Layout.preferredWidth: 30
+                    Layout.preferredHeight: 30
+                    MaterialIcon {
+                        anchors.centerIn: parent
+                        visible: !(root.working && !Ops.awaitingPassword)
+                        icon: root.stateIcon === "progress_activity" ? "lock" : root.stateIcon
+                        size: 26
+                        fill: 1
+                        colour: root.stateColour
+                    }
+                    Spinner {
+                        anchors.centerIn: parent
+                        visible: root.working && !Ops.awaitingPassword
+                        size: 26
+                        colour: root.stateColour
                     }
                 }
 
@@ -85,7 +92,9 @@ Rectangle {
                                 return qsTr("La operación ha fallado")
                             if (root.allCancelled)
                                 return qsTr("Operación cancelada")
-                            return qsTr("Completado")
+                            if (items.length === 1)
+                                return (items[0].kind === "install" ? qsTr("%1 instalado") : qsTr("%1 eliminado")).arg(items[0].name)
+                            return qsTr("%1 operaciones completadas").arg(items.length)
                         }
                         font.pixelSize: 15
                         elide: Text.ElideRight
@@ -139,29 +148,22 @@ Rectangle {
                 visible: root.working
                 clip: true
 
+                property real sweepX: 0
+                NumberAnimation on sweepX {
+                    running: root.working && Ops.progress < 0
+                    from: -track.width * 0.3
+                    to: track.width
+                    duration: 1300
+                    loops: Animation.Infinite
+                }
+
                 Rectangle {
                     height: parent.height
                     radius: 2
                     color: Theme.primary
                     width: Ops.progress >= 0 ? parent.width * Ops.progress : parent.width * 0.3
-                    x: Ops.progress >= 0 ? 0 : sweep.x
+                    x: Ops.progress >= 0 ? 0 : track.sweepX
                     Behavior on width { enabled: Ops.progress >= 0; NumberAnimation { duration: 200 } }
-
-                    SequentialAnimation on opacity {
-                        running: false
-                    }
-                }
-                // indeterminate sweep driver
-                Item {
-                    id: sweep
-                    property real x: 0
-                    NumberAnimation on x {
-                        running: root.working && Ops.progress < 0
-                        from: -track.width * 0.3
-                        to: track.width
-                        duration: 1300
-                        loops: Animation.Infinite
-                    }
                 }
             }
         }

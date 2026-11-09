@@ -103,11 +103,9 @@ Item {
             RowLayout {
                 visible: root.loading
                 spacing: 10
-                MaterialIcon {
-                    icon: "progress_activity"
+                Spinner {
                     size: 20
                     colour: Theme.onSurfaceVariant
-                    RotationAnimator on rotation { running: root.loading && root.visible; from: 0; to: 360; duration: 900; loops: Animation.Infinite }
                 }
                 StyledText {
                     text: qsTr("Calculando cambios…")

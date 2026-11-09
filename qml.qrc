@@ -6,6 +6,7 @@
         <file>qml/components/StateLayer.qml</file>
         <file>qml/components/StyledText.qml</file>
         <file>qml/components/SourceIcon.qml</file>
+        <file>qml/components/Spinner.qml</file>
         <file>qml/components/Chip.qml</file>
         <file>qml/components/RailItem.qml</file>
         <file>qml/components/SearchBar.qml</file>

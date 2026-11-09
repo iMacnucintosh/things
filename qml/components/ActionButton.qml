@@ -39,15 +39,17 @@ Item {
         anchors.centerIn: parent
         spacing: 8
         MaterialIcon {
-            visible: root.icon.length > 0 || root.busy
-            icon: root.busy ? "progress_activity" : root.icon
+            visible: root.icon.length > 0 && !root.busy
+            icon: root.icon
             size: 20
             colour: root.fgColor
             Layout.alignment: Qt.AlignVCenter
-            RotationAnimator on rotation {
-                running: root.busy
-                from: 0; to: 360; duration: 900; loops: Animation.Infinite
-            }
+        }
+        Spinner {
+            visible: root.busy
+            size: 20
+            colour: root.fgColor
+            Layout.alignment: Qt.AlignVCenter
         }
         StyledText {
             text: root.text

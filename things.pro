@@ -8,6 +8,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 SOURCES += \
     src/main.cpp \
     src/Backend.cpp \
+    src/DevTools.cpp \
     src/Operations.cpp \
     src/PackageModel.cpp \
     src/Privilege.cpp \
@@ -16,6 +17,7 @@ SOURCES += \
 
 HEADERS += \
     src/Backend.h \
+    src/DevTools.h \
     src/Operations.h \
     src/Package.h \
     src/PackageModel.h \

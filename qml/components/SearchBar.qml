@@ -37,14 +37,16 @@ Item {
         anchors.left: parent.left
         anchors.leftMargin: 16
         anchors.verticalCenter: parent.verticalCenter
-        icon: root.busy ? "progress_activity" : "search"
+        visible: !root.busy
+        icon: "search"
         size: 22
         colour: field.activeFocus ? Theme.primary : Theme.onSurfaceVariant
-        RotationAnimator on rotation {
-            running: root.busy
-            from: 0; to: 360; duration: 900; loops: Animation.Infinite
-            onRunningChanged: if (!running) lead.rotation = 0
-        }
+    }
+    Spinner {
+        anchors.centerIn: lead
+        visible: root.busy
+        size: 22
+        colour: Theme.primary
     }
 
     TextField {

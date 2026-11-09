@@ -1,4 +1,5 @@
 #include "Backend.h"
+#include "DevTools.h"
 #include "Operations.h"
 #include "Privilege.h"
 #include "Theme.h"
@@ -154,6 +155,9 @@ int main(int argc, char *argv[]) {
                       QStringLiteral("Simula instalaciones/eliminaciones sin tocar el sistema")});
     parser.addOption({QStringLiteral("search"), QStringLiteral("Búsqueda inicial"), QStringLiteral("texto")});
     parser.addOption({QStringLiteral("installed"), QStringLiteral("Abrir en la vista de instalados")});
+    parser.addOption({QStringLiteral("shot-dir"), QStringLiteral("(dev) screenshot output dir"), QStringLiteral("dir")});
+    parser.addOption({QStringLiteral("demo"), QStringLiteral("(dev) scripted UI demo"), QStringLiteral("name")});
+    parser.addOption({QStringLiteral("select"), QStringLiteral("(dev) open detail source:id[:repo]"), QStringLiteral("pkg")});
     parser.process(app);
 
     QQuickWindow::setDefaultAlphaBuffer(true);
@@ -173,9 +177,14 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("Theme"), &theme);
     engine.rootContext()->setContextProperty(QStringLiteral("Things"), &backend);
     engine.rootContext()->setContextProperty(QStringLiteral("Ops"), &ops);
+    auto *devp = new DevTools(parser.value(QStringLiteral("shot-dir")), parser.value(QStringLiteral("demo")),
+                              parser.value(QStringLiteral("select")), &app);
+    DevTools &dev = *devp;
+    engine.rootContext()->setContextProperty(QStringLiteral("Dev"), &dev);
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
     if (engine.rootObjects().isEmpty())
         return 1;
+    dev.setWindow(qobject_cast<QQuickWindow *>(engine.rootObjects().first()));
 
     if (parser.isSet(QStringLiteral("installed")))
         backend.setMode(QStringLiteral("installed"));

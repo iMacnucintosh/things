@@ -79,7 +79,7 @@ Item {
                 anchors.centerIn: parent
                 visible: root.iconName.length === 0
                 source: root.source
-                size: 22
+                size: 20
                 colour: Theme.onSurfaceVariant
             }
         }
@@ -174,13 +174,16 @@ Item {
             }
             MaterialIcon {
                 anchors.centerIn: parent
-                icon: root.busy ? "progress_activity" : (root.installed ? "delete" : "download")
+                visible: !root.busy
+                icon: root.installed ? "delete" : "download"
                 size: 20
                 colour: root.installed ? Theme.error : Theme.onSecondaryContainer
-                RotationAnimator on rotation {
-                    running: root.busy
-                    from: 0; to: 360; duration: 900; loops: Animation.Infinite
-                }
+            }
+            Spinner {
+                anchors.centerIn: parent
+                visible: root.busy
+                size: 20
+                colour: Theme.onSecondaryContainer
             }
             StateLayer {
                 id: actLayer

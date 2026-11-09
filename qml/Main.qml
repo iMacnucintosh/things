@@ -73,6 +73,14 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: Things
+        function onQueryChanged() {
+            if (search.text !== Things.query)
+                search.text = Things.query
+        }
+    }
+
     // Shortcuts ----------------------------------------------------------------
     Shortcut {
         sequence: "Ctrl+L"
@@ -312,12 +320,7 @@ ApplicationWindow {
                                     selected: Things.sourceFilter === "flatpak"
                                     onClicked: Things.sourceFilter = "flatpak"
                                 }
-                                Rectangle {
-                                    width: 1
-                                    height: 24
-                                    y: 6
-                                    color: Theme.outlineVariant
-                                }
+                                Item { width: 10; height: 1 }
                                 // State filters (search) / kind filters (installed)
                                 Chip {
                                     visible: !win.installedMode
@@ -341,7 +344,7 @@ ApplicationWindow {
                                 }
                                 Chip {
                                     visible: win.installedMode
-                                    label: qsTr("Todos")
+                                    label: qsTr("Cualquiera")
                                     selected: Things.kindFilter === "all"
                                     onClicked: Things.kindFilter = "all"
                                 }
@@ -512,10 +515,11 @@ ApplicationWindow {
                         Item {
                             id: detailHost
                             Layout.fillHeight: true
-                            Layout.preferredWidth: win.detailOpen ? card.detailWidth : 0
+                            property real hostWidth: win.detailOpen ? card.detailWidth : 0
+                            Layout.preferredWidth: hostWidth
                             clip: true
-                            visible: width > 1
-                            Behavior on Layout.preferredWidth { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                            visible: hostWidth > 1
+                            Behavior on hostWidth { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
 
                             DetailPanel {
                                 x: 0
@@ -544,6 +548,52 @@ ApplicationWindow {
                         Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
                     }
                 }
+            }
+        }
+    }
+
+    // ── Developer demo (headless screenshots): things --demo tour --shot-dir DIR ──
+    property int demoIdx: 0
+    readonly property var demoSteps: Dev.demo === "tour" ? [
+        { wait: 3500, run: function () { Dev.take("01-search") } },
+        { wait: 200, run: function () { win.openDetail("pacman", "firefox", "extra") } },
+        { wait: 1800, run: function () { Dev.take("02-detail") } },
+        { wait: 200, run: function () { win.openDetail("flatpak", "org.mozilla.firefox", "flathub") } },
+        { wait: 1500, run: function () { Dev.take("03-detail-flatpak") } },
+        { wait: 200, run: function () { win.openDetail("aur", "yay", "aur") } },
+        { wait: 2500, run: function () { Dev.take("04-detail-aur"); win.closeDetail() } },
+        { wait: 200, run: function () { search.text = ""; Things.mode = "installed" } },
+        { wait: 2000, run: function () { Dev.take("05-installed") } },
+        { wait: 200, run: function () { win.requestAction("remove", "pacman", "blender", "blender", "extra") } },
+        { wait: 2000, run: function () { Dev.take("06-confirm-remove"); confirm.open = false } },
+        { wait: 300, run: function () { win.requestAction("install", "aur", "yay-bin", "yay-bin", "aur") } },
+        { wait: 1500, run: function () { Dev.take("07-confirm-install-aur"); confirm.open = false } },
+        { wait: 300, run: function () { Things.mode = "search"; search.text = "blender" } },
+        { wait: 4000, run: function () { Dev.take("08-search-blender"); Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },
+        { wait: 1500, run: function () { Dev.take("09-ops-running") } },
+        { wait: 3500, run: function () { Dev.take("10-ops-done") } },
+        { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "password" ? [
+        { wait: 2500, run: function () { Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },
+        { wait: 1200, run: function () { Dev.take("pw-1-prompt"); Ops.submitPassword("wrong") } },
+        { wait: 1500, run: function () { Dev.take("pw-2-error"); Ops.submitPassword("demo") } },
+        { wait: 2200, run: function () { Dev.take("pw-3-running") } },
+        { wait: 2500, run: function () { Dev.take("pw-4-done") } },
+        { wait: 200, run: function () { Dev.quit() } }
+    ] : []
+
+    Timer {
+        id: demoTimer
+        repeat: false
+        running: Dev.enabled && win.demoSteps.length > 0
+        interval: win.demoSteps.length ? win.demoSteps[0].wait : 1000
+        onTriggered: {
+            const st = win.demoSteps[win.demoIdx]
+            st.run()
+            win.demoIdx++
+            if (win.demoIdx < win.demoSteps.length) {
+                interval = win.demoSteps[win.demoIdx].wait
+                restart()
             }
         }
     }

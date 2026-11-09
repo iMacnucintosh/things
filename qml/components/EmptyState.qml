@@ -25,14 +25,17 @@ Item {
 
             MaterialIcon {
                 anchors.centerIn: parent
-                icon: root.busy ? "progress_activity" : root.icon
+                visible: !root.busy
+                icon: root.icon
                 size: 40
-                fill: root.busy ? 0 : 1
+                fill: 1
                 colour: root.tone === "error" ? Theme.error : Theme.onSurfaceVariant
-                RotationAnimator on rotation {
-                    running: root.busy
-                    from: 0; to: 360; duration: 1000; loops: Animation.Infinite
-                }
+            }
+            Spinner {
+                anchors.centerIn: parent
+                visible: root.busy
+                size: 40
+                colour: Theme.onSurfaceVariant
             }
         }
         StyledText {
