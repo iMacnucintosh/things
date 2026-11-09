@@ -20,6 +20,9 @@ Item {
     property bool current: false
     property bool busy: false
     property bool compact: false
+    /// Installed view: every row is installed, so drop the redundant check and show the install reason.
+    property bool installedView: false
+    required property string reason
     signal activated()
     signal actionRequested()
 
@@ -100,13 +103,21 @@ Item {
                     Layout.maximumWidth: Math.max(80, root.width * 0.5)
                 }
                 StyledText {
-                    Layout.fillWidth: true
                     text: root.version
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 12
                     elide: Text.ElideRight
                     opacity: 0.85
+                    Layout.maximumWidth: Math.max(60, root.width * 0.3)
                 }
+                StyledText {
+                    visible: root.installedView && (root.reason === "dep" || root.orphan)
+                    text: root.orphan ? qsTr("huérfano") : qsTr("dependencia")
+                    color: root.orphan ? Theme.error : Theme.onSurfaceVariant
+                    font.pixelSize: 11
+                    opacity: 0.85
+                }
+                Item { Layout.fillWidth: true }
             }
             StyledText {
                 Layout.fillWidth: true
@@ -151,7 +162,7 @@ Item {
         }
 
         MaterialIcon {
-            visible: root.installed
+            visible: root.installed && !root.installedView
             Layout.alignment: Qt.AlignVCenter
             icon: "check_circle"
             size: 22

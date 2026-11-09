@@ -21,6 +21,15 @@ ApplicationWindow {
     property bool detailOpen: false
     // source:id → true while queued/running (drives row spinners)
     property var busyMap: ({})
+    // Keep the last non-empty detail so the drawer does not blank while it slides shut.
+    property var lastDetail: ({})
+    Connections {
+        target: Things
+        function onDetailChanged() {
+            if (Things.detail && Things.detail.id)
+                win.lastDetail = Things.detail
+        }
+    }
 
     function keyOf(source, id) { return source + ":" + id }
 
@@ -363,7 +372,6 @@ ApplicationWindow {
                                 Chip {
                                     visible: win.installedMode
                                     label: qsTr("Huérfanos")
-                                    icon: "link_off"
                                     selected: Things.kindFilter === "orphan"
                                     onClicked: Things.kindFilter = "orphan"
                                 }
@@ -454,6 +462,7 @@ ApplicationWindow {
                                         selected: win.selKey === win.keyOf(source, pkgId)
                                         current: ListView.isCurrentItem && list.activeFocus
                                         busy: !!win.busyMap[win.keyOf(source, pkgId)]
+                                        installedView: win.installedMode
                                         compact: card.width - (win.detailOpen ? card.detailWidth : 0) < 640
                                         onActivated: {
                                             list.currentIndex = index
@@ -525,7 +534,7 @@ ApplicationWindow {
                                 x: 0
                                 width: card.detailWidth
                                 height: parent.height
-                                detail: Things.detail
+                                detail: win.lastDetail
                                 loading: Things.detailLoading
                                 busy: !!win.busyMap[win.keyOf(Things.detail.source || "", Things.detail.id || "")]
                                 onCloseRequested: win.closeDetail()
@@ -566,12 +575,20 @@ ApplicationWindow {
         { wait: 2000, run: function () { Dev.take("05-installed") } },
         { wait: 200, run: function () { win.requestAction("remove", "pacman", "blender", "blender", "extra") } },
         { wait: 2000, run: function () { Dev.take("06-confirm-remove"); confirm.open = false } },
+        { wait: 300, run: function () { win.requestAction("install", "pacman", "gnuplot", "gnuplot", "extra") } },
+        { wait: 1800, run: function () { Dev.take("07a-confirm-install-pacman"); confirm.open = false } },
+        { wait: 300, run: function () { win.requestAction("install", "flatpak", "org.mozilla.firefox", "Firefox", "flathub") } },
+        { wait: 3000, run: function () { Dev.take("07b-confirm-install-flatpak"); confirm.open = false } },
         { wait: 300, run: function () { win.requestAction("install", "aur", "yay-bin", "yay-bin", "aur") } },
         { wait: 1500, run: function () { Dev.take("07-confirm-install-aur"); confirm.open = false } },
         { wait: 300, run: function () { Things.mode = "search"; search.text = "blender" } },
         { wait: 4000, run: function () { Dev.take("08-search-blender"); Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },
         { wait: 1500, run: function () { Dev.take("09-ops-running") } },
         { wait: 3500, run: function () { Dev.take("10-ops-done") } },
+        { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "theme" ? [
+        { wait: 2500, run: function () { Dev.take("theme-a") } },
+        { wait: 4000, run: function () { Dev.take("theme-b") } },
         { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "password" ? [
         { wait: 2500, run: function () { Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },

@@ -159,6 +159,7 @@ private:
 
     // installed state
     int m_instPending = 0;
+    bool m_instDirty = false;
     QHash<QString, Package> m_instPacman;   // pacman + AUR (foreign), keyed by name
     QHash<QString, Package> m_instFlatpak;  // keyed by app id
     QHash<QString, QString> m_flatpakInstalledIn;

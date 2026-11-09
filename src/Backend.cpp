@@ -399,7 +399,7 @@ void Backend::searchAurViaYay(int gen, const QStringList &tokens) {
 void Backend::searchFlatpak(int gen, const QString &query) {
     const QStringList args = {QStringLiteral("search"),
                               QStringLiteral("--columns=application,name,description,version,remotes"),
-                              query};
+                              QStringLiteral("--"), query};
     run(QStringLiteral("flatpak"), args, [this, gen](int code, const QByteArray &out, const QByteArray &) {
         if (gen != m_gen)
             return;
@@ -706,8 +706,10 @@ void Backend::refreshInstalled() {
 }
 
 void Backend::loadInstalled() {
-    if (m_instPending > 0)
+    if (m_instPending > 0) {
+        m_instDirty = true; // an operation finished mid-load: reload once this round ends
         return;
+    }
     m_tmpPacman.clear();
     m_tmpFlatpak.clear();
     m_repoByName.clear();
@@ -846,6 +848,10 @@ void Backend::finishInstalled() {
         }
     }
     emit settled();
+    if (m_instDirty) {
+        m_instDirty = false;
+        loadInstalled();
+    }
 }
 
 // ───────────────────────── detail ─────────────────────────

@@ -1,0 +1,19 @@
+#!/bin/bash
+# Test double for sudo (dev/run-demos.sh): password is "demo". Never touches the system.
+case "$1" in
+  -k) exit 0;;
+  -S)
+    IFS= read -r pw
+    if [[ "$pw" == "demo" ]]; then exit 0; fi
+    echo "Sorry, try again." >&2; exit 1;;
+  -A)
+    shift
+    pw=$("$SUDO_ASKPASS" "Password: ") || { echo "sudo: no askpass" >&2; exit 1; }
+    if [[ "$pw" != "demo" ]]; then echo "sudo: incorrect password attempt" >&2; exit 1; fi
+    echo "(fake sudo) would run: $*"
+    for i in 1 2 3; do printf '(%d/3) installing step %d [######] %d%%\r' $i $i $((i*33)); sleep 0.5; done
+    echo
+    echo "done"
+    exit 0;;
+esac
+exit 1
