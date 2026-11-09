@@ -96,7 +96,7 @@ void Operations::setStatus(const QString &s) {
 }
 
 bool Operations::enqueue(const QString &kind, const QString &source, const QString &id,
-                         const QString &name, const QString &repo) {
+                         const QString &name, const QString &repo, bool deleteData) {
     if ((kind != QLatin1String("install") && kind != QLatin1String("remove"))
         || !Validate::packageId(source, id))
         return false;
@@ -121,6 +121,7 @@ bool Operations::enqueue(const QString &kind, const QString &source, const QStri
     op.pkg = id;
     op.name = name;
     op.repo = repo;
+    op.deleteData = deleteData && source == QLatin1String("flatpak") && kind == QLatin1String("remove");
     m_ops.append(op);
     emit queueChanged();
     pump();
@@ -207,22 +208,36 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
         if (where.isEmpty())
             where = QStringLiteral("system");
         const bool user = where.contains(QLatin1String("user"));
-        QStringList fargs;
+        const QString scope = user ? QStringLiteral("--user") : QStringLiteral("--system");
         if (install) {
             const QString remote = op.repo.isEmpty() ? m_backend->defaultRemote() : op.repo;
-            fargs = {QStringLiteral("install"), user ? QStringLiteral("--user") : QStringLiteral("--system"),
-                     QStringLiteral("-y"), QStringLiteral("--noninteractive"), remote, op.pkg};
+            const QStringList fargs = {QStringLiteral("install"), scope, QStringLiteral("-y"),
+                                       QStringLiteral("--noninteractive"), remote, op.pkg};
+            if (user) {
+                c.program = QStringLiteral("flatpak");
+                c.args = fargs;
+            } else {
+                c.program = sudo;
+                c.needsRoot = true;
+                c.args = QStringList{QStringLiteral("-A"), QStringLiteral("flatpak")} + fargs;
+            }
         } else {
-            fargs = {QStringLiteral("uninstall"), user ? QStringLiteral("--user") : QStringLiteral("--system"),
-                     QStringLiteral("-y"), QStringLiteral("--noninteractive"), op.pkg};
-        }
-        if (user) {
-            c.program = QStringLiteral("flatpak");
-            c.args = fargs;
-        } else {
-            c.program = sudo;
-            c.needsRoot = true;
-            c.args = QStringList{QStringLiteral("-A"), QStringLiteral("flatpak")} + fargs;
+            // Clean removal: uninstall the app, then drop runtimes nothing uses any more
+            // (they are often hundreds of MB). User data in ~/.var/app stays unless asked.
+            // The package id goes in as $1 (argv), never into the script text.
+            QString script = QStringLiteral("flatpak uninstall %1 -y --noninteractive %2\"$1\" && "
+                                            "flatpak uninstall %1 --unused -y --noninteractive")
+                                 .arg(scope, op.deleteData ? QStringLiteral("--delete-data ") : QString());
+            const QStringList sh = {QStringLiteral("sh"), QStringLiteral("-c"), script,
+                                    QStringLiteral("sh"), op.pkg};
+            if (user) {
+                c.program = QStringLiteral("sh");
+                c.args = sh.mid(1);
+            } else {
+                c.program = sudo;
+                c.needsRoot = true;
+                c.args = QStringList{QStringLiteral("-A")} + sh;
+            }
         }
     }
     c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
@@ -300,7 +315,7 @@ void Operations::launch(Op &op) {
     const Cmd cmd = buildCommand(op);
 
     // pacman database lock: report it clearly instead of letting the tool fail late.
-    if (cmd.program != QLatin1String("flatpak") && QFile::exists(QString::fromLatin1(kPacmanLock))) {
+    if (op.source != QLatin1String("flatpak") && QFile::exists(QString::fromLatin1(kPacmanLock))) {
         QProcess pg2;
         pg2.start(QStringLiteral("pgrep"), {QStringLiteral("-x"), QStringLiteral("pacman")});
         pg2.waitForFinished(1500);
@@ -625,7 +640,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
     auto *p = new QProcess(this);
     p->setProcessEnvironment(Backend::cleanEnv());
     p->setStandardInputFile(QProcess::nullDevice());
-    QStringList args = {install ? QStringLiteral("-S") : QStringLiteral("-Rs"), QStringLiteral("--print"),
+    QStringList args = {install ? QStringLiteral("-S") : QStringLiteral("-Rns"), QStringLiteral("--print"),
                         QStringLiteral("--print-format"), install ? QStringLiteral("%n %v %s") : QStringLiteral("%n %v"),
                         QStringLiteral("--color"), QStringLiteral("never")};
     if (install)

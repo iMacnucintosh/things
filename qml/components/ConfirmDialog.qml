@@ -18,6 +18,7 @@ Item {
     property string note: ""
     property var packages: []
     property real total: 0
+    property bool deleteData: false      // Flatpak removal: also wipe ~/.var/app/<id>
     signal confirmed()
 
     anchors.fill: parent
@@ -207,6 +208,45 @@ Item {
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
+            }
+
+            // Flatpak removal: runtimes are cleaned up, user data only if asked
+            StyledText {
+                Layout.fillWidth: true
+                visible: !root.loading && root.ok && root.removing && root.source === "flatpak"
+                text: qsTr("También se quitarán los runtimes que ninguna otra aplicación use.")
+                color: Theme.onSurfaceVariant
+                font.pixelSize: 12
+                wrapMode: Text.Wrap
+            }
+
+            Item {
+                Layout.fillWidth: true
+                visible: !root.loading && root.ok && root.removing && root.source === "flatpak"
+                implicitHeight: dataRow.implicitHeight + 8
+
+                RowLayout {
+                    id: dataRow
+                    anchors.fill: parent
+                    spacing: 8
+                    MaterialIcon {
+                        icon: root.deleteData ? "check_box" : "check_box_outline_blank"
+                        size: 20
+                        colour: root.deleteData ? Theme.error : Theme.onSurfaceVariant
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: qsTr("Borrar también los datos de la aplicación (no se puede deshacer)")
+                        color: root.deleteData ? Theme.error : Theme.onSurface
+                        font.pixelSize: 13
+                        wrapMode: Text.Wrap
+                    }
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: root.deleteData = !root.deleteData
+                }
             }
 
             // Permission hint

@@ -56,6 +56,7 @@ ApplicationWindow {
         confirm.note = ""
         confirm.packages = []
         confirm.total = 0
+        confirm.deleteData = false
         confirm.open = true
         Ops.prepare(kind, source, id, repo)
     }
@@ -586,6 +587,14 @@ ApplicationWindow {
         { wait: 1500, run: function () { Dev.take("09-ops-running") } },
         { wait: 3500, run: function () { Dev.take("10-ops-done") } },
         { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "cleanup" ? [
+        { wait: 3000, run: function () { win.requestAction("remove", "flatpak", "com.bambulab.BambuStudio", "Bambu Studio", "flathub") } },
+        { wait: 2500, run: function () { Dev.take("c1-confirm-flatpak-remove") } },
+        { wait: 200, run: function () { confirm.deleteData = true } },
+        { wait: 600, run: function () { Dev.take("c2-delete-data-checked") } },
+        { wait: 200, run: function () { confirm.open = false; Ops.enqueue("remove", "flatpak", "com.bambulab.BambuStudio", "Bambu Studio", "flathub", confirm.deleteData) } },
+        { wait: 2500, run: function () { Dev.take("c3-ops-log") } },
+        { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "theme" ? [
         { wait: 2500, run: function () { Dev.take("theme-a") } },
         { wait: 4000, run: function () { Dev.take("theme-b") } },
@@ -617,7 +626,7 @@ ApplicationWindow {
 
     ConfirmDialog {
         id: confirm
-        onConfirmed: Ops.enqueue(kind, source, pkgId, pkgName, repo)
+        onConfirmed: Ops.enqueue(kind, source, pkgId, pkgName, repo, deleteData)
     }
 
     PasswordDialog {

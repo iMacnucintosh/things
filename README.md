@@ -60,6 +60,11 @@ No se usa polkit. Patrón del servicio Updates de Sylphrena, en C++:
 
 Flatpak: se instala **a nivel sistema** si existe un remote de sistema (lo normal con Flathub); solo a nivel usuario (sin sudo) si la máquina solo tiene remotes de usuario. Eliminar respeta dónde está instalado el paquete.
 
+**Eliminar deja el sistema limpio:**
+- pacman / AUR: `pacman -Rns` — quita el paquete, las dependencias que ya nadie necesita y sus archivos de configuración de sistema. Las dependencias que usa otro paquete, o que instalaste a mano, se quedan.
+- Flatpak: desinstala la app y después los runtimes que ninguna otra aplicación use (`flatpak uninstall --unused`). Los datos de la app en `~/.var/app` solo se borran si marcas «Borrar también los datos» en la confirmación (desmarcado por defecto, no se puede deshacer).
+- Nunca toca tus datos personales de pacman (`~/.config`, `~/.local/share`).
+
 Seguridad de argumentos: ningún `sh -c` con contenido de usuario; todo va por argv, y los nombres de paquete se validan con expresiones regulares conservadoras antes de lanzar nada.
 
 ## Idioma

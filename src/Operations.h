@@ -51,8 +51,9 @@ public:
     Privilege *privilege() { return &m_priv; }
 
     /// kind: "install" | "remove"
+    /// deleteData: Flatpak removal only, also delete ~/.var/app/<id> (irreversible).
     Q_INVOKABLE bool enqueue(const QString &kind, const QString &source, const QString &id,
-                             const QString &name, const QString &repo);
+                             const QString &name, const QString &repo, bool deleteData = false);
     Q_INVOKABLE void cancelCurrent();
     Q_INVOKABLE void cancelQueued(int opId);
     Q_INVOKABLE void dismissFinished();
@@ -76,6 +77,7 @@ private:
     struct Op {
         int id = 0;
         QString kind, source, pkg, name, repo;
+        bool deleteData = false;
         QString status = QStringLiteral("queued"); // queued|waiting|running|done|failed|cancelled
         QString error;
     };
