@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <!-- Material You tonal icon: primary-fixed container, tonal cube glyph -->
-  <rect x="8" y="8" width="112" height="112" rx="36" fill="#FFDDBA"/>
-  <g stroke-linejoin="round" stroke-width="6">
-    <path d="M37.5 52 64 67.3V96L37.5 80.7Z" fill="#5B4225" stroke="#5B4225"/>
-    <path d="M90.5 52 64 67.3V96L90.5 80.7Z" fill="#473116" stroke="#473116"/>
-    <path d="M64 35 90.5 50.3 64 65.6 37.5 50.3Z" fill="#75593B" stroke="#75593B"/>
-  </g>
-  <path transform="translate(51 78)" fill="#FFDDBA" d="M0-9C0.9-3.4 3.4-0.9 9 0 3.4 0.9 0.9 3.4 0 9-0.9 3.4-3.4 0.9-9 0-3.4-0.9-0.9-3.4 0-9Z"/>
+  <!-- Material You: flat package, primary + primary-container tones -->
+  <path d="M16 46h96v50a14 14 0 0 1-14 14H30a14 14 0 0 1-14-14z" fill="#B99875"/>
+  <rect x="8" y="18" width="112" height="34" rx="12" fill="#E4C09B"/>
+  <rect x="48" y="66" width="32" height="10" rx="5" fill="#75593B"/>
 </svg>
