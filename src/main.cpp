@@ -1,5 +1,6 @@
 #include "Backend.h"
 #include "DevTools.h"
+#include "Discover.h"
 #include "Operations.h"
 #include "Privilege.h"
 #include "Theme.h"
@@ -12,14 +13,33 @@
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QIcon>
+#include <QNetworkAccessManager>
+#include <QNetworkDiskCache>
+#include <QNetworkRequest>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QQmlNetworkAccessManagerFactory>
 #include <QQuickStyle>
 #include <QQuickWindow>
 #include <QTextStream>
 #include <QTimer>
 
 namespace {
+
+/// Remote images (Flathub icons/screenshots in "Descubrir") are cached on disk so the front
+/// page does not re-download them on every start.
+class ImageCacheFactory : public QQmlNetworkAccessManagerFactory {
+public:
+    QNetworkAccessManager *create(QObject *parent) override {
+        auto *nam = new QNetworkAccessManager(parent);
+        auto *cache = new QNetworkDiskCache(nam);
+        cache->setCacheDirectory(QDir::home().filePath(QStringLiteral(".cache/things/img")));
+        cache->setMaximumCacheSize(120LL * 1024 * 1024);
+        nam->setCache(cache);
+        nam->setRedirectPolicy(QNetworkRequest::NoLessSafeRedirectPolicy);
+        return nam;
+    }
+};
 
 void loadSylphrenaUiFont() {
     const QStringList candidates = {
@@ -172,11 +192,15 @@ int main(int argc, char *argv[]) {
             backend.refreshInstalled();
     });
 
+    ImageCacheFactory imageCache;
+    Discover discover;
     QQmlApplicationEngine engine;
+    engine.setNetworkAccessManagerFactory(&imageCache);
     engine.addImageProvider(QStringLiteral("theme"), new ThemeIconProvider());
     engine.rootContext()->setContextProperty(QStringLiteral("Theme"), &theme);
     engine.rootContext()->setContextProperty(QStringLiteral("Things"), &backend);
     engine.rootContext()->setContextProperty(QStringLiteral("Ops"), &ops);
+    engine.rootContext()->setContextProperty(QStringLiteral("Discover"), &discover);
     auto *devp = new DevTools(parser.value(QStringLiteral("shot-dir")), parser.value(QStringLiteral("demo")),
                               parser.value(QStringLiteral("select")), &app);
     DevTools &dev = *devp;

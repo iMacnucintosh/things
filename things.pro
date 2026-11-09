@@ -9,6 +9,7 @@ SOURCES += \
     src/main.cpp \
     src/Backend.cpp \
     src/DevTools.cpp \
+    src/Discover.cpp \
     src/Operations.cpp \
     src/PackageModel.cpp \
     src/Privilege.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
 HEADERS += \
     src/Backend.h \
     src/DevTools.h \
+    src/Discover.h \
     src/Operations.h \
     src/Package.h \
     src/PackageModel.h \

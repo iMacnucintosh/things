@@ -17,6 +17,12 @@ ApplicationWindow {
 
     readonly property int railWidth: 232
     readonly property bool installedMode: Things.mode === "installed"
+    // discover (front page) | search | installed. Things.mode only knows search/installed;
+    // "discover" is a view over search mode, so the search machinery stays untouched.
+    property string section: "discover"
+    property bool autoSearch: false          // arrived at search by typing → Esc goes back
+    readonly property bool discoverMode: section === "discover"
+    readonly property int railIndex: discoverMode ? 0 : (installedMode ? 2 : 1)
     property string selKey: ""
     property bool detailOpen: false
     // source:id → true while queued/running (drives row spinners)
@@ -32,6 +38,24 @@ ApplicationWindow {
     }
 
     function keyOf(source, id) { return source + ":" + id }
+
+    // Typing in the search bar leaves the front page for the results (Esc brings it back).
+    function leaveDiscoverForSearch() {
+        if (section === "discover") {
+            autoSearch = true
+            section = "search"
+        }
+    }
+
+    function showSection(s) {
+        if (s === "installed") {
+            Things.mode = "installed"
+        } else {
+            Things.mode = "search"
+        }
+        section = s
+        autoSearch = false
+    }
 
     function openDetail(source, id, repo) {
         selKey = keyOf(source, id)
@@ -88,6 +112,14 @@ ApplicationWindow {
         function onQueryChanged() {
             if (search.text !== Things.query)
                 search.text = Things.query
+            if (Things.query.length > 0)
+                win.leaveDiscoverForSearch()
+        }
+        function onModeChanged() {
+            if (Things.mode === "installed")
+                win.section = "installed"
+            else if (win.section === "installed")
+                win.section = "search"
         }
     }
 
@@ -106,9 +138,11 @@ ApplicationWindow {
         onActivated: {
             if (win.detailOpen)
                 win.closeDetail()
-            else if (search.text.length > 0)
+            else if (search.text.length > 0) {
                 search.text = ""
-            else
+                if (win.autoSearch && win.section === "search")
+                    win.showSection("discover")
+            } else
                 list.focus = false
         }
     }
@@ -119,15 +153,19 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: "Ctrl+1"
-        onActivated: Things.mode = "search"
+        onActivated: win.showSection("discover")
     }
     Shortcut {
         sequence: "Ctrl+2"
-        onActivated: Things.mode = "installed"
+        onActivated: win.showSection("search")
+    }
+    Shortcut {
+        sequence: "Ctrl+3"
+        onActivated: win.showSection("installed")
     }
     Shortcut {
         sequence: "F5"
-        onActivated: { Things.refreshInstalled(); Things.retrySearch() }
+        onActivated: { Things.refreshInstalled(); Things.retrySearch(); Discover.refresh(true) }
     }
 
     ColumnLayout {
@@ -180,7 +218,12 @@ ApplicationWindow {
                     placeholder: win.installedMode ? qsTr("Filtrar paquetes instalados…  (Ctrl+L)")
                                                    : qsTr("Buscar en pacman, AUR y Flatpak…  (Ctrl+L)")
                     busy: !win.installedMode && Things.searching
-                    onTextChanged: if (Things.query !== text) Things.query = text
+                    onTextChanged: {
+                        if (Things.query !== text)
+                            Things.query = text
+                        if (text.length > 0)
+                            win.leaveDiscoverForSearch()
+                    }
                     onDownPressed: { list.forceActiveFocus(); if (list.currentIndex < 0 && list.count > 0) list.currentIndex = 0 }
                     onAccepted: { list.forceActiveFocus(); if (list.count > 0 && list.currentIndex < 0) list.currentIndex = 0 }
                     Component.onCompleted: {
@@ -192,7 +235,7 @@ ApplicationWindow {
 
                 IconButton {
                     icon: "refresh"
-                    onClicked: { Things.refreshInstalled(); Things.retrySearch() }
+                    onClicked: { Things.refreshInstalled(); Things.retrySearch(); Discover.refresh(true) }
                 }
             }
         }
@@ -220,8 +263,8 @@ ApplicationWindow {
                         height: 44
                         radius: selPressed ? 12 : height / 2
                         color: Theme.primaryContainer
-                        y: win.installedMode ? 46 : 0
-                        property bool selPressed: win.installedMode ? rInst.pressed : rSearch.pressed
+                        y: win.railIndex * 46
+                        property bool selPressed: win.railIndex === 0 ? rDisc.pressed : (win.railIndex === 2 ? rInst.pressed : rSearch.pressed)
                         scale: selPressed ? 1.04 : 1
                         z: 1
                         Behavior on y { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
@@ -233,8 +276,8 @@ ApplicationWindow {
                         height: 44
                         radius: height / 2
                         color: Theme.surfaceContainerHigh
-                        y: rSearch.hovered && !rSearch.active ? 0 : (rInst.hovered && !rInst.active ? 46 : 0)
-                        opacity: (rSearch.hovered && !rSearch.active) || (rInst.hovered && !rInst.active) ? 1 : 0
+                        y: rDisc.hovered && !rDisc.active ? 0 : (rSearch.hovered && !rSearch.active ? 46 : 92)
+                        opacity: (rDisc.hovered && !rDisc.active) || (rSearch.hovered && !rSearch.active) || (rInst.hovered && !rInst.active) ? 1 : 0
                         z: 0
                         Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
                         Behavior on opacity { NumberAnimation { duration: 100 } }
@@ -245,12 +288,20 @@ ApplicationWindow {
                         spacing: 2
                         z: 2
                         RailItem {
+                            id: rDisc
+                            width: parent.width
+                            symbol: "storefront"
+                            label: qsTr("Descubrir")
+                            active: win.railIndex === 0
+                            onClicked: win.showSection("discover")
+                        }
+                        RailItem {
                             id: rSearch
                             width: parent.width
                             symbol: "travel_explore"
                             label: qsTr("Explorar")
-                            active: !win.installedMode
-                            onClicked: Things.mode = "search"
+                            active: win.railIndex === 1
+                            onClicked: win.showSection("search")
                         }
                         RailItem {
                             id: rInst
@@ -259,7 +310,7 @@ ApplicationWindow {
                             label: qsTr("Instalados")
                             trailing: Things.installedTotal > 0 ? Things.installedTotal : ""
                             active: win.installedMode
-                            onClicked: Things.mode = "installed"
+                            onClicked: win.showSection("installed")
                         }
                     }
                 }
@@ -296,6 +347,7 @@ ApplicationWindow {
                             // Filter chips
                             Flow {
                                 id: filters
+                                visible: !win.discoverMode
                                 Layout.fillWidth: true
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
@@ -384,7 +436,7 @@ ApplicationWindow {
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
                                 Layout.bottomMargin: 8
-                                visible: !win.installedMode && Things.notice.length > 0
+                                visible: !win.discoverMode && !win.installedMode && Things.notice.length > 0
                                 implicitHeight: noticeText.implicitHeight + 16
                                 radius: 12
                                 color: Theme.surfaceContainerHigh
@@ -406,14 +458,26 @@ ApplicationWindow {
                             }
 
                             Rectangle {
+                                visible: !win.discoverMode
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 1
                                 color: Theme.outlineVariant
                                 opacity: 0.45
                             }
 
+                            // Front page: featured app + rows (Flathub)
+                            DiscoverPage {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                visible: win.discoverMode
+                                bottomPad: sheet.visible ? sheet.height + 28 : 20
+                                onOpenApp: (id) => win.openDetail("flatpak", id, "flathub")
+                                onInstallApp: (id, name) => win.requestAction("install", "flatpak", id, name, "flathub")
+                            }
+
                             // List + states
                             Item {
+                                visible: !win.discoverMode
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
 
@@ -586,6 +650,15 @@ ApplicationWindow {
         { wait: 4000, run: function () { Dev.take("08-search-blender"); Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },
         { wait: 1500, run: function () { Dev.take("09-ops-running") } },
         { wait: 3500, run: function () { Dev.take("10-ops-done") } },
+        { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "discover" ? [
+        { wait: 6000, run: function () { Dev.take("d1-discover") } },
+        { wait: 200, run: function () { win.openDetail("flatpak", Discover.hero.id, "flathub") } },
+        { wait: 2500, run: function () { Dev.take("d2-detail-from-discover"); win.closeDetail() } },
+        { wait: 200, run: function () { search.text = "blender" } },
+        { wait: 3500, run: function () { Dev.take("d3-typed-search-" + win.section) } },
+        { wait: 200, run: function () { search.text = "" ; if (win.autoSearch) win.showSection("discover") } },
+        { wait: 800, run: function () { Dev.take("d4-back-to-discover-" + win.section) } },
         { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "cleanup" ? [
         { wait: 3000, run: function () { win.requestAction("remove", "flatpak", "com.bambulab.BambuStudio", "Bambu Studio", "flathub") } },

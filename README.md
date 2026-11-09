@@ -9,6 +9,8 @@ Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnuci
 
 ## Funciones
 
+- **Descubrir (pantalla inicial)** — estilo tienda de aplicaciones: una destacada del día con su captura de pantalla y filas de **Tendencias**, **Más instaladas** (último mes), **Novedades** y **Actualizadas hace poco**, con iconos reales. Los datos salen de la API pública de Flathub (sin cuenta ni datos tuyos), se guardan en caché (`~/.cache/things/`, se renueva cada hora) y funcionan sin conexión con los últimos datos. Al escribir en el buscador salta a los resultados; `Esc` vuelve. Atajos: `Ctrl+1` Descubrir · `Ctrl+2` Explorar · `Ctrl+3` Instalados.
+
 - **Búsqueda unificada** — pacman (repos), AUR (RPC oficial, con `yay -Ssa` de respaldo sin red) y Flatpak/Flathub a la vez, asíncrona, con *debounce* de 250 ms y cancelación (los resultados de búsquedas viejas se descartan y sus procesos se matan). Sin botones para «activar AUR».
 - **Ranking útil** — coincidencia exacta e instalados primero; los orígenes se mezclan, no se apilan en bloques. Votos/popularidad pesan en AUR.
 - **Origen siempre visible** — pacman = `settings`, Flatpak = `deployed_code`, AUR = 👽 (mismos glifos que la página Updates de Nexus), más un chip con el repo (`core`/`extra`/`multilib`/remoto Flatpak) o los votos de AUR.

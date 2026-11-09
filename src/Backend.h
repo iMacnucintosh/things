@@ -72,7 +72,7 @@ public:
     QString flatpakInstalledIn(const QString &appId) const;
     /// First Flatpak remote name (flathub preferred).
     QString defaultRemote() const { return m_defaultRemote; }
-    bool isInstalled(const QString &source, const QString &id) const;
+    Q_INVOKABLE bool isInstalled(const QString &source, const QString &id) const;
 
     Q_INVOKABLE void refreshInstalled();
     Q_INVOKABLE void retrySearch();
