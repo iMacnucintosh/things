@@ -1,0 +1,17 @@
+[Desktop Entry]
+Name=Paquetes
+Name[en]=Packages
+GenericName=Gestor de paquetes
+GenericName[en]=Package Manager
+Comment=Things — gestor de paquetes Material You para Sylphrena (pacman · AUR · Flatpak)
+Comment[en]=Things — Material You package manager for Sylphrena (pacman · AUR · Flatpak)
+# Absolute via $HOME: launchers often lack ~/.local/bin in PATH.
+Exec=/bin/sh -c 'exec "$HOME/.local/bin/things" "$@"' sh %U
+Icon=things
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=System;PackageManager;
+Keywords=packages;paquetes;pacman;aur;flatpak;software;instalar;things;
+StartupWMClass=things
+X-Things-ProductName=Things

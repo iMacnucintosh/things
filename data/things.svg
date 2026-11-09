@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="body" x1="26" y1="50" x2="102" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFBF7"/>
+      <stop offset="0.5" stop-color="#F0DFD0"/>
+      <stop offset="1" stop-color="#D4B89E"/>
+    </linearGradient>
+    <linearGradient id="lid" x1="22" y1="30" x2="106" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF8F2"/>
+      <stop offset="1" stop-color="#E0C8B0"/>
+    </linearGradient>
+    <linearGradient id="front" x1="26" y1="62" x2="102" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F5E6D8"/>
+      <stop offset="1" stop-color="#C4A88E"/>
+    </linearGradient>
+    <linearGradient id="tape" x1="56" y1="30" x2="72" y2="108" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9AF5F1"/>
+      <stop offset="1" stop-color="#2FA8A3"/>
+    </linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="2.5" stdDeviation="2.5" flood-color="#2A1A0C" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
+  <!-- Body -->
+  <path filter="url(#soft)"
+        d="M24 56c0-5.523 4.477-10 10-10h60c5.523 0 10 4.477 10 10v38c0 5.523-4.477 10-10 10H34c-5.523 0-10-4.477-10-10V56z"
+        fill="url(#body)"/>
+
+  <!-- Front shading -->
+  <path d="M24 66c3 3.8 9.2 6.2 18 6.2h44c8.8 0 15-2.4 18-6.2v28c0 5.523-4.477 10-10 10H34c-5.523 0-10-4.477-10-10V66z"
+        fill="url(#front)" opacity="0.5"/>
+
+  <!-- Lid -->
+  <path filter="url(#soft)"
+        d="M19 42c0-4.418 3.582-8 8-8h74c4.418 0 8 3.582 8 8v6c0 4.418-3.582 8-8 8H27c-4.418 0-8-3.582-8-8v-6z"
+        fill="url(#lid)"/>
+
+  <!-- Tape -->
+  <path d="M56 34h16v22H56z" fill="url(#tape)" opacity="0.95"/>
+  <path d="M56 56h16v48H56z" fill="url(#tape)" opacity="0.55"/>
+
+  <!-- Top sheen -->
+  <path d="M30 38.5c14-2.4 54-2.4 68 0 1.4 0.25 1.4 2 0 2.25-14 2.4-54 2.4-68 0-1.4-0.25-1.4-2 0-2.25z"
+        fill="#ffffff" opacity="0.55"/>
+
+  <!-- Sylphrena sparkle -->
+  <path fill="#ffffff" opacity="0.95"
+        d="M92 70c0.6 4.6 3 7.2 7.6 8-0.1 0.1-0.1 1 0 1.1-4.6 0.8-7 3.4-7.6 8-0.07 0.45-0.9 0.45-1 0-0.6-4.6-3-7.2-7.6-8 0.1-0.1 0.1-1 0-1.1 4.6-0.8 7-3.4 7.6-8 0.1-0.45 0.93-0.45 1 0z"/>
+</svg>

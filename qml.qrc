@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Main.qml</file>
+        <file>qml/components/MaterialIcon.qml</file>
+        <file>qml/components/IconButton.qml</file>
+        <file>qml/components/StateLayer.qml</file>
+        <file>qml/components/StyledText.qml</file>
+        <file>qml/components/SourceIcon.qml</file>
+        <file>qml/components/Chip.qml</file>
+        <file>qml/components/RailItem.qml</file>
+        <file>qml/components/SearchBar.qml</file>
+        <file>qml/components/PackageRow.qml</file>
+        <file>qml/components/DetailPanel.qml</file>
+        <file>qml/components/OpsSheet.qml</file>
+        <file>qml/components/ConfirmDialog.qml</file>
+        <file>qml/components/PasswordDialog.qml</file>
+        <file>qml/components/EmptyState.qml</file>
+        <file>qml/components/ActionButton.qml</file>
+        <file>data/things.svg</file>
+    </qresource>
+</RCC>

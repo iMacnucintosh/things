@@ -1,0 +1,9 @@
+*.o
+moc_*
+qrc_*
+Makefile
+.qmake.stash
+/things
+*.pro.user
+build/
+.qtc_clangd/
