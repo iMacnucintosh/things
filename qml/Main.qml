@@ -326,7 +326,7 @@ ApplicationWindow {
                             id: rSearch
                             width: parent.width
                             symbol: "travel_explore"
-                            label: qsTr("Explorar")
+                            label: qsTr("Buscar")
                             active: win.railIndex === 1
                             onClicked: win.showSection("search")
                         }
