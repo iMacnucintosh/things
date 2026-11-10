@@ -2,8 +2,8 @@
 Name=Things
 GenericName=Gestor de paquetes
 GenericName[en]=Package Manager
-Comment=Gestor de paquetes Material You para Sylphrena (pacman · AUR · Flatpak)
-Comment[en]=Material You package manager for Sylphrena (pacman · AUR · Flatpak)
+Comment=Gestor de paquetes (pacman · AUR · Flatpak)
+Comment[en]=Package manager (pacman · AUR · Flatpak)
 # Absolute via $HOME: launchers often lack ~/.local/bin in PATH.
 Exec=/bin/sh -c 'exec "$HOME/.local/bin/things" "$@"' sh %U
 Icon=things
