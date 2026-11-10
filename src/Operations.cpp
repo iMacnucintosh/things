@@ -640,7 +640,9 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
     auto *p = new QProcess(this);
     p->setProcessEnvironment(Backend::cleanEnv());
     p->setStandardInputFile(QProcess::nullDevice());
-    QStringList args = {install ? QStringLiteral("-S") : QStringLiteral("-Rns"), QStringLiteral("--print"),
+    // Removal preview uses -Rs, not -Rns: pacman refuses --nosave together with --print. The package
+    // list is identical; only config-file backups (-n) differ and those are not part of the preview.
+    QStringList args = {install ? QStringLiteral("-S") : QStringLiteral("-Rs"), QStringLiteral("--print"),
                         QStringLiteral("--print-format"), install ? QStringLiteral("%n %v %s") : QStringLiteral("%n %v"),
                         QStringLiteral("--color"), QStringLiteral("never")};
     if (install)
