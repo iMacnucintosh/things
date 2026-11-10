@@ -18,6 +18,8 @@
         <file>qml/components/EmptyState.qml</file>
         <file>qml/components/ActionButton.qml</file>
         <file>qml/components/AppCard.qml</file>
+        <file>qml/components/CardRow.qml</file>
+        <file>qml/components/ArrowButton.qml</file>
         <file>qml/components/HeroCard.qml</file>
         <file>qml/components/DiscoverPage.qml</file>
         <file>data/things.svg</file>

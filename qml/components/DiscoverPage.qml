@@ -11,6 +11,7 @@ Flickable {
     signal installCatalog()
 
     readonly property int side: 22
+    readonly property alias archRow: archRow   // (demo / tests)
 
     clip: true
     boundsBehavior: Flickable.StopAtBounds
@@ -105,28 +106,41 @@ Flickable {
             visible: ArchApps.available && ArchApps.items.length > 0
             spacing: 8
 
-            ColumnLayout {
-                spacing: 0
-                StyledText {
-                    text: qsTr("Populares en Arch")
-                    font.pixelSize: 19
+            Item {
+                Layout.fillWidth: true
+                implicitHeight: archTitle.implicitHeight
+                ColumnLayout {
+                    id: archTitle
+                    anchors.left: parent.left
+                    anchors.right: arrowsArch.left
+                    anchors.rightMargin: 12
+                    spacing: 0
+                    StyledText {
+                        text: qsTr("Populares en Arch")
+                        font.pixelSize: 19
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: qsTr("Aplicaciones de los repositorios oficiales que más usuarios tienen instaladas")
+                        color: Theme.onSurfaceVariant
+                        font.pixelSize: 12
+                        elide: Text.ElideRight
+                    }
                 }
-                StyledText {
-                    text: qsTr("Aplicaciones de los repositorios oficiales que más usuarios tienen instaladas")
-                    color: Theme.onSurfaceVariant
-                    font.pixelSize: 12
+                Row {
+                    id: arrowsArch
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
+                    ArrowButton { glyph: "chevron_left"; active: archRow.canLeft; onClicked: archRow.page(-1) }
+                    ArrowButton { glyph: "chevron_right"; active: archRow.canRight; onClicked: archRow.page(1) }
                 }
             }
-            ListView {
+            CardRow {
+                id: archRow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 204
-                orientation: ListView.Horizontal
-                spacing: 12
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
                 model: ArchApps.items
-                topMargin: 2
-                bottomMargin: 2
                 delegate: AppCard {
                     required property var modelData
                     app: modelData
@@ -186,31 +200,42 @@ Flickable {
                 Layout.fillWidth: true
                 spacing: 8
 
-                ColumnLayout {
-                    spacing: 0
-                    StyledText {
-                        text: root.sectionTitle(sec.modelData.id)
-                        font.pixelSize: 19
+                Item {
+                    Layout.fillWidth: true
+                    implicitHeight: secTitle.implicitHeight
+                    ColumnLayout {
+                        id: secTitle
+                        anchors.left: parent.left
+                        anchors.right: arrowsSec.left
+                        anchors.rightMargin: 12
+                        spacing: 0
+                        StyledText {
+                            text: root.sectionTitle(sec.modelData.id)
+                            font.pixelSize: 19
+                        }
+                        StyledText {
+                            Layout.fillWidth: true
+                            text: root.sectionSubtitle(sec.modelData.id)
+                            color: Theme.onSurfaceVariant
+                            font.pixelSize: 12
+                            elide: Text.ElideRight
+                        }
                     }
-                    StyledText {
-                        text: root.sectionSubtitle(sec.modelData.id)
-                        color: Theme.onSurfaceVariant
-                        font.pixelSize: 12
+                    Row {
+                        id: arrowsSec
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 6
+                        ArrowButton { glyph: "chevron_left"; active: secRow.canLeft; onClicked: secRow.page(-1) }
+                        ArrowButton { glyph: "chevron_right"; active: secRow.canRight; onClicked: secRow.page(1) }
                     }
                 }
 
-                ListView {
+                CardRow {
+                    id: secRow
                     Layout.fillWidth: true
                     Layout.preferredHeight: 204
-                    orientation: ListView.Horizontal
-                    spacing: 12
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
                     model: sec.modelData.items
-                    // Room for the card shadow/scale animation without clipping it
-                    topMargin: 2
-                    bottomMargin: 2
-
                     delegate: AppCard {
                         required property var modelData
                         app: modelData

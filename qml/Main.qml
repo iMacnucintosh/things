@@ -471,6 +471,7 @@ ApplicationWindow {
 
                             // Front page: featured app + rows (Flathub)
                             DiscoverPage {
+                                id: discoverPage
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 visible: win.discoverMode
@@ -659,6 +660,8 @@ ApplicationWindow {
         { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "discover" ? [
         { wait: 6000, run: function () { Dev.take("d1-discover") } },
+        { wait: 200, run: function () { discoverPage.archRow.page(1) } },
+        { wait: 900, run: function () { Dev.take("d1b-after-right-arrow") } },
         { wait: 200, run: function () { win.openDetail("flatpak", Discover.hero.id, "flathub") } },
         { wait: 2500, run: function () { Dev.take("d2-detail-from-discover"); win.closeDetail() } },
         { wait: 200, run: function () { search.text = "blender" } },
