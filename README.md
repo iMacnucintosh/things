@@ -2,7 +2,7 @@
 
 Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnucintosh/sylphrena-shell): pacman, AUR y Flatpak en **una sola lista**.
 
-- Producto: **Things** · lanzador: **Paquetes**
+- Producto y lanzador: **Things**
 - Stack: **Qt 6 Quick / QML + C++20** (qmake), sin más dependencias que Qt
 - Binario: `~/.local/bin/things` · config: `~/.config/things/`
 - Es el «Octopi moderno y mínimo»: buscar, ver instalados, instalar, eliminar. Las actualizaciones del sistema completo siguen en el módulo Updates de Nexus.
@@ -33,7 +33,7 @@ make -j$(nproc)
 make install
 ```
 
-Instala `things`, `things.desktop` («Paquetes») y `things.svg` en `~/.local`.
+Instala `things`, `things.desktop` («Things») y `things.svg` en `~/.local`.
 
 ## Atajos
 

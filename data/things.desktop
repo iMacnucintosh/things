@@ -1,6 +1,5 @@
 [Desktop Entry]
-Name=Paquetes
-Name[en]=Packages
+Name=Things
 GenericName=Gestor de paquetes
 GenericName[en]=Package Manager
 Comment=Things — gestor de paquetes Material You para Sylphrena (pacman · AUR · Flatpak)
