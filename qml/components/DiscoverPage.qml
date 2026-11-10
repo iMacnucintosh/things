@@ -6,8 +6,9 @@ import QtQuick.Layouts
 Flickable {
     id: root
     property real bottomPad: 20
-    signal openApp(string id)
+    signal openApp(string source, string id, string repo)
     signal installApp(string id, string name)
+    signal installCatalog()
 
     readonly property int side: 22
 
@@ -94,8 +95,86 @@ Flickable {
             Layout.fillWidth: true
             visible: !!Discover.hero.id
             app: Discover.hero
-            onOpenApp: root.openApp(Discover.hero.id)
+            onOpenApp: root.openApp("flatpak", Discover.hero.id, "flathub")
             onInstallApp: root.installApp(Discover.hero.id, Discover.hero.name)
+        }
+
+        // Arch (pacman) applications ranked by pkgstats: needs archlinux-appstream-data
+        ColumnLayout {
+            Layout.fillWidth: true
+            visible: ArchApps.available && ArchApps.items.length > 0
+            spacing: 8
+
+            ColumnLayout {
+                spacing: 0
+                StyledText {
+                    text: qsTr("Populares en Arch")
+                    font.pixelSize: 19
+                }
+                StyledText {
+                    text: qsTr("Aplicaciones de los repositorios oficiales que más usuarios tienen instaladas")
+                    color: Theme.onSurfaceVariant
+                    font.pixelSize: 12
+                }
+            }
+            ListView {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 204
+                orientation: ListView.Horizontal
+                spacing: 12
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                model: ArchApps.items
+                topMargin: 2
+                bottomMargin: 2
+                delegate: AppCard {
+                    required property var modelData
+                    app: modelData
+                    source: "pacman"
+                    footer: "popularity"
+                    onClicked: root.openApp("pacman", modelData.id, modelData.repo)
+                }
+            }
+        }
+
+        // Catalog missing: offer to install it (small package) instead of showing nothing
+        Rectangle {
+            Layout.fillWidth: true
+            visible: !ArchApps.available
+            implicitHeight: catalogRow.implicitHeight + 28
+            radius: 20
+            color: Theme.surfaceContainer
+            border.width: 1
+            border.color: Qt.alpha(Theme.outlineVariant, 0.5)
+            RowLayout {
+                id: catalogRow
+                anchors.fill: parent
+                anchors.margins: 14
+                anchors.leftMargin: 18
+                spacing: 14
+                SourceIcon { source: "pacman"; size: 24; colour: Theme.onSurfaceVariant }
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+                    StyledText {
+                        text: qsTr("Añade las aplicaciones de Arch a Descubrir")
+                        font.pixelSize: 14
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: qsTr("Instala archlinux-appstream-data (el catálogo oficial de aplicaciones de Arch, ~20 MB) para ver aquí las más populares.")
+                        color: Theme.onSurfaceVariant
+                        font.pixelSize: 12
+                        wrapMode: Text.Wrap
+                    }
+                }
+                ActionButton {
+                    text: qsTr("Instalar")
+                    icon: "download"
+                    tone: "tonal"
+                    onClicked: root.installCatalog()
+                }
+            }
         }
 
         Repeater {
@@ -136,7 +215,7 @@ Flickable {
                         required property var modelData
                         app: modelData
                         footer: root.footerFor(sec.modelData.id)
-                        onClicked: root.openApp(modelData.id)
+                        onClicked: root.openApp("flatpak", modelData.id, "flathub")
                     }
                 }
             }

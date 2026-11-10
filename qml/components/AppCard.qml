@@ -5,12 +5,13 @@ import QtQuick.Layouts
 Item {
     id: root
     property var app: ({})
-    // "installs" | "added" | "updated": what the footer shows
+    property string source: "flatpak"      // flatpak | pacman
+    // "installs" | "added" | "updated" | "popularity": what the footer shows
     property string footer: "installs"
     signal clicked()
 
     // Re-evaluates when the installed list refreshes.
-    readonly property bool installed: { Things.installedTotal; return Things.isInstalled("flatpak", app.id) }
+    readonly property bool installed: { Things.installedTotal; return Things.isInstalled(source, app.id) }
 
     implicitWidth: 176
     implicitHeight: 200
@@ -25,8 +26,10 @@ Item {
     }
     readonly property string footerText: footer === "added" ? qsTr("Nueva · %1").arg(ago(app.added))
                                        : footer === "updated" ? qsTr("Actualizada %1").arg(ago(app.updated))
+                                       : footer === "popularity" ? qsTr("%1 % de los usuarios").arg(Math.round(app.popularity))
                                        : qsTr("%1 instalaciones").arg(Discover.formatInstalls(app.installs))
-    readonly property string footerIcon: footer === "added" ? "fiber_new" : footer === "updated" ? "update" : "download"
+    readonly property string footerIcon: footer === "added" ? "fiber_new" : footer === "updated" ? "update"
+                                       : footer === "popularity" ? "group" : "download"
 
     Rectangle {
         id: bg

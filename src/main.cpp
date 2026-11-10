@@ -1,3 +1,4 @@
+#include "ArchCatalog.h"
 #include "Backend.h"
 #include "DevTools.h"
 #include "Discover.h"
@@ -194,6 +195,7 @@ int main(int argc, char *argv[]) {
 
     ImageCacheFactory imageCache;
     Discover discover;
+    ArchCatalog archCatalog;
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory(&imageCache);
     engine.addImageProvider(QStringLiteral("theme"), new ThemeIconProvider());
@@ -201,6 +203,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("Things"), &backend);
     engine.rootContext()->setContextProperty(QStringLiteral("Ops"), &ops);
     engine.rootContext()->setContextProperty(QStringLiteral("Discover"), &discover);
+    engine.rootContext()->setContextProperty(QStringLiteral("ArchApps"), &archCatalog);
     auto *devp = new DevTools(parser.value(QStringLiteral("shot-dir")), parser.value(QStringLiteral("demo")),
                               parser.value(QStringLiteral("select")), &app);
     DevTools &dev = *devp;

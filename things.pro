@@ -7,6 +7,7 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 SOURCES += \
     src/main.cpp \
+    src/ArchCatalog.cpp \
     src/Backend.cpp \
     src/DevTools.cpp \
     src/Discover.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
     src/ThemeIconProvider.cpp
 
 HEADERS += \
+    src/ArchCatalog.h \
     src/Backend.h \
     src/DevTools.h \
     src/Discover.h \

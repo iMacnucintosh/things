@@ -97,6 +97,10 @@ ApplicationWindow {
             confirm.packages = r.packages
             confirm.total = r.total
         }
+        function onOperationFinished(ok, kind, source, id) {
+            if (ok && kind === "install" && id === "archlinux-appstream-data")
+                ArchApps.reload()
+        }
         function onQueueChanged() {
             const m = {}
             const q = Ops.queue
@@ -471,8 +475,10 @@ ApplicationWindow {
                                 Layout.fillHeight: true
                                 visible: win.discoverMode
                                 bottomPad: sheet.visible ? sheet.height + 28 : 20
-                                onOpenApp: (id) => win.openDetail("flatpak", id, "flathub")
+                                onOpenApp: (source, id, repo) => win.openDetail(source, id, repo)
                                 onInstallApp: (id, name) => win.requestAction("install", "flatpak", id, name, "flathub")
+                                onInstallCatalog: win.requestAction("install", "pacman", "archlinux-appstream-data",
+                                                                    "archlinux-appstream-data", "extra")
                             }
 
                             // List + states
