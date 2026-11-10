@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Shapes
 
 // Featured app: large banner with a real screenshot on the right (icon when there is none yet).
 Item {
@@ -144,24 +143,12 @@ Item {
                 visible: shot.status !== Image.Ready
             }
 
-            component Corner: Shape {
-                width: shotBox.r
-                height: shotBox.r
-                preferredRendererType: Shape.CurveRenderer
+            RoundCorners {
+                anchors.fill: parent
+                radius: shotBox.r
+                colour: Theme.primaryContainer
                 visible: shot.status === Image.Ready
-                ShapePath {
-                    fillColor: Theme.primaryContainer
-                    strokeWidth: -1
-                    startX: 0; startY: 0
-                    PathLine { x: shotBox.r; y: 0 }
-                    PathArc { x: 0; y: shotBox.r; radiusX: shotBox.r; radiusY: shotBox.r; direction: PathArc.Counterclockwise }
-                    PathLine { x: 0; y: 0 }
-                }
             }
-            Corner { anchors.left: parent.left; anchors.top: parent.top }
-            Corner { anchors.right: parent.right; anchors.top: parent.top; rotation: 90 }
-            Corner { anchors.right: parent.right; anchors.bottom: parent.bottom; rotation: 180 }
-            Corner { anchors.left: parent.left; anchors.bottom: parent.bottom; rotation: 270 }
         }
     }
 }

@@ -9,7 +9,12 @@ Rectangle {
     property bool loading: false
     property bool busy: false
     property bool filesOpen: false
+    // Flathub extras (screenshots, long description, release notes, links) for Flatpak apps
+    property var extras: ({})
+    property bool extrasLoading: false
+    property bool aboutOpen: false
     signal closeRequested()
+    signal screenshotRequested(int index)
     signal installRequested()
     signal removeRequested()
 
@@ -17,11 +22,24 @@ Rectangle {
     readonly property bool installed: !!detail.installed
     readonly property string iconName: detail.id ? Things.iconFor(source, detail.id) : ""
     readonly property var fields: detail.fields || []
+    readonly property bool hasExtras: !!detail.id && extras.id === detail.id
+    readonly property var shots: hasExtras ? (extras.screenshots || []) : []
+
+    function scrollTo(y) { flick.contentY = Math.max(0, Math.min(y, flick.contentHeight - flick.height)) }
+
+    function linkLabel(kind) {
+        return kind === "homepage" ? qsTr("Web") : kind === "help" ? qsTr("Ayuda") : kind === "faq" ? qsTr("Preguntas")
+             : kind === "bugtracker" ? qsTr("Reportar un fallo") : qsTr("Donar")
+    }
+    function linkIcon(kind) {
+        return kind === "homepage" ? "public" : kind === "help" ? "help" : kind === "faq" ? "quiz"
+             : kind === "bugtracker" ? "bug_report" : "volunteer_activism"
+    }
 
     color: Theme.surfaceContainerLow
     clip: true
 
-    onDetailChanged: if (!detail.canFiles) filesOpen = false
+    onDetailChanged: { if (!detail.canFiles) filesOpen = false; aboutOpen = false }
 
     ColumnLayout {
         anchors.fill: parent
@@ -233,6 +251,98 @@ Rectangle {
                     color: Theme.error
                     font.pixelSize: 13
                     wrapMode: Text.Wrap
+                }
+
+                // ── Flathub extras: screenshots, about, release notes, links ─────────────
+                // Placeholder while the screenshots are being fetched
+                Rectangle {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: Math.round(width * 0.62)
+                    visible: root.source === "flatpak" && root.extrasLoading
+                    radius: 16
+                    color: Theme.surfaceContainerHigh
+                    SequentialAnimation on opacity {
+                        running: parent.visible
+                        loops: Animation.Infinite
+                        NumberAnimation { to: 0.55; duration: 700; easing.type: Easing.InOutQuad }
+                        NumberAnimation { to: 1; duration: 700; easing.type: Easing.InOutQuad }
+                    }
+                }
+
+                ScreenshotGallery {
+                    Layout.fillWidth: true
+                    visible: root.shots.length > 0
+                    shots: root.shots
+                    onExpandRequested: (i) => root.screenshotRequested(i)
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    visible: root.hasExtras && (root.extras.description || "").length > 0
+                    spacing: 6
+                    StyledText {
+                        text: qsTr("Acerca de")
+                        color: Theme.onSurfaceVariant
+                        font.pixelSize: 12
+                    }
+                    StyledText {
+                        id: aboutText
+                        Layout.fillWidth: true
+                        text: root.extras.description || ""
+                        font.pixelSize: 13
+                        wrapMode: Text.Wrap
+                        maximumLineCount: root.aboutOpen ? 1000 : 6
+                        elide: Text.ElideRight
+                    }
+                    Chip {
+                        visible: aboutText.truncated || root.aboutOpen
+                        label: root.aboutOpen ? qsTr("Mostrar menos") : qsTr("Mostrar más")
+                        icon: root.aboutOpen ? "expand_less" : "expand_more"
+                        onClicked: root.aboutOpen = !root.aboutOpen
+                    }
+                }
+
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    visible: root.hasExtras && !!root.extras.release
+                    spacing: 4
+                    StyledText {
+                        text: qsTr("Novedades")
+                        color: Theme.onSurfaceVariant
+                        font.pixelSize: 12
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: root.hasExtras && root.extras.release
+                              ? (qsTr("Versión %1").arg(root.extras.release.version)
+                                 + (root.extras.release.date ? " · " + root.extras.release.date : "")) : ""
+                        font.pixelSize: 13
+                    }
+                    StyledText {
+                        Layout.fillWidth: true
+                        visible: text.length > 0
+                        text: root.hasExtras && root.extras.release ? root.extras.release.notes : ""
+                        color: Theme.onSurfaceVariant
+                        font.pixelSize: 12
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 8
+                        elide: Text.ElideRight
+                    }
+                }
+
+                Flow {
+                    Layout.fillWidth: true
+                    visible: root.hasExtras && (root.extras.links || []).length > 0
+                    spacing: 8
+                    Repeater {
+                        model: root.hasExtras ? (root.extras.links || []) : []
+                        delegate: Chip {
+                            required property var modelData
+                            label: root.linkLabel(modelData.kind)
+                            icon: root.linkIcon(modelData.kind)
+                            onClicked: Qt.openUrlExternally(modelData.url)
+                        }
+                    }
                 }
 
                 // Key / value sections

@@ -2,6 +2,7 @@
 #include "Backend.h"
 #include "DevTools.h"
 #include "Discover.h"
+#include "FlathubInfo.h"
 #include "Operations.h"
 #include "Privilege.h"
 #include "Theme.h"
@@ -196,6 +197,7 @@ int main(int argc, char *argv[]) {
     ImageCacheFactory imageCache;
     Discover discover;
     ArchCatalog archCatalog;
+    FlathubInfo flathubInfo;
     QQmlApplicationEngine engine;
     engine.setNetworkAccessManagerFactory(&imageCache);
     engine.addImageProvider(QStringLiteral("theme"), new ThemeIconProvider());
@@ -204,6 +206,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("Ops"), &ops);
     engine.rootContext()->setContextProperty(QStringLiteral("Discover"), &discover);
     engine.rootContext()->setContextProperty(QStringLiteral("ArchApps"), &archCatalog);
+    engine.rootContext()->setContextProperty(QStringLiteral("FlathubInfo"), &flathubInfo);
     auto *devp = new DevTools(parser.value(QStringLiteral("shot-dir")), parser.value(QStringLiteral("demo")),
                               parser.value(QStringLiteral("select")), &app);
     DevTools &dev = *devp;

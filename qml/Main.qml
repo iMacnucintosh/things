@@ -11,7 +11,7 @@ ApplicationWindow {
     height: 760
     minimumWidth: 880
     minimumHeight: 520
-    title: Things.mode === "installed" ? qsTr("Instalados — Paquetes") : qsTr("Paquetes")
+    title: Things.mode === "installed" ? qsTr("Instalados — Things") : qsTr("Things")
     color: Theme.surface
     font.family: Theme.uiFamily
 
@@ -34,10 +34,13 @@ ApplicationWindow {
         function onDetailChanged() {
             if (Things.detail && Things.detail.id)
                 win.lastDetail = Things.detail
+            if (win.detailOpen && Things.detail && Things.detail.source === "flatpak" && Things.detail.id)
+                FlathubInfo.load(Things.detail.id)
         }
     }
 
     function keyOf(source, id) { return source + ":" + id }
+    function flickDetail(y) { detailPanel.scrollTo(y) }
 
     // Typing in the search bar leaves the front page for the results (Esc brings it back).
     function leaveDiscoverForSearch() {
@@ -60,11 +63,16 @@ ApplicationWindow {
     function openDetail(source, id, repo) {
         selKey = keyOf(source, id)
         detailOpen = true
+        if (source === "flatpak")
+            FlathubInfo.load(id)
+        else
+            FlathubInfo.clear()
         Things.loadDetail(source, id, repo)
     }
     function closeDetail() {
         detailOpen = false
         selKey = ""
+        viewer.open = false
         Things.closeDetail()
     }
 
@@ -138,7 +146,7 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: "Escape"
-        enabled: !confirm.open && !Ops.awaitingPassword
+        enabled: !confirm.open && !Ops.awaitingPassword && !viewer.open
         onActivated: {
             if (win.detailOpen)
                 win.closeDetail()
@@ -154,6 +162,21 @@ ApplicationWindow {
         sequence: "Escape"
         enabled: confirm.open
         onActivated: confirm.open = false
+    }
+    Shortcut {
+        sequence: "Escape"
+        enabled: viewer.open && !confirm.open
+        onActivated: viewer.open = false
+    }
+    Shortcut {
+        sequence: "Left"
+        enabled: viewer.open
+        onActivated: viewer.step(-1)
+    }
+    Shortcut {
+        sequence: "Right"
+        enabled: viewer.open
+        onActivated: viewer.step(1)
     }
     Shortcut {
         sequence: "Ctrl+1"
@@ -207,7 +230,7 @@ ApplicationWindow {
                         }
                         StyledText {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: qsTr("Paquetes")
+                            text: "Things"
                             font.pixelSize: 18
                         }
                     }
@@ -603,11 +626,15 @@ ApplicationWindow {
                             Behavior on hostWidth { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
 
                             DetailPanel {
+                                id: detailPanel
                                 x: 0
                                 width: card.detailWidth
                                 height: parent.height
                                 detail: win.lastDetail
                                 loading: Things.detailLoading
+                                extras: FlathubInfo.info
+                                extrasLoading: FlathubInfo.loading
+                                onScreenshotRequested: (i) => viewer.show(i)
                                 busy: !!win.busyMap[win.keyOf(Things.detail.source || "", Things.detail.id || "")]
                                 onCloseRequested: win.closeDetail()
                                 onInstallRequested: win.requestAction("install", Things.detail.source, Things.detail.id,
@@ -669,6 +696,15 @@ ApplicationWindow {
         { wait: 200, run: function () { search.text = "" ; if (win.autoSearch) win.showSection("discover") } },
         { wait: 800, run: function () { Dev.take("d4-back-to-discover-" + win.section) } },
         { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "detail" ? [
+        { wait: 4000, run: function () { win.openDetail("flatpak", "org.darktable.Darktable", "flathub") } },
+        { wait: 3500, run: function () { Dev.take("e1-detail-top") } },
+        { wait: 200, run: function () { flickDetail(500) } },
+        { wait: 800, run: function () { Dev.take("e2-detail-scrolled") } },
+        { wait: 200, run: function () { viewer.show(0) } },
+        { wait: 2500, run: function () { Dev.take("e3-viewer") } },
+        { wait: 200, run: function () { viewer.open = false } },
+        { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "cleanup" ? [
         { wait: 3000, run: function () { win.requestAction("remove", "flatpak", "com.bambulab.BambuStudio", "Bambu Studio", "flathub") } },
         { wait: 2500, run: function () { Dev.take("c1-confirm-flatpak-remove") } },
@@ -704,6 +740,12 @@ ApplicationWindow {
                 restart()
             }
         }
+    }
+
+    ScreenshotViewer {
+        id: viewer
+        shots: FlathubInfo.info.screenshots || []
+        onCloseRequested: open = false
     }
 
     ConfirmDialog {
