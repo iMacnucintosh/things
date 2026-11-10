@@ -4,6 +4,7 @@
 
 #include <algorithm>
 
+#include <QCoreApplication>
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -158,9 +159,15 @@ void ArchCatalog::reload() {
     emit changed();
 
     const QString lang = QLocale::system().name().section(QLatin1Char('_'), 0, 0);
-    auto *thread = QThread::create([this, dir, lang] {
+    // QPointer: the catalog may be gone (app closing) by the time the parse finishes
+    QPointer<ArchCatalog> self(this);
+    auto *thread = QThread::create([self, dir, lang] {
         const QList<App> apps = parseCatalog(dir, lang);
-        QMetaObject::invokeMethod(this, [this, apps] { catalogParsed(apps); }, Qt::QueuedConnection);
+        // Hop to the main thread through the application object, then check the catalog there
+        QMetaObject::invokeMethod(QCoreApplication::instance(), [self, apps] {
+            if (self)
+                self->catalogParsed(apps);
+        }, Qt::QueuedConnection);
     });
     connect(thread, &QThread::finished, thread, &QObject::deleteLater);
     thread->start();

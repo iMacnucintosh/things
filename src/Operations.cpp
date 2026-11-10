@@ -3,6 +3,7 @@
 #include "Backend.h"
 #include "Package.h"
 
+#include <QDir>
 #include <QFile>
 #include <QRegularExpression>
 #include <csignal>
@@ -311,18 +312,31 @@ void Operations::begin(Op &op) {
     launch(op);
 }
 
+namespace {
+/// Any process whose name (/proc/<pid>/comm) is exactly `name`.
+bool processRunning(const QString &name) {
+    const QDir proc(QStringLiteral("/proc"));
+    const QStringList pids = proc.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QString &pid : pids) {
+        bool numeric = false;
+        pid.toInt(&numeric);
+        if (!numeric)
+            continue;
+        QFile comm(proc.filePath(pid + QStringLiteral("/comm")));
+        if (comm.open(QIODevice::ReadOnly) && QString::fromLocal8Bit(comm.readAll()).trimmed() == name)
+            return true;
+    }
+    return false;
+}
+} // namespace
+
 void Operations::launch(Op &op) {
     const Cmd cmd = buildCommand(op);
 
     // pacman database lock: report it clearly instead of letting the tool fail late.
     if (op.source != QLatin1String("flatpak") && QFile::exists(QString::fromLatin1(kPacmanLock))) {
-        QProcess pg2;
-        pg2.start(QStringLiteral("pgrep"), {QStringLiteral("-x"), QStringLiteral("pacman")});
-        pg2.waitForFinished(1500);
-        QProcess pg3;
-        pg3.start(QStringLiteral("pgrep"), {QStringLiteral("-x"), QStringLiteral("yay")});
-        pg3.waitForFinished(1500);
-        const bool running = pg2.exitCode() == 0 || pg3.exitCode() == 0;
+        // /proc instead of two pgrep runs: no blocking wait on the UI thread
+        const bool running = processRunning(QStringLiteral("pacman")) || processRunning(QStringLiteral("yay"));
         const QString msg = running
             ? tr("Otra instancia de pacman o yay está en ejecución. Espera a que termine e inténtalo de nuevo.")
             : tr("Existe un bloqueo huérfano en %1. Si no hay otro gestor de paquetes en marcha, elimínalo con: sudo rm %1")
