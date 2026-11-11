@@ -142,6 +142,15 @@ QVector<QVariantMap> HubCatalog::parseIndex(const QByteArray &json, QString *err
                     e[QString::fromLatin1(key)] = list;
             }
         }
+        const QString store = str(o, "store", 512);
+        e[QStringLiteral("store")] = validStoreUrl(store) ? store : QString();
+        QStringList data;
+        for (const QJsonValue &v : o.value(QLatin1String("data")).toArray()) {
+            const QString d = v.toString().simplified().left(160);
+            if (!d.isEmpty() && data.size() < 8)
+                data << d;
+        }
+        e[QStringLiteral("data")] = data;
         e[QStringLiteral("zip")] = zip;
         e[QStringLiteral("sha256")] = sha;
         e[QStringLiteral("size")] = double(qBound<qint64>(0, qint64(o.value(QLatin1String("size")).toDouble()), qint64(64) * 1024 * 1024));
@@ -390,6 +399,119 @@ void HubCatalog::pickZip() {
                       QStringLiteral("--pick-accept=") + tr("Elegir"),
                       QStringLiteral("--pick-extensions=zip"),
                       QStringLiteral("--pick-current=") + home});
+}
+
+static const QString kStoreBase = QStringLiteral("https://raw.githubusercontent.com/iMacnucintosh/sylphrena-hub/main/");
+
+bool HubCatalog::validStoreUrl(const QString &url) {
+    const QString test = qEnvironmentVariable("SYLPHRENA_HUB_TEST_PREFIX");
+    static const QRegularExpression re(QStringLiteral("^store/[a-z0-9-]{1,64}\\.json$"));
+    if (!test.isEmpty() && url.startsWith(test))
+        return true;
+    return url.startsWith(kStoreBase) && re.match(url.mid(kStoreBase.size())).hasMatch();
+}
+
+bool HubCatalog::validShotUrl(const QString &url) {
+    const QString test = qEnvironmentVariable("SYLPHRENA_HUB_TEST_PREFIX");
+    static const QRegularExpression re(QStringLiteral("^extensions/[a-z0-9-]{1,64}/store/screenshots/[A-Za-z0-9._-]{1,100}$"));
+    if (!test.isEmpty() && url.startsWith(test))
+        return true;
+    return url.startsWith(kStoreBase) && re.match(url.mid(kStoreBase.size())).hasMatch();
+}
+
+QVariantMap HubCatalog::parseDetails(const QByteArray &json, const QString &id) {
+    const QJsonObject o = QJsonDocument::fromJson(json).object();
+    QVariantMap d;
+    if (o.value(QLatin1String("id")).toString() != id)
+        return d;
+    // Texts in the user's language when the document carries them (i18n: {lang: {english text: translation}})
+    const QString lang = QLocale().name().section(QLatin1Char('_'), 0, 0);
+    const QJsonObject tr = o.value(QLatin1String("i18n")).toObject().value(lang).toObject();
+    auto text = [&](const QJsonValue &v, int limit) {
+        const QString en = v.toString().trimmed();
+        const QString t = tr.value(en).toString();
+        return (t.isEmpty() ? en : t).left(limit);
+    };
+    d[QStringLiteral("id")] = id;
+    d[QStringLiteral("about")] = text(o.value(QLatin1String("about")), 2000);
+    QStringList highlights;
+    for (const QJsonValue &v : o.value(QLatin1String("highlights")).toArray())
+        if (highlights.size() < 6 && !v.toString().isEmpty())
+            highlights << text(v, 160);
+    d[QStringLiteral("highlights")] = highlights;
+    d[QStringLiteral("author")] = o.value(QLatin1String("author")).toString().left(80);
+    d[QStringLiteral("license")] = o.value(QLatin1String("license")).toString().left(40);
+    QVariantMap links;
+    const QJsonObject lo = o.value(QLatin1String("links")).toObject();
+    for (const QString &k : {QStringLiteral("source"), QStringLiteral("issues"), QStringLiteral("web")}) {
+        const QString u = lo.value(k).toString();
+        if (u.startsWith(QLatin1String("https://")) && u.size() < 300)
+            links[k] = u;
+    }
+    d[QStringLiteral("links")] = links;
+    QVariantList log;
+    for (const QJsonValue &v : o.value(QLatin1String("changelog")).toArray()) {
+        if (log.size() >= 12)
+            break;
+        const QJsonObject e = v.toObject();
+        QStringList changes;
+        for (const QJsonValue &c : e.value(QLatin1String("changes")).toArray())
+            if (changes.size() < 12 && !c.toString().isEmpty())
+                changes << text(c, 240);
+        QVariantMap row;
+        row[QStringLiteral("version")] = e.value(QLatin1String("version")).toString().left(32);
+        row[QStringLiteral("date")] = e.value(QLatin1String("date")).toString().left(10);
+        row[QStringLiteral("changes")] = changes;
+        log.append(row);
+    }
+    d[QStringLiteral("changelog")] = log;
+    QVariantList shots;
+    for (const QJsonValue &v : o.value(QLatin1String("screenshots")).toArray()) {
+        const QJsonObject e = v.toObject();
+        const QString url = e.value(QLatin1String("url")).toString();
+        if (shots.size() >= 6 || !validShotUrl(url))
+            continue;
+        QVariantMap s;
+        s[QStringLiteral("url")] = url;
+        s[QStringLiteral("full")] = url;
+        s[QStringLiteral("caption")] = text(e.value(QLatin1String("caption")), 160);
+        shots.append(s);
+    }
+    d[QStringLiteral("screenshots")] = shots;
+    d[QStringLiteral("ok")] = true;
+    return d;
+}
+
+void HubCatalog::clearDetails() {
+    m_details.clear();
+    m_detailsId.clear();
+    m_detailsPending = false;
+    emit detailsChanged();
+}
+
+void HubCatalog::loadDetails(const QString &id) {
+    if (m_detailsId == id && !m_details.isEmpty())
+        return;
+    m_details.clear();
+    m_detailsId = id;
+    const QString url = entry(id).value(QStringLiteral("store")).toString();
+    if (url.isEmpty() || !validStoreUrl(url)) {
+        m_detailsPending = false;
+        emit detailsChanged();
+        return;
+    }
+    m_detailsPending = true;
+    emit detailsChanged();
+    QNetworkReply *r = m_net.get(request(QUrl(url)));
+    connect(r, &QNetworkReply::finished, this, [this, r, id] {
+        r->deleteLater();
+        if (id != m_detailsId)
+            return;
+        m_detailsPending = false;
+        if (r->error() == QNetworkReply::NoError)
+            m_details = parseDetails(r->read(kMaxIndex + 1).left(kMaxIndex), id);
+        emit detailsChanged();
+    });
 }
 
 void HubCatalog::finishOne() {

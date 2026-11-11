@@ -6,6 +6,8 @@ ColumnLayout {
     id: root
     property var shots: []
     property int current: 0
+    // Show the whole image at its own proportions (a capture of a window or a panel) instead of cropping it to a banner
+    property bool fit: false
     signal expandRequested(int index)
 
     spacing: 8
@@ -19,7 +21,9 @@ ColumnLayout {
     Rectangle {
         id: frame
         Layout.fillWidth: true
-        Layout.preferredHeight: Math.round(width * 0.62)
+        Layout.preferredHeight: root.fit && img.status === Image.Ready && img.implicitWidth > 0
+                                ? Math.min(Math.round(width * 1.15), Math.round(width * img.implicitHeight / img.implicitWidth))
+                                : Math.round(width * 0.62)
         radius: 16
         color: Theme.surfaceContainerHigh
 
@@ -27,7 +31,7 @@ ColumnLayout {
             id: img
             anchors.fill: parent
             source: root.shots.length ? root.shots[root.current].url : ""
-            fillMode: Image.PreserveAspectCrop
+            fillMode: root.fit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
             asynchronous: true
             smooth: true
             opacity: status === Image.Ready ? 1 : 0

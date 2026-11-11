@@ -261,7 +261,14 @@ int main(int argc, char *argv[]) {
     if (parser.isSet(QStringLiteral("hub-op"))) {
         // (dev) the same call the Install / Remove buttons end up making, without needing a click
         const QStringList op = parser.value(QStringLiteral("hub-op")).split(QLatin1Char(':'));
-        if (op.size() == 2 && op[0] == QLatin1String("zip")) {
+        if (op.size() == 2 && op[0] == QLatin1String("open") && !engine.rootObjects().isEmpty()) {
+            // (dev) open the Sylphrena section on an extension's details, without needing a click
+            QObject *root = engine.rootObjects().first();
+            QTimer::singleShot(2500, &app, [root, id = op[1]] {
+                QMetaObject::invokeMethod(root, "showSection", Q_ARG(QVariant, QStringLiteral("sylphrena")));
+                QMetaObject::invokeMethod(root, "openHubDetail", Q_ARG(QVariant, id));
+            });
+        } else if (op.size() == 2 && op[0] == QLatin1String("zip")) {
             // (dev) install a local zip: prepare (inspect) first, as the confirmation dialog does, then queue it
             ops.prepare(QStringLiteral("install"), QStringLiteral("sylphrena-zip"), op[1], QString());
             QObject::connect(&ops, &Operations::prepared, &app, [&ops, op](const QVariantMap &r) {

@@ -12,6 +12,9 @@ Item {
     property var busyMap: ({})
     /// kind: install | remove
     signal actionRequested(string kind, string id, string name)
+    /// The row was clicked: show its details
+    signal openRequested(string id)
+    property string selectedId: ""
 
     function busy(id) { return !!busyMap["sylphrena:" + id] }
     function stateLabel(state) {
@@ -150,8 +153,15 @@ Item {
                         anchors.topMargin: 2
                         anchors.bottomMargin: 2
                         radius: 18
-                        color: hover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0)
+                        color: row.modelData.id === root.selectedId ? Qt.alpha(Theme.primaryContainer, 0.34)
+                             : (hover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0))
                         Behavior on color { ColorAnimation { duration: 120 } }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.openRequested(row.modelData.id)
                     }
 
                     // On the whole row (not on the inset background): no gaps, and buttons keep it
