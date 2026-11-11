@@ -56,7 +56,7 @@ Item {
 
             ActionButton {
                 Layout.alignment: Qt.AlignVCenter
-                text: qsTr("Instalar desde zip…")
+                text: qsTr("Instalar desde zip")
                 icon: "folder_zip"
                 tone: "tonal"
                 enabled: Hub.tool.length > 0
