@@ -90,7 +90,9 @@ int runDump(int argc, char *argv[]) {
                     << r.value(QStringLiteral("installedVersion")).toString().leftJustified(8) << "-> "
                     << r.value(QStringLiteral("version")).toString().leftJustified(8) << ' '
                     << (r.value(QStringLiteral("system")).toBool() ? "[root] " : "       ")
-                    << r.value(QStringLiteral("requires")).toString() << '\n';
+                    << r.value(QStringLiteral("requires")).toString() << "  | "
+                    << r.value(QStringLiteral("name")).toString() << " — "
+                    << r.value(QStringLiteral("description")).toString() << '\n';
             }
             if (!hub.notice().isEmpty())
                 out << "# notice: " << hub.notice() << '\n';
