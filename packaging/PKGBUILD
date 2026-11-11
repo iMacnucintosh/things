@@ -8,7 +8,7 @@ pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the 
 arch=('x86_64')
 url="https://github.com/iMacnucintosh/things"
 license=('MIT')
-depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'pacman' 'polkit')
+depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'qt6-wayland' 'pacman' 'sudo')
 makedepends=('git')
 optdepends=('yay: AUR packages'
             'flatpak: Flatpak apps'
