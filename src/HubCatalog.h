@@ -46,6 +46,8 @@ public:
     Q_INVOKABLE void refresh(bool force = false);
     /// Look at the installed extensions again (after an operation).
     Q_INVOKABLE void rescan();
+    /// Let the user choose the zip of an extension (Seeker's picker); zipPicked(path) when they do.
+    Q_INVOKABLE void pickZip();
 
     /// Catalog entry of `id` (empty when it is not in the hub): { version, zip, sha256, system, size, name }.
     QVariantMap entry(const QString &id) const;
@@ -64,6 +66,7 @@ signals:
     void changed();
     void loadingChanged();
     void toolChanged();
+    void zipPicked(const QString &path);
 
 private:
     static QString cachePath();
@@ -83,6 +86,7 @@ private:
     QVariantList m_items;
     QString m_notice;
     QString m_tool;
+    bool m_picking = false;
     QDateTime m_fetchedAt;
     int m_pending = 0;
     int m_updates = 0;

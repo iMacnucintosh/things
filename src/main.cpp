@@ -259,7 +259,16 @@ int main(int argc, char *argv[]) {
     if (parser.isSet(QStringLiteral("hub-op"))) {
         // (dev) the same call the Install / Remove buttons end up making, without needing a click
         const QStringList op = parser.value(QStringLiteral("hub-op")).split(QLatin1Char(':'));
-        if (op.size() == 2) {
+        if (op.size() == 2 && op[0] == QLatin1String("zip")) {
+            // (dev) install a local zip: prepare (inspect) first, as the confirmation dialog does, then queue it
+            ops.prepare(QStringLiteral("install"), QStringLiteral("sylphrena-zip"), op[1], QString());
+            QObject::connect(&ops, &Operations::prepared, &app, [&ops, op](const QVariantMap &r) {
+                qInfo().noquote() << "prepared:" << r.value(QStringLiteral("ok")).toBool() << r.value(QStringLiteral("error")).toString()
+                                  << r.value(QStringLiteral("packages")).toList().value(0).toMap().value(QStringLiteral("name")).toString();
+                if (r.value(QStringLiteral("ok")).toBool())
+                    ops.enqueue(QStringLiteral("install"), QStringLiteral("sylphrena-zip"), op[1], op[1], QString());
+            });
+        } else if (op.size() == 2) {
             QTimer::singleShot(1500, &app, [&ops, op, &hub] {
                 const QVariantMap e = hub.entry(op[1]);
                 ops.enqueue(op[0], QStringLiteral("sylphrena"), op[1], e.value(QStringLiteral("name"), op[1]).toString(), QString());

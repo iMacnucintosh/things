@@ -80,6 +80,15 @@ ApplicationWindow {
         Things.closeDetail()
     }
 
+    // A zip the user picked in the Sylphrena section: same confirmation as any install
+    Connections {
+        target: Hub
+        function onZipPicked(path) {
+            const file = path.substring(path.lastIndexOf("/") + 1)
+            win.requestAction("install", "sylphrena-zip", path, file, "")
+        }
+    }
+
     function requestAction(kind, source, id, name, repo) {
         confirm.kind = kind
         confirm.source = source

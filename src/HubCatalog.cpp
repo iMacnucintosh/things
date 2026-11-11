@@ -1,10 +1,12 @@
 #include "HubCatalog.h"
+#include "Package.h"
 
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QLocale>
+#include <QUrl>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
@@ -341,6 +343,52 @@ void HubCatalog::rebuild() {
 void HubCatalog::rescan() {
     scanInstalled();
     rebuild();
+}
+
+void HubCatalog::pickZip() {
+    if (m_picking)
+        return;
+    const QString home = QDir::homePath();
+    QString seeker = home + QStringLiteral("/.local/bin/seeker");
+    if (!QFileInfo(seeker).isExecutable())
+        seeker = QStandardPaths::findExecutable(QStringLiteral("seeker"));
+    if (seeker.isEmpty()) {
+        m_notice = tr("Para elegir el zip hace falta Seeker, el explorador de archivos de Sylphrena.");
+        emit changed();
+        return;
+    }
+    const QString runtime = qEnvironmentVariable("XDG_RUNTIME_DIR", QStringLiteral("/tmp"));
+    const QString result = runtime + QStringLiteral("/things-pick-%1.json").arg(QDateTime::currentMSecsSinceEpoch());
+    m_picking = true;
+    auto *p = new QProcess(this);
+    connect(p, &QProcess::finished, this, [this, p, result] {
+        p->deleteLater();
+        m_picking = false;
+        QFile f(result);
+        if (f.open(QIODevice::ReadOnly)) {
+            const QJsonObject o = QJsonDocument::fromJson(f.read(65536)).object();
+            f.close();
+            const QJsonArray uris = o.value(QLatin1String("uris")).toArray();
+            if (o.value(QLatin1String("response")).toInt(1) == 0 && !uris.isEmpty()) {
+                QString path = uris.first().toString();
+                if (path.startsWith(QLatin1String("file://")))
+                    path = QUrl::fromPercentEncoding(path.mid(7).toUtf8());
+                if (Validate::zipPath(path))
+                    emit zipPicked(path);
+            }
+        }
+        QFile::remove(result);
+    });
+    connect(p, &QProcess::errorOccurred, this, [this, p] {
+        p->deleteLater();
+        m_picking = false;
+    });
+    p->start(seeker, {QStringLiteral("--pick"), QStringLiteral("--pick-mode=file"),
+                      QStringLiteral("--pick-result=") + result,
+                      QStringLiteral("--pick-title=") + tr("Elige el zip de una extensión"),
+                      QStringLiteral("--pick-accept=") + tr("Elegir"),
+                      QStringLiteral("--pick-extensions=zip"),
+                      QStringLiteral("--pick-current=") + home});
 }
 
 void HubCatalog::finishOne() {
