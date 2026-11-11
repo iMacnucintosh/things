@@ -31,6 +31,8 @@ class HubCatalog : public QObject {
     /// Path of the shell's tool; empty when Sylphrena is not found (then nothing can be installed).
     Q_PROPERTY(QString tool READ tool NOTIFY toolChanged)
     Q_PROPERTY(int updates READ updates NOTIFY changed)
+    Q_PROPERTY(QVariantMap details READ details NOTIFY detailsChanged)
+    Q_PROPERTY(bool detailsLoading READ detailsLoading NOTIFY detailsChanged)
 
 public:
     explicit HubCatalog(QObject *parent = nullptr);
@@ -41,11 +43,18 @@ public:
     QString notice() const { return m_notice; }
     QString tool() const { return m_tool; }
     int updates() const { return m_updates; }
+    QVariantMap details() const { return m_details; }
+    bool detailsLoading() const { return m_detailsPending; }
 
     /// Fetch the index. Without `force`, does nothing while the cache is younger than an hour.
     Q_INVOKABLE void refresh(bool force = false);
     /// Look at the installed extensions again (after an operation).
     Q_INVOKABLE void rescan();
+    /// Let the user choose the zip of an extension (Seeker's picker); zipPicked(path) when they do.
+    Q_INVOKABLE void pickZip();
+    /// Fetch what the hub tells about `id` when it is opened (long description, screenshots, changelog…).
+    Q_INVOKABLE void loadDetails(const QString &id);
+    Q_INVOKABLE void clearDetails();
 
     /// Catalog entry of `id` (empty when it is not in the hub): { version, zip, sha256, system, size, name }.
     QVariantMap entry(const QString &id) const;
@@ -64,6 +73,8 @@ signals:
     void changed();
     void loadingChanged();
     void toolChanged();
+    void detailsChanged();
+    void zipPicked(const QString &path);
 
 private:
     static QString cachePath();
@@ -83,6 +94,13 @@ private:
     QVariantList m_items;
     QString m_notice;
     QString m_tool;
+    bool m_picking = false;
+    QVariantMap m_details;
+    bool m_detailsPending = false;
+    QString m_detailsId;
+    static bool validStoreUrl(const QString &url);
+    static bool validShotUrl(const QString &url);
+    static QVariantMap parseDetails(const QByteArray &json, const QString &id);
     QDateTime m_fetchedAt;
     int m_pending = 0;
     int m_updates = 0;

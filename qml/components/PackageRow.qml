@@ -40,16 +40,21 @@ Item {
         anchors.bottomMargin: 2
         radius: 18
         color: root.selected ? Qt.alpha(Theme.primaryContainer, 0.34)
-             : (layer.containsMouse ? Theme.surfaceContainerLow : "transparent")
+             : (rowHover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0))
         border.width: root.current ? 2 : 0
         border.color: Theme.primary
         Behavior on color { ColorAnimation { duration: 120 } }
     }
 
+    // The wash follows the pointer over the whole row, buttons included: the row's own MouseArea loses
+    // containsMouse as soon as the pointer is over a button inside it (the wash flickered off there)
+    HoverHandler { id: rowHover }
+
     StateLayer {
         id: layer
         anchors.fill: bg
         radius: bg.radius
+        stateOpacity: 0 // the wash above replaces the layer's own (it doubled up); the ripple stays
         onClicked: root.activated()
     }
 

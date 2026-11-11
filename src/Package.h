@@ -46,9 +46,21 @@ inline bool extensionId(const QString &s) {
     return re.match(s).hasMatch();
 }
 
+/// A zip of an extension picked by the user: an absolute path to a .zip, nothing exotic in it
+inline bool zipPath(const QString &s) {
+    if (s.size() > 400 || !s.startsWith(QLatin1Char('/')) || !s.endsWith(QLatin1String(".zip"), Qt::CaseInsensitive))
+        return false;
+    for (const QChar c : s)
+        if (c.unicode() < 32 || c.unicode() == 127)
+            return false;
+    return true;
+}
+
 inline bool packageId(const QString &source, const QString &id) {
     if (source == QLatin1String("sylphrena"))
         return extensionId(id);
+    if (source == QLatin1String("sylphrena-zip"))
+        return zipPath(id);
     if (source == QLatin1String("flatpak"))
         return flatpakId(id);
     if (source == QLatin1String("pacman") || source == QLatin1String("aur"))

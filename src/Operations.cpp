@@ -6,6 +6,11 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QProcess>
+#include <QTimer>
 #include <QRegularExpression>
 #include <csignal>
 #include <sys/types.h>
@@ -199,6 +204,18 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
                 c.args << QStringLiteral("--purge");
             c.needsRoot = m_hub->installedInfo(op.pkg).value(QStringLiteral("system")).toBool();
         }
+        c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
+        return c;
+    }
+    if (op.source == QLatin1String("sylphrena-zip")) {
+        // A zip the user picked: the shell's own tool validates it and installs it (it stays "local")
+        if (!m_hub || m_hub->tool().isEmpty() || !install) {
+            c.error = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            return c;
+        }
+        c.program = QStringLiteral("python3");
+        c.args = {m_hub->tool(), QStringLiteral("install"), op.pkg};
+        c.needsRoot = m_zipRoot.value(op.pkg);
         c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
         return c;
     }
@@ -501,7 +518,7 @@ void Operations::finishCurrent(int code, bool cancelled) {
     } else {
         op->status = QStringLiteral("failed");
         appendLine(tr("La operación falló (código %1).").arg(code));
-        if (op->source == QLatin1String("sylphrena")) {
+        if (op->source == QLatin1String("sylphrena") || op->source == QLatin1String("sylphrena-zip")) {
             // The tool says what went wrong in its last "error:" line (pacman's diagnoses do not apply)
             m_hint.clear();
             for (int i = m_logLines.size() - 1; i >= 0; --i) {
@@ -677,6 +694,54 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         res[QStringLiteral("packages")] = QVariantList{p};
         res[QStringLiteral("note")] = note;
         QTimer::singleShot(0, this, [=, this]() { finish(res); });
+        return;
+    }
+
+    if (source == QLatin1String("sylphrena-zip")) {
+        // Ask the shell's tool what the zip holds (it validates it without installing anything)
+        if (!install || !m_hub || m_hub->tool().isEmpty()) {
+            res[QStringLiteral("ok")] = false;
+            res[QStringLiteral("error")] = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            QTimer::singleShot(0, this, [=, this]() { finish(res); });
+            return;
+        }
+        auto *proc = new QProcess(this);
+        connect(proc, &QProcess::finished, this, [=, this] {
+            proc->deleteLater();
+            QVariantMap r = res;
+            const QJsonObject o = QJsonDocument::fromJson(proc->readAllStandardOutput()).object();
+            if (!o.value(QLatin1String("ok")).toBool()) {
+                r[QStringLiteral("ok")] = false;
+                r[QStringLiteral("error")] = tr("Ese zip no es una extensión válida de Sylphrena.");
+            } else if (!o.value(QLatin1String("incompatible")).toString().isEmpty()) {
+                r[QStringLiteral("ok")] = false;
+                r[QStringLiteral("error")] = tr("Esta extensión no puede correr en tu Sylphrena: %1.").arg(o.value(QLatin1String("incompatible")).toString());
+            } else {
+                m_zipRoot.insert(id, o.value(QLatin1String("system")).toBool());
+                QVariantMap p;
+                p[QStringLiteral("name")] = o.value(QLatin1String("name")).toString().left(80) + QLatin1Char(' ')
+                    + o.value(QLatin1String("version")).toString().left(32);
+                p[QStringLiteral("size")] = double(QFileInfo(id).size());
+                QString note = tr("Se instalará para tu usuario desde el zip que has elegido. Su origen no es el hub de Sylphrena: instala solo extensiones en las que confíes; Things la mostrará como «local» y no la actualizará.");
+                const QString desc = o.value(QLatin1String("description")).toString().simplified().left(300);
+                if (!desc.isEmpty())
+                    note.prepend(desc + QLatin1String("\n\n"));
+                if (o.value(QLatin1String("system")).toBool())
+                    note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
+                r[QStringLiteral("packages")] = QVariantList{p};
+                r[QStringLiteral("note")] = note;
+            }
+            finish(r);
+        });
+        connect(proc, &QProcess::errorOccurred, this, [=, this] {
+            proc->deleteLater();
+            QVariantMap r = res;
+            r[QStringLiteral("ok")] = false;
+            r[QStringLiteral("error")] = tr("No se pudo leer el zip.");
+            finish(r);
+        });
+        proc->start(QStringLiteral("python3"), {m_hub->tool(), QStringLiteral("inspect"), id});
+        QTimer::singleShot(20000, proc, [proc] { if (proc->state() != QProcess::NotRunning) proc->kill(); });
         return;
     }
 

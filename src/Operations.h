@@ -3,6 +3,7 @@
 #include "Privilege.h"
 
 #include <QElapsedTimer>
+#include <QHash>
 #include <QObject>
 #include <QPointer>
 #include <QProcess>
@@ -108,6 +109,8 @@ private:
 
     Backend *m_backend = nullptr;
     HubCatalog *m_hub = nullptr;
+    /// Local zips already inspected (path -> asks for root), so the install knows without asking twice
+    QHash<QString, bool> m_zipRoot;
     Privilege m_priv;
     QList<Op> m_ops;
     int m_nextId = 1;

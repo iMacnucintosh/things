@@ -53,6 +53,8 @@ ApplicationWindow {
     }
 
     function showSection(s) {
+        if (detailOpen && s !== section)
+            closeDetail()
         if (s === "installed") {
             Things.mode = "installed"
         } else {
@@ -73,11 +75,34 @@ ApplicationWindow {
             FlathubInfo.clear()
         Things.loadDetail(source, id, repo)
     }
+    // An extension of the hub: its details come from the hub, not from the package backend
+    function openHubDetail(id) {
+        selKey = "sylphrena:" + id
+        detailOpen = true
+        Hub.loadDetails(id)
+    }
+    function hubRow(id) {
+        for (const r of Hub.items)
+            if (r.id === id)
+                return r
+        return ({})
+    }
     function closeDetail() {
+        if (sylphrenaMode)
+            Hub.clearDetails()
         detailOpen = false
         selKey = ""
         viewer.open = false
         Things.closeDetail()
+    }
+
+    // A zip the user picked in the Sylphrena section: same confirmation as any install
+    Connections {
+        target: Hub
+        function onZipPicked(path) {
+            const file = path.substring(path.lastIndexOf("/") + 1)
+            win.requestAction("install", "sylphrena-zip", path, file, "")
+        }
     }
 
     function requestAction(kind, source, id, name, repo) {
@@ -531,6 +556,8 @@ ApplicationWindow {
                                 visible: win.sylphrenaMode
                                 bottomPad: sheet.visible ? sheet.height + 28 : 20
                                 busyMap: win.busyMap
+                                selectedId: win.sylphrenaMode && win.detailOpen ? win.selKey.replace("sylphrena:", "") : ""
+                                onOpenRequested: (id) => win.openHubDetail(id)
                                 onActionRequested: (kind, id, name) => win.requestAction(kind, "sylphrena", id, name, "")
                             }
 
@@ -654,8 +681,25 @@ ApplicationWindow {
                             visible: hostWidth > 1
                             Behavior on hostWidth { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
 
+                            HubDetail {
+                                id: hubDetail
+                                x: 0
+                                width: card.detailWidth
+                                height: parent.height
+                                visible: win.sylphrenaMode
+                                row: win.hubRow(win.selKey.replace("sylphrena:", ""))
+                                details: Hub.details
+                                loading: Hub.detailsLoading
+                                busy: !!win.busyMap[win.selKey]
+                                onCloseRequested: win.closeDetail()
+                                onScreenshotRequested: (i) => viewer.show(i)
+                                onInstallRequested: win.requestAction("install", "sylphrena", row.id, row.name, "")
+                                onRemoveRequested: win.requestAction("remove", "sylphrena", row.id, row.name, "")
+                            }
+
                             DetailPanel {
                                 id: detailPanel
+                                visible: !win.sylphrenaMode
                                 x: 0
                                 width: card.detailWidth
                                 height: parent.height
@@ -773,7 +817,7 @@ ApplicationWindow {
 
     ScreenshotViewer {
         id: viewer
-        shots: FlathubInfo.info.screenshots || []
+        shots: win.sylphrenaMode ? (Hub.details.screenshots || []) : (FlathubInfo.info.screenshots || [])
         onCloseRequested: open = false
     }
 
