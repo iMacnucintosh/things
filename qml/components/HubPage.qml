@@ -273,6 +273,16 @@ Item {
                             onClicked: root.actionRequested("install", row.modelData.id, row.modelData.name)
                         }
 
+                        // A local copy the hub also has: switch to the hub's, so Things can update it
+                        ActionButton {
+                            visible: !row.working && row.state_ === "local" && !!row.modelData.inHub
+                            Layout.alignment: Qt.AlignVCenter
+                            text: qsTr("Usar la del hub")
+                            icon: "download"
+                            enabled: Hub.tool.length > 0
+                            onClicked: root.actionRequested("install", row.modelData.id, row.modelData.name)
+                        }
+
                         // Remove: a full button, or just the icon next to Actualizar
                         ActionButton {
                             visible: !row.working && (row.state_ === "installed" || row.state_ === "local")

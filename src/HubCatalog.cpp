@@ -169,6 +169,7 @@ QVariantList HubCatalog::merge(const QVector<QVariantMap> &catalog, const QHash<
         r.remove(QStringLiteral("zip"));
         r.remove(QStringLiteral("sha256"));
         r[QStringLiteral("local")] = false;
+        r[QStringLiteral("inHub")] = true;
         r[QStringLiteral("installedVersion")] = QString();
         r[QStringLiteral("state")] = QStringLiteral("available");
         const auto it = installed.constFind(id);

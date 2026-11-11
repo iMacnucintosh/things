@@ -676,6 +676,8 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         } else if (install) {
             note = tr("Se descargará del hub de Sylphrena (versión %1), se comprobará su huella y se instalará para tu usuario.")
                        .arg(e.value(QStringLiteral("version")).toString());
+            if (!have.isEmpty() && !have.value(QStringLiteral("fromHub")).toBool())
+                note += QLatin1Char(' ') + tr("Sustituirá la copia local que tienes por la del hub; tus ajustes y tus datos se conservan.");
             if (e.value(QStringLiteral("system")).toBool())
                 note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
             if (!e.value(QStringLiteral("requires")).toString().isEmpty())

@@ -185,6 +185,14 @@ Rectangle {
                         onClicked: root.installRequested()
                     }
                     ActionButton {
+                        // A copy put there by hand that the hub also has: replace it with the hub's (and get updates)
+                        visible: !root.busy && root.state_ === "local" && !!root.row.inHub
+                        text: qsTr("Usar la del hub")
+                        icon: "download"
+                        enabled: Hub.tool.length > 0
+                        onClicked: root.installRequested()
+                    }
+                    ActionButton {
                         visible: !root.busy && root.state_ !== "available"
                         text: qsTr("Quitar")
                         icon: "delete"
