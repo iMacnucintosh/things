@@ -1,0 +1,37 @@
+# Maintainer: iMacnucintosh
+# Builds Things from the git repository (a -git package: pkgver follows the commits).
+#   cd packaging && makepkg -si
+pkgname=things-git
+pkgver=r0.0000000
+pkgrel=1
+pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena"
+arch=('x86_64')
+url="https://github.com/iMacnucintosh/things"
+license=('MIT')
+depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'pacman' 'polkit')
+makedepends=('git')
+optdepends=('yay: AUR packages'
+            'flatpak: Flatpak apps'
+            'archlinux-appstream-data: descriptions and icons of the Arch packages'
+            'python: install Sylphrena extensions (uses its ext.py)')
+provides=('things')
+conflicts=('things')
+source=("git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd things
+  printf 'r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+  cd things
+  qmake6 PREFIX=/usr
+  make
+}
+
+package() {
+  cd things
+  make INSTALL_ROOT="$pkgdir" install
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}

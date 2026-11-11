@@ -22,7 +22,9 @@ ApplicationWindow {
     property string section: "discover"
     property bool autoSearch: false          // arrived at search by typing → Esc goes back
     readonly property bool discoverMode: section === "discover"
-    readonly property int railIndex: discoverMode ? 0 : (installedMode ? 2 : 1)
+    // The Sylphrena Hub (extensions for the shell): a section of its own, not a package source
+    readonly property bool sylphrenaMode: section === "sylphrena"
+    readonly property int railIndex: sylphrenaMode ? 3 : (discoverMode ? 0 : (installedMode ? 2 : 1))
     property string selKey: ""
     property bool detailOpen: false
     // source:id → true while queued/running (drives row spinners)
@@ -58,6 +60,8 @@ ApplicationWindow {
         }
         section = s
         autoSearch = false
+        if (s === "sylphrena")
+            Hub.refresh()
     }
 
     function openDetail(source, id, repo) {
@@ -191,6 +195,10 @@ ApplicationWindow {
         onActivated: win.showSection("installed")
     }
     Shortcut {
+        sequence: "Ctrl+4"
+        onActivated: win.showSection("sylphrena")
+    }
+    Shortcut {
         sequence: "F5"
         onActivated: { Things.refreshInstalled(); Things.retrySearch(); Discover.refresh(true) }
     }
@@ -291,7 +299,7 @@ ApplicationWindow {
                         radius: selPressed ? 12 : height / 2
                         color: Theme.primaryContainer
                         y: win.railIndex * 46
-                        property bool selPressed: win.railIndex === 0 ? rDisc.pressed : (win.railIndex === 2 ? rInst.pressed : rSearch.pressed)
+                        property bool selPressed: win.railIndex === 0 ? rDisc.pressed : (win.railIndex === 2 ? rInst.pressed : (win.railIndex === 3 ? rHub.pressed : rSearch.pressed))
                         scale: selPressed ? 1.04 : 1
                         z: 1
                         Behavior on y { NumberAnimation { duration: 320; easing.type: Easing.OutCubic } }
@@ -303,8 +311,8 @@ ApplicationWindow {
                         height: 44
                         radius: height / 2
                         color: Theme.surfaceContainerHigh
-                        y: rDisc.hovered && !rDisc.active ? 0 : (rSearch.hovered && !rSearch.active ? 46 : 92)
-                        opacity: (rDisc.hovered && !rDisc.active) || (rSearch.hovered && !rSearch.active) || (rInst.hovered && !rInst.active) ? 1 : 0
+                        y: rDisc.hovered && !rDisc.active ? 0 : (rSearch.hovered && !rSearch.active ? 46 : (rInst.hovered && !rInst.active ? 92 : 138))
+                        opacity: (rDisc.hovered && !rDisc.active) || (rSearch.hovered && !rSearch.active) || (rInst.hovered && !rInst.active) || (rHub.hovered && !rHub.active) ? 1 : 0
                         z: 0
                         Behavior on y { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
                         Behavior on opacity { NumberAnimation { duration: 100 } }
@@ -338,6 +346,16 @@ ApplicationWindow {
                             trailing: Things.installedTotal > 0 ? Things.installedTotal : ""
                             active: win.installedMode
                             onClicked: win.showSection("installed")
+                        }
+                        RailItem {
+                            id: rHub
+                            width: parent.width
+                            symbol: "extension"
+                            label: qsTr("Sylphrena")
+                            readonly property int installedCount: Hub.items.filter(i => i.state !== "available").length
+                            trailing: installedCount > 0 ? installedCount : ""
+                            active: win.sylphrenaMode
+                            onClicked: win.showSection("sylphrena")
                         }
                     }
                 }
@@ -374,7 +392,7 @@ ApplicationWindow {
                             // Filter chips
                             Flow {
                                 id: filters
-                                visible: !win.discoverMode
+                                visible: !win.discoverMode && !win.sylphrenaMode
                                 Layout.fillWidth: true
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
@@ -463,7 +481,7 @@ ApplicationWindow {
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
                                 Layout.bottomMargin: 8
-                                visible: !win.discoverMode && !win.installedMode && Things.notice.length > 0
+                                visible: !win.discoverMode && !win.sylphrenaMode && !win.installedMode && Things.notice.length > 0
                                 implicitHeight: noticeText.implicitHeight + 16
                                 radius: 12
                                 color: Theme.surfaceContainerHigh
@@ -485,7 +503,7 @@ ApplicationWindow {
                             }
 
                             Rectangle {
-                                visible: !win.discoverMode
+                                visible: !win.discoverMode && !win.sylphrenaMode
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 1
                                 color: Theme.outlineVariant
@@ -505,9 +523,20 @@ ApplicationWindow {
                                                                     "archlinux-appstream-data", "extra")
                             }
 
+                            // Extensions of the Sylphrena Hub
+                            HubPage {
+                                id: hubPage
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                visible: win.sylphrenaMode
+                                bottomPad: sheet.visible ? sheet.height + 28 : 20
+                                busyMap: win.busyMap
+                                onActionRequested: (kind, id, name) => win.requestAction(kind, "sylphrena", id, name, "")
+                            }
+
                             // List + states
                             Item {
-                                visible: !win.discoverMode
+                                visible: !win.discoverMode && !win.sylphrenaMode
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
 

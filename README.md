@@ -9,6 +9,8 @@ Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnuci
 
 ## Funciones
 
+- **Sylphrena (extensiones de la shell)** — sección propia en la columna lateral (`Ctrl+4`) con las extensiones del [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell Sylphrena, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo se pide si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se guarda en caché una hora y funciona sin conexión; cada entrada se valida antes de mostrarse. Si no se encuentra Sylphrena, se ve el catálogo pero no se instala.
+
 - **Detalle con capturas (Flatpak)** — el panel de una app de Flathub muestra su galería de capturas de pantalla (con pie de foto, flechas y puntos; clic para verlas a pantalla completa, `←`/`→` para pasar, `Esc` para cerrar), «Acerca de» con la descripción completa, las novedades de la última versión y enlaces (web, ayuda, reportar un fallo, donar). Solo se contacta con `dl.flathub.org` para las imágenes. Los paquetes de pacman/AUR no tienen capturas: las del catálogo de Arch están en webs de terceros y no se cargan.
 
 - **Descubrir (pantalla inicial)** — estilo tienda de aplicaciones: una destacada del día con su captura de pantalla y filas de **Tendencias**, **Más instaladas** (último mes), **Novedades** y **Actualizadas hace poco**, con iconos reales. Los datos salen de la API pública de Flathub (sin cuenta ni datos tuyos), se guardan en caché (`~/.cache/things/`, se renueva cada hora) y funcionan sin conexión con los últimos datos. Además, **Populares en Arch**: las aplicaciones de los repos oficiales ordenadas por cuántos usuarios las tienen instaladas ([pkgstats](https://pkgstats.archlinux.de)), con nombre y resumen en tu idioma e icono del tema. Necesita el paquete `archlinux-appstream-data` (catálogo oficial de Arch, ~20 MB): si falta, Descubrir ofrece instalarlo con un botón. Se excluyen herramientas de desarrollo/sistema y dependencias que casi todo el mundo tiene, que no son una recomendación. Al escribir en el buscador salta a los resultados; `Esc` vuelve. Atajos: `Ctrl+1` Descubrir · `Ctrl+2` Buscar · `Ctrl+3` Instalados.
@@ -43,7 +45,7 @@ Instala `things`, `things.desktop` («Things») y `things.svg` en `~/.local`.
 | `↓` en la búsqueda | Pasar a la lista (`↑` en la primera fila, vuelve) |
 | `Enter` en la lista | Abrir detalle |
 | `Esc` | Cerrar detalle → limpiar búsqueda |
-| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` | Descubrir / Buscar / Instalados |
+| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Descubrir / Buscar / Instalados / Sylphrena |
 | `F5` | Refrescar instalados y repetir búsqueda |
 
 Opciones de línea de comandos: `--search <texto>`, `--installed`, `--dry-run`.
@@ -82,6 +84,9 @@ Interfaz en español (cadenas directas en QML/C++, envueltas en `qsTr()`/`tr()` 
 ./things --dump-search blender   # búsqueda unificada en texto (sin GUI)
 ./things --dump-installed --filter-kind dep
 ./things --dump-detail aur:yay
+./things --dump-hub           # filas del hub de Sylphrena (THINGS_HUB_INDEX=<index.json> lo lee de un fichero en vez de la red)
+./things --hub-op install:<id>   # (dev) encola una operación del hub sin hacer clic; con THINGS_HUB_INDEX y
+                                 # SYLPHRENA_HUB_TEST_PREFIX=file://<carpeta de zips> se prueba todo el flujo en local
 dev/run-demos.sh              # capturas offscreen: recorrido de la UI + flujo de contraseña con un sudo falso
 ```
 
@@ -89,6 +94,7 @@ dev/run-demos.sh              # capturas offscreen: recorrido de la UI + flujo d
 
 ```
 src/Backend.*       búsqueda unificada, instalados y detalle (QProcess + QNetworkAccessManager)
+src/HubCatalog.*    catálogo del hub de Sylphrena (índice, caché, validación) cruzado con lo instalado
 src/Operations.*    cola de instalar/eliminar, salida en vivo, vistas previas y diagnóstico de errores
 src/Privilege.*     contraseña en RAM + socket askpass
 src/Theme.*         tema en vivo desde theme.json

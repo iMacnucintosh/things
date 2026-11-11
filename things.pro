@@ -12,6 +12,7 @@ SOURCES += \
     src/DevTools.cpp \
     src/Discover.cpp \
     src/FlathubInfo.cpp \
+    src/HubCatalog.cpp \
     src/Operations.cpp \
     src/PackageModel.cpp \
     src/Privilege.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     src/DevTools.h \
     src/Discover.h \
     src/FlathubInfo.h \
+    src/HubCatalog.h \
     src/Operations.h \
     src/Package.h \
     src/PackageModel.h \
