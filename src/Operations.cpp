@@ -123,7 +123,7 @@ bool Operations::enqueue(const QString &kind, const QString &source, const QStri
     op.pkg = id;
     op.name = name;
     op.repo = repo;
-    op.deleteData = deleteData && source == QLatin1String("flatpak") && kind == QLatin1String("remove");
+    op.deleteData = deleteData && (source == QLatin1String("flatpak") || source == QLatin1String("sylphrena")) && kind == QLatin1String("remove");
     m_ops.append(op);
     emit queueChanged();
     pump();
@@ -195,6 +195,8 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
             c.needsRoot = e.value(QStringLiteral("system")).toBool();
         } else {
             c.args << QStringLiteral("remove") << op.pkg;
+            if (op.deleteData)
+                c.args << QStringLiteral("--purge");
             c.needsRoot = m_hub->installedInfo(op.pkg).value(QStringLiteral("system")).toBool();
         }
         c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
@@ -668,7 +670,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             if (!optional.isEmpty())
                 note += QLatin1Char(' ') + tr("Opcional: %1.").arg(optional.join(QStringLiteral("; ")));
         } else {
-            note = tr("Se quitará la extensión y sus datos en la shell. Su configuración se conserva.");
+            note = tr("Se quitará la extensión. Sus ajustes y sus datos (tareas, historial…) se conservan por si la vuelves a instalar; puedes borrarlos con la casilla de abajo.");
             if (have.value(QStringLiteral("system")).toBool())
                 note += QLatin1Char(' ') + tr("También se quitarán sus piezas del sistema (te pediremos la contraseña).");
         }

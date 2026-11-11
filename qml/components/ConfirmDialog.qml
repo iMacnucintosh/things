@@ -222,7 +222,7 @@ Item {
 
             Item {
                 Layout.fillWidth: true
-                visible: !root.loading && root.ok && root.removing && root.source === "flatpak"
+                visible: !root.loading && root.ok && root.removing && (root.source === "flatpak" || root.source === "sylphrena")
                 implicitHeight: dataRow.implicitHeight + 8
 
                 RowLayout {
@@ -236,7 +236,7 @@ Item {
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: qsTr("Borrar también los datos de la aplicación (no se puede deshacer)")
+                        text: root.source === "sylphrena" ? qsTr("Borrar también sus ajustes y sus datos (no se puede deshacer)") : qsTr("Borrar también los datos de la aplicación (no se puede deshacer)")
                         color: root.deleteData ? Theme.error : Theme.onSurface
                         font.pixelSize: 13
                         wrapMode: Text.Wrap
