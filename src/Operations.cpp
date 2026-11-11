@@ -661,6 +661,12 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
                 note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
             if (!e.value(QStringLiteral("requires")).toString().isEmpty())
                 note += QLatin1Char(' ') + tr("Requiere Sylphrena %1.").arg(e.value(QStringLiteral("requires")).toString());
+            const QStringList needs = e.value(QStringLiteral("needs")).toStringList();
+            if (!needs.isEmpty())
+                note += QLatin1Char(' ') + tr("Necesita: %1.").arg(needs.join(QStringLiteral("; ")));
+            const QStringList optional = e.value(QStringLiteral("optional")).toStringList();
+            if (!optional.isEmpty())
+                note += QLatin1Char(' ') + tr("Opcional: %1.").arg(optional.join(QStringLiteral("; ")));
         } else {
             note = tr("Se quitará la extensión y sus datos en la shell. Su configuración se conserva.");
             if (have.value(QStringLiteral("system")).toBool())

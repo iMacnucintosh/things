@@ -108,6 +108,17 @@ QVector<QVariantMap> HubCatalog::parseIndex(const QByteArray &json, QString *err
         e[QStringLiteral("version")] = version;
         e[QStringLiteral("requires")] = requires_;
         e[QStringLiteral("system")] = o.value(QLatin1String("system")).toBool();
+        // Programs it needs / can use: short texts shown before installing (never blocks anything)
+        for (const char *key : {"needs", "optional"}) {
+            QStringList list;
+            const QJsonArray arr = o.value(QLatin1String(key)).toArray();
+            for (const QJsonValue &v : arr) {
+                const QString t = v.toString().simplified().left(160);
+                if (!t.isEmpty() && list.size() < 5)
+                    list << t;
+            }
+            e[QString::fromLatin1(key)] = list;
+        }
         e[QStringLiteral("zip")] = zip;
         e[QStringLiteral("sha256")] = sha;
         e[QStringLiteral("size")] = double(qBound<qint64>(0, qint64(o.value(QLatin1String("size")).toDouble()), qint64(64) * 1024 * 1024));
