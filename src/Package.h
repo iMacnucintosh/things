@@ -41,7 +41,14 @@ inline bool remoteName(const QString &s) {
     return re.match(s).hasMatch();
 }
 
+inline bool extensionId(const QString &s) {
+    static const QRegularExpression re(QStringLiteral("^[a-z0-9-]{1,64}$"));
+    return re.match(s).hasMatch();
+}
+
 inline bool packageId(const QString &source, const QString &id) {
+    if (source == QLatin1String("sylphrena"))
+        return extensionId(id);
     if (source == QLatin1String("flatpak"))
         return flatpakId(id);
     if (source == QLatin1String("pacman") || source == QLatin1String("aur"))

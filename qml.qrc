@@ -8,6 +8,7 @@
         <file>qml/components/SourceIcon.qml</file>
         <file>qml/components/Spinner.qml</file>
         <file>qml/components/Chip.qml</file>
+        <file>qml/components/HubPage.qml</file>
         <file>qml/components/RailItem.qml</file>
         <file>qml/components/SearchBar.qml</file>
         <file>qml/components/PackageRow.qml</file>

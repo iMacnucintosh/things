@@ -1,6 +1,7 @@
 #include "Operations.h"
 
 #include "Backend.h"
+#include "HubCatalog.h"
 #include "Package.h"
 
 #include <QDir>
@@ -171,6 +172,34 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
     Cmd c;
     const QString sudo = QStringLiteral("sudo");
     const bool install = op.kind == QLatin1String("install");
+    if (op.source == QLatin1String("sylphrena")) {
+        // An extension of the Sylphrena Hub: the shell's own tool does it all (download, sha256,
+        // validation, system pieces, receipt, telling the shell). It asks for root only when the
+        // extension has system pieces, through this app's askpass (SUDO_ASKPASS, set in launch()).
+        if (!m_hub || m_hub->tool().isEmpty()) {
+            c.error = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            return c;
+        }
+        c.program = QStringLiteral("python3");
+        c.args = {m_hub->tool()};
+        if (install) {
+            const QVariantMap e = m_hub->entry(op.pkg);
+            if (e.isEmpty()) {
+                c.error = tr("Esta extensión ya no está en el catálogo.");
+                return c;
+            }
+            c.args << QStringLiteral("install-hub") << op.pkg << QStringLiteral("--url")
+                   << e.value(QStringLiteral("zip")).toString() << QStringLiteral("--sha256")
+                   << e.value(QStringLiteral("sha256")).toString() << QStringLiteral("--version")
+                   << e.value(QStringLiteral("version")).toString();
+            c.needsRoot = e.value(QStringLiteral("system")).toBool();
+        } else {
+            c.args << QStringLiteral("remove") << op.pkg;
+            c.needsRoot = m_hub->installedInfo(op.pkg).value(QStringLiteral("system")).toBool();
+        }
+        c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
+        return c;
+    }
     if (op.source == QLatin1String("pacman") || (op.source == QLatin1String("aur") && !install)) {
         if (!m_backend->hasPacman()) {
             c.error = tr("pacman no está disponible.");
@@ -334,7 +363,8 @@ void Operations::launch(Op &op) {
     const Cmd cmd = buildCommand(op);
 
     // pacman database lock: report it clearly instead of letting the tool fail late.
-    if (op.source != QLatin1String("flatpak") && QFile::exists(QString::fromLatin1(kPacmanLock))) {
+    if ((op.source == QLatin1String("pacman") || op.source == QLatin1String("aur"))
+        && QFile::exists(QString::fromLatin1(kPacmanLock))) {
         // /proc instead of two pgrep runs: no blocking wait on the UI thread
         const bool running = processRunning(QStringLiteral("pacman")) || processRunning(QStringLiteral("yay"));
         const QString msg = running
@@ -469,7 +499,19 @@ void Operations::finishCurrent(int code, bool cancelled) {
     } else {
         op->status = QStringLiteral("failed");
         appendLine(tr("La operación falló (código %1).").arg(code));
-        m_hint = diagnose(m_logLines.join(QLatin1Char('\n')));
+        if (op->source == QLatin1String("sylphrena")) {
+            // The tool says what went wrong in its last "error:" line (pacman's diagnoses do not apply)
+            m_hint.clear();
+            for (int i = m_logLines.size() - 1; i >= 0; --i) {
+                const QString l = m_logLines.at(i).trimmed();
+                if (l.startsWith(QLatin1String("error:"))) {
+                    m_hint = l.mid(6).trimmed();
+                    break;
+                }
+            }
+        } else {
+            m_hint = diagnose(m_logLines.join(QLatin1Char('\n')));
+        }
         op->error = m_hint.isEmpty() ? tr("La operación falló. Revisa la salida.") : m_hint;
     }
     flushLog();
@@ -600,6 +642,35 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
     emit preparingChanged();
 
     const bool install = kind == QLatin1String("install");
+
+    if (source == QLatin1String("sylphrena")) {
+        // What will happen, from the catalog and the installed copy (nothing to ask any tool)
+        const QVariantMap e = m_hub ? m_hub->entry(id) : QVariantMap();
+        const QVariantMap have = m_hub ? m_hub->installedInfo(id) : QVariantMap();
+        QVariantMap p;
+        p[QStringLiteral("name")] = e.value(QStringLiteral("name"), id).toString();
+        p[QStringLiteral("size")] = e.value(QStringLiteral("size"), 0.0);
+        QString note;
+        if (install && e.isEmpty()) {
+            res[QStringLiteral("ok")] = false;
+            res[QStringLiteral("error")] = tr("Esta extensión ya no está en el catálogo.");
+        } else if (install) {
+            note = tr("Se descargará del hub de Sylphrena (versión %1), se comprobará su huella y se instalará para tu usuario.")
+                       .arg(e.value(QStringLiteral("version")).toString());
+            if (e.value(QStringLiteral("system")).toBool())
+                note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
+            if (!e.value(QStringLiteral("requires")).toString().isEmpty())
+                note += QLatin1Char(' ') + tr("Requiere Sylphrena %1.").arg(e.value(QStringLiteral("requires")).toString());
+        } else {
+            note = tr("Se quitará la extensión y sus datos en la shell. Su configuración se conserva.");
+            if (have.value(QStringLiteral("system")).toBool())
+                note += QLatin1Char(' ') + tr("También se quitarán sus piezas del sistema (te pediremos la contraseña).");
+        }
+        res[QStringLiteral("packages")] = QVariantList{p};
+        res[QStringLiteral("note")] = note;
+        QTimer::singleShot(0, this, [=, this]() { finish(res); });
+        return;
+    }
 
     if (source == QLatin1String("aur") && install) {
         QVariantMap p;

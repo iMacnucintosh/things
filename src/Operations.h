@@ -12,6 +12,7 @@
 #include <QVariantMap>
 
 class Backend;
+class HubCatalog;
 
 /// Serial install/remove queue with live output, privilege handling and previews.
 class Operations : public QObject {
@@ -49,6 +50,8 @@ public:
     bool preparing() const { return m_preparing > 0; }
     void setDryRun(bool on) { m_dryRun = on; }
     Privilege *privilege() { return &m_priv; }
+    /// Catalog of the Sylphrena Hub: where the extensions to install or remove are looked up.
+    void setHub(HubCatalog *hub) { m_hub = hub; }
 
     /// kind: "install" | "remove"
     /// deleteData: Flatpak removal only, also delete ~/.var/app/<id> (irreversible).
@@ -104,6 +107,7 @@ private:
     static QString title(const Op &op);
 
     Backend *m_backend = nullptr;
+    HubCatalog *m_hub = nullptr;
     Privilege m_priv;
     QList<Op> m_ops;
     int m_nextId = 1;

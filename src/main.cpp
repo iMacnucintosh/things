@@ -2,6 +2,7 @@
 #include "Backend.h"
 #include "DevTools.h"
 #include "Discover.h"
+#include "HubCatalog.h"
 #include "FlathubInfo.h"
 #include "Operations.h"
 #include "Privilege.h"
@@ -70,12 +71,45 @@ int runDump(int argc, char *argv[]) {
     QCommandLineParser parser;
     parser.addOption({QStringLiteral("dump-search"), QStringLiteral("Print unified search results"), QStringLiteral("term")});
     parser.addOption({QStringLiteral("dump-installed"), QStringLiteral("Print installed packages")});
+    parser.addOption({QStringLiteral("dump-hub"), QStringLiteral("Print the Sylphrena Hub rows (THINGS_HUB_INDEX replaces the network)")});
     parser.addOption({QStringLiteral("dump-detail"), QStringLiteral("Print package detail"), QStringLiteral("source:id[:repo]")});
     parser.addOption({QStringLiteral("filter-source"), QStringLiteral("all|pacman|aur|flatpak"), QStringLiteral("s")});
     parser.addOption({QStringLiteral("filter-kind"), QStringLiteral("all|explicit|dep|orphan"), QStringLiteral("k")});
     parser.process(app);
 
     QTextStream out(stdout);
+    if (parser.isSet(QStringLiteral("dump-hub"))) {
+        HubCatalog hub;
+        auto dumpHub = [&] {
+            out << "# tool: " << (hub.tool().isEmpty() ? QStringLiteral("(not found)") : hub.tool()) << '\n';
+            out << "# " << hub.items().size() << " rows, " << hub.updates() << " updates\n";
+            for (const QVariant &v : hub.items()) {
+                const QVariantMap r = v.toMap();
+                out << r.value(QStringLiteral("state")).toString().leftJustified(10) << ' '
+                    << r.value(QStringLiteral("id")).toString().leftJustified(22) << ' '
+                    << r.value(QStringLiteral("installedVersion")).toString().leftJustified(8) << "-> "
+                    << r.value(QStringLiteral("version")).toString().leftJustified(8) << ' '
+                    << (r.value(QStringLiteral("system")).toBool() ? "[root] " : "       ")
+                    << r.value(QStringLiteral("requires")).toString() << '\n';
+            }
+            if (!hub.notice().isEmpty())
+                out << "# notice: " << hub.notice() << '\n';
+            out.flush();
+        };
+        hub.refresh(true);
+        if (hub.loading()) {
+            QObject::connect(&hub, &HubCatalog::loadingChanged, &app, [&] {
+                if (!hub.loading()) {
+                    dumpHub();
+                    QCoreApplication::quit();
+                }
+            });
+            QTimer::singleShot(20000, &app, [] { QCoreApplication::exit(3); });
+            return app.exec();
+        }
+        dumpHub();
+        return 0;
+    }
     Backend be;
     if (parser.isSet(QStringLiteral("filter-source")))
         be.setSourceFilter(parser.value(QStringLiteral("filter-source")));
@@ -180,6 +214,7 @@ int main(int argc, char *argv[]) {
     parser.addOption({QStringLiteral("shot-dir"), QStringLiteral("(dev) screenshot output dir"), QStringLiteral("dir")});
     parser.addOption({QStringLiteral("demo"), QStringLiteral("(dev) scripted UI demo"), QStringLiteral("name")});
     parser.addOption({QStringLiteral("select"), QStringLiteral("(dev) open detail source:id[:repo]"), QStringLiteral("pkg")});
+    parser.addOption({QStringLiteral("hub-op"), QStringLiteral("(dev) queue a Sylphrena Hub operation: install:<id> | remove:<id>"), QStringLiteral("op")});
     parser.process(app);
 
     QQuickWindow::setDefaultAlphaBuffer(true);
@@ -194,6 +229,14 @@ int main(int argc, char *argv[]) {
             backend.refreshInstalled();
     });
 
+    HubCatalog hub;
+    ops.setHub(&hub);
+    QObject::connect(&ops, &Operations::operationFinished, &hub,
+                     [&](bool, const QString &, const QString &source, const QString &) {
+        if (source == QLatin1String("sylphrena"))
+            hub.rescan();
+    });
+
     ImageCacheFactory imageCache;
     Discover discover;
     ArchCatalog archCatalog;
@@ -205,6 +248,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("Things"), &backend);
     engine.rootContext()->setContextProperty(QStringLiteral("Ops"), &ops);
     engine.rootContext()->setContextProperty(QStringLiteral("Discover"), &discover);
+    engine.rootContext()->setContextProperty(QStringLiteral("Hub"), &hub);
     engine.rootContext()->setContextProperty(QStringLiteral("ArchApps"), &archCatalog);
     engine.rootContext()->setContextProperty(QStringLiteral("FlathubInfo"), &flathubInfo);
     auto *devp = new DevTools(parser.value(QStringLiteral("shot-dir")), parser.value(QStringLiteral("demo")),
@@ -212,6 +256,16 @@ int main(int argc, char *argv[]) {
     DevTools &dev = *devp;
     engine.rootContext()->setContextProperty(QStringLiteral("Dev"), &dev);
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
+    if (parser.isSet(QStringLiteral("hub-op"))) {
+        // (dev) the same call the Install / Remove buttons end up making, without needing a click
+        const QStringList op = parser.value(QStringLiteral("hub-op")).split(QLatin1Char(':'));
+        if (op.size() == 2) {
+            QTimer::singleShot(1500, &app, [&ops, op, &hub] {
+                const QVariantMap e = hub.entry(op[1]);
+                ops.enqueue(op[0], QStringLiteral("sylphrena"), op[1], e.value(QStringLiteral("name"), op[1]).toString(), QString());
+            });
+        }
+    }
     if (engine.rootObjects().isEmpty())
         return 1;
     dev.setWindow(qobject_cast<QQuickWindow *>(engine.rootObjects().first()));
