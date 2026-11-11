@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QJsonArray>
+#include <QLocale>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
@@ -118,6 +119,26 @@ QVector<QVariantMap> HubCatalog::parseIndex(const QByteArray &json, QString *err
                     list << t;
             }
             e[QString::fromLatin1(key)] = list;
+        }
+        // Texts in the user's language, when the hub carries them (index "i18n": {lang: {name, description, needs, optional}})
+        const QJsonObject tr = o.value(QLatin1String("i18n")).toObject();
+        const QString lang = QLocale().name().section(QLatin1Char('_'), 0, 0);
+        const QJsonObject t = tr.value(lang).toObject();
+        if (!t.isEmpty()) {
+            if (!t.value(QLatin1String("name")).toString().isEmpty())
+                e[QStringLiteral("name")] = t.value(QLatin1String("name")).toString().left(80);
+            if (!t.value(QLatin1String("description")).toString().isEmpty())
+                e[QStringLiteral("description")] = t.value(QLatin1String("description")).toString().left(400);
+            for (const char *key : {"needs", "optional"}) {
+                QStringList list;
+                for (const QJsonValue &v : t.value(QLatin1String(key)).toArray()) {
+                    const QString x = v.toString().simplified().left(160);
+                    if (!x.isEmpty() && list.size() < 5)
+                        list << x;
+                }
+                if (!list.isEmpty())
+                    e[QString::fromLatin1(key)] = list;
+            }
         }
         e[QStringLiteral("zip")] = zip;
         e[QStringLiteral("sha256")] = sha;
