@@ -40,7 +40,7 @@ Item {
         anchors.bottomMargin: 2
         radius: 18
         color: root.selected ? Qt.alpha(Theme.primaryContainer, 0.34)
-             : (rowHover.hovered ? Theme.surfaceContainerLow : "transparent")
+             : (rowHover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0))
         border.width: root.current ? 2 : 0
         border.color: Theme.primary
         Behavior on color { ColorAnimation { duration: 120 } }

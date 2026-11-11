@@ -141,7 +141,7 @@ Item {
                         anchors.topMargin: 2
                         anchors.bottomMargin: 2
                         radius: 18
-                        color: hover.hovered ? Theme.surfaceContainerLow : "transparent"
+                        color: hover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0)
                         Behavior on color { ColorAnimation { duration: 120 } }
                     }
 
