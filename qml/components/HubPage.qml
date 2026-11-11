@@ -150,10 +150,12 @@ Item {
                         anchors.topMargin: 2
                         anchors.bottomMargin: 2
                         radius: 18
-                        color: hover.hovered ? Theme.surfaceContainerLow : "transparent"
+                        color: hover.hovered ? Theme.surfaceContainerLow : Qt.alpha(Theme.surfaceContainerLow, 0)
                         Behavior on color { ColorAnimation { duration: 120 } }
-                        HoverHandler { id: hover }
                     }
+
+                    // On the whole row (not on the inset background): no gaps, and buttons keep it
+                    HoverHandler { id: hover }
 
                     RowLayout {
                         anchors.fill: parent

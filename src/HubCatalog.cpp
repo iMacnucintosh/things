@@ -23,7 +23,7 @@ namespace {
 
 constexpr auto kIndexUrl = "https://raw.githubusercontent.com/iMacnucintosh/sylphrena-hub/main/index.json";
 constexpr auto kReleases = "https://github.com/iMacnucintosh/sylphrena-hub/releases/download/";
-constexpr qint64 kTtlSecs = 3600;
+constexpr qint64 kTtlSecs = 600;
 constexpr int kMaxIndex = 1024 * 1024;
 
 QString str(const QJsonObject &o, const char *key, int maxLen) {
@@ -236,7 +236,8 @@ void HubCatalog::loadCache() {
     QFile f(cachePath());
     if (!f.open(QIODevice::ReadOnly))
         return;
-    m_fetchedAt = QFileInfo(f).lastModified();
+    // The cache only paints the first frame: it is never "fresh", so the first refresh of a run always asks
+    // the hub (a new release would otherwise stay hidden for up to the TTL)
     ingest(f.read(kMaxIndex), false);
 }
 
