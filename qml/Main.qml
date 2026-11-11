@@ -352,7 +352,8 @@ ApplicationWindow {
                             width: parent.width
                             symbol: "extension"
                             label: qsTr("Sylphrena")
-                            trailing: Hub.updates > 0 ? Hub.updates : ""
+                            readonly property int installedCount: Hub.items.filter(i => i.state !== "available").length
+                            trailing: installedCount > 0 ? installedCount : ""
                             active: win.sylphrenaMode
                             onClicked: win.showSection("sylphrena")
                         }
