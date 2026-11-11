@@ -26,9 +26,9 @@ Rectangle {
     readonly property var touchedData: row.data || []
 
     function stateLabel(s) {
-        return s === "installed" ? qsTr("Instalada") : s === "update" ? qsTr("Actualización") : s === "local" ? qsTr("Local") : ""
+        return s === "installed" ? qsTr("Installed") : s === "update" ? qsTr("Update available") : s === "local" ? qsTr("Local") : ""
     }
-    function linkLabel(k) { return k === "source" ? qsTr("Código fuente") : k === "issues" ? qsTr("Reportar un fallo") : qsTr("Web") }
+    function linkLabel(k) { return k === "source" ? qsTr("Source code") : k === "issues" ? qsTr("Report a bug") : qsTr("Web") }
     function linkIcon(k) { return k === "source" ? "code" : k === "issues" ? "bug_report" : "public" }
 
     color: Theme.surfaceContainerLow
@@ -75,7 +75,7 @@ Rectangle {
             StyledText {
                 Layout.fillWidth: true
                 Layout.leftMargin: 8
-                text: qsTr("Detalles")
+                text: qsTr("Details")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 13
             }
@@ -179,14 +179,14 @@ Rectangle {
                     spacing: 8
                     ActionButton {
                         visible: !root.busy && (root.state_ === "available" || root.state_ === "update")
-                        text: root.state_ === "update" ? qsTr("Actualizar") : qsTr("Instalar")
+                        text: root.state_ === "update" ? qsTr("Update") : qsTr("Install")
                         icon: root.state_ === "update" ? "update" : "download"
                         enabled: Hub.tool.length > 0
                         onClicked: root.installRequested()
                     }
                     ActionButton {
                         visible: !root.busy && root.state_ !== "available"
-                        text: qsTr("Quitar")
+                        text: qsTr("Remove")
                         icon: "delete"
                         tone: "tonal"
                         enabled: Hub.tool.length > 0
@@ -211,7 +211,7 @@ Rectangle {
                 StyledText {
                     Layout.fillWidth: true
                     visible: root.loading
-                    text: qsTr("Cargando detalles")
+                    text: qsTr("Loading details")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 13
                 }
@@ -243,7 +243,7 @@ Rectangle {
                 // What it needs
                 SectionTitle {
                     visible: !!root.row.requires || root.needs.length > 0 || root.optional.length > 0
-                    text: qsTr("Requisitos")
+                    text: qsTr("Requirements")
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -266,36 +266,36 @@ Rectangle {
                         model: root.optional
                         Bullet {
                             required property string modelData
-                            text: qsTr("Opcional: %1").arg(modelData)
+                            text: qsTr("Optional: %1").arg(modelData)
                             icon: "add_circle"
                         }
                     }
                 }
 
                 // What it touches on this computer (from its manifest: nothing the author has to write)
-                SectionTitle { text: qsTr("Qué toca en tu equipo") }
+                SectionTitle { text: qsTr("What it touches on your computer") }
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
                     Bullet {
-                        text: qsTr("Corre dentro de la shell, con el mismo acceso que tu usuario.")
+                        text: qsTr("It runs inside the shell, with the same access as your user.")
                         icon: "terminal"
                     }
                     Bullet {
                         visible: !!root.row.system
-                        text: qsTr("Pide contraseña de administrador para instalar piezas del sistema.")
+                        text: qsTr("Asks for the administrator password to install system pieces.")
                         icon: "admin_panel_settings"
                     }
                     Repeater {
                         model: root.touchedData
                         Bullet {
                             required property string modelData
-                            text: qsTr("Guarda datos en %1").arg(modelData.replace("state:", "~/.local/state/sylphrena/").replace("config:", "~/.config/sylphrena/"))
+                            text: qsTr("Stores data in %1").arg(modelData.replace("state:", "~/.local/state/sylphrena/").replace("config:", "~/.config/sylphrena/"))
                             icon: "database"
                         }
                     }
                     Bullet {
-                        text: qsTr("Sus ajustes van en ~/.config/sylphrena/extensions/%1.json").arg(root.row.id || "")
+                        text: qsTr("Its settings go in ~/.config/sylphrena/extensions/%1.json").arg(root.row.id || "")
                         icon: "tune"
                     }
                 }
@@ -303,7 +303,7 @@ Rectangle {
                 // Changelog
                 SectionTitle {
                     visible: root.hasDetails && (root.details.changelog || []).length > 0
-                    text: qsTr("Novedades")
+                    text: qsTr("What's new")
                 }
                 Repeater {
                     model: root.hasDetails ? (root.details.changelog || []) : []
@@ -333,7 +333,7 @@ Rectangle {
                                 StyledText {
                                     id: nowText
                                     anchors.centerIn: parent
-                                    text: qsTr("Instalada")
+                                    text: qsTr("Installed")
                                     font.pixelSize: 11
                                     color: Theme.onSurfaceVariant
                                 }
@@ -371,7 +371,7 @@ Rectangle {
                 StyledText {
                     Layout.fillWidth: true
                     visible: root.hasDetails && (root.details.author || "").length > 0
-                    text: qsTr("%1 · licencia %2").arg(root.details.author || "").arg(root.details.license || "")
+                    text: qsTr("%1 · licence %2").arg(root.details.author || "").arg(root.details.license || "")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 12
                 }

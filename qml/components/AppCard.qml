@@ -18,16 +18,16 @@ Item {
 
     function ago(ts) {
         const days = Math.max(0, Math.floor((Date.now() / 1000 - ts) / 86400))
-        if (days < 1) return qsTr("hoy")
-        if (days === 1) return qsTr("ayer")
-        if (days < 14) return qsTr("hace %1 días").arg(days)
-        if (days < 60) return qsTr("hace %1 semanas").arg(Math.round(days / 7))
-        return qsTr("hace %1 meses").arg(Math.round(days / 30))
+        if (days < 1) return qsTr("today")
+        if (days === 1) return qsTr("yesterday")
+        if (days < 14) return qsTr("%1 days ago").arg(days)
+        if (days < 60) return qsTr("%1 weeks ago").arg(Math.round(days / 7))
+        return qsTr("%1 months ago").arg(Math.round(days / 30))
     }
-    readonly property string footerText: footer === "added" ? qsTr("Nueva · %1").arg(ago(app.added))
-                                       : footer === "updated" ? qsTr("Actualizada %1").arg(ago(app.updated))
-                                       : footer === "popularity" ? qsTr("%1 % de los usuarios").arg(Math.round(app.popularity))
-                                       : qsTr("%1 instalaciones").arg(Discover.formatInstalls(app.installs))
+    readonly property string footerText: footer === "added" ? qsTr("New · %1").arg(ago(app.added))
+                                       : footer === "updated" ? qsTr("Updated %1").arg(ago(app.updated))
+                                       : footer === "popularity" ? qsTr("%1% of users").arg(Math.round(app.popularity))
+                                       : qsTr("%1 installs").arg(Discover.formatInstalls(app.installs))
     readonly property string footerIcon: footer === "added" ? "fiber_new" : footer === "updated" ? "update"
                                        : footer === "popularity" ? "group" : "download"
 

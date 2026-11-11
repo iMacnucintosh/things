@@ -1,5 +1,7 @@
 #include "Backend.h"
 
+#include <QCoreApplication>
+
 #include <QDateTime>
 #include <QFileInfo>
 #include <QIcon>
@@ -314,7 +316,7 @@ void Backend::searchPacman(int gen, const QStringList &tokens) {
             return;
         // pacman -Ss exits 1 when nothing matches.
         ingest(gen, QStringLiteral("pacman"), parsePacmanSearch(out),
-               code > 1 || code < 0 ? tr("pacman no ha podido buscar.") : QString());
+               code > 1 || code < 0 ? tr("pacman could not search.") : QString());
     }, 20000, &m_searchProcs);
 }
 
@@ -341,7 +343,7 @@ void Backend::searchAur(int gen, const QStringList &tokens) {
                 searchAurViaYay(gen, tokens);
             } else {
                 ingest(gen, QStringLiteral("aur"), {},
-                       tr("AUR no disponible (sin conexión)."));
+                       tr("AUR is not available (offline)."));
             }
             return;
         }
@@ -351,7 +353,7 @@ void Backend::searchAur(int gen, const QStringList &tokens) {
             // e.g. "Too many package results" for very short terms: not a failure of AUR.
             ingest(gen, QStringLiteral("aur"), {},
                    root.value(QStringLiteral("error")).toString().contains(QLatin1String("Too many"))
-                       ? tr("AUR: demasiados resultados, afina la búsqueda.") : QString());
+                       ? tr("AUR: too many results, narrow your search.") : QString());
             return;
         }
         QVector<Package> out;
@@ -392,7 +394,7 @@ void Backend::searchAurViaYay(int gen, const QStringList &tokens) {
         if (gen != m_gen)
             return;
         ingest(gen, QStringLiteral("aur"), parseYaySearch(out),
-               code < 0 ? tr("AUR no disponible.") : QString());
+               code < 0 ? tr("AUR is not available.") : QString());
     }, 25000, &m_searchProcs);
 }
 
@@ -404,7 +406,7 @@ void Backend::searchFlatpak(int gen, const QString &query) {
         if (gen != m_gen)
             return;
         ingest(gen, QStringLiteral("flatpak"), parseFlatpakTable(out, m_defaultRemote, true),
-               code < 0 ? tr("Flatpak no ha podido buscar.") : QString());
+               code < 0 ? tr("Flatpak could not search.") : QString());
     }, 25000, &m_searchProcs);
 }
 
@@ -890,22 +892,22 @@ static QVariantList pacmanFields(const QList<QPair<QString, QStringList>> &kv, b
     struct Def { const char *key; const char *label; const char *kind; };
     static const Def defs[] = {
         {"URL", "Web", "link"},
-        {"Licenses", "Licencias", "text"},
-        {"Groups", "Grupos", "text"},
-        {"Architecture", "Arquitectura", "text"},
-        {"Download Size", "Tamaño de descarga", "text"},
-        {"Installed Size", "Tamaño instalado", "text"},
-        {"Install Reason", "Motivo de instalación", "text"},
-        {"Install Date", "Instalado el", "text"},
-        {"Depends On", "Dependencias", "list"},
-        {"Optional Deps", "Dependencias opcionales", "list"},
-        {"Required By", "Requerido por", "list"},
-        {"Optional For", "Opcional para", "list"},
-        {"Provides", "Provee", "list"},
-        {"Conflicts With", "Entra en conflicto con", "list"},
-        {"Replaces", "Reemplaza a", "list"},
-        {"Packager", "Empaquetado por", "text"},
-        {"Build Date", "Fecha de compilación", "text"},
+        {"Licenses", "Licences", "text"},
+        {"Groups", "Groups", "text"},
+        {"Architecture", "Architecture", "text"},
+        {"Download Size", "Download size", "text"},
+        {"Installed Size", "Installed size", "text"},
+        {"Install Reason", "Reason for installing", "text"},
+        {"Install Date", "Installed on", "text"},
+        {"Depends On", "Dependencies", "list"},
+        {"Optional Deps", "Optional dependencies", "list"},
+        {"Required By", "Required by", "list"},
+        {"Optional For", "Optional for", "list"},
+        {"Provides", "Provides", "list"},
+        {"Conflicts With", "Conflicts with", "list"},
+        {"Replaces", "Replaces", "list"},
+        {"Packager", "Packaged by", "text"},
+        {"Build Date", "Build date", "text"},
     };
     Q_UNUSED(aurExtras)
     QVariantList fields;
@@ -934,11 +936,11 @@ static QVariantList pacmanFields(const QList<QPair<QString, QStringList>> &kv, b
                 if (value.isEmpty() || value == QLatin1String("None") || value == QLatin1String("Unknown"))
                     break;
                 if (QLatin1String(d.key) == QLatin1String("Install Reason"))
-                    value = value.startsWith(QLatin1String("Explicitly")) ? QStringLiteral("Instalado explícitamente")
-                                                                         : QStringLiteral("Como dependencia");
+                    value = value.startsWith(QLatin1String("Explicitly")) ? QCoreApplication::translate("Backend", "Explicitly installed")
+                                                                         : QCoreApplication::translate("Backend", "As a dependency");
             }
             QVariantMap f;
-            f[QStringLiteral("label")] = QString::fromUtf8(d.label);
+            f[QStringLiteral("label")] = QCoreApplication::translate("Backend", d.label);
             f[QStringLiteral("value")] = value;
             f[QStringLiteral("kind")] = kind;
             f[QStringLiteral("items")] = items;
@@ -1098,7 +1100,7 @@ void Backend::loadAurDetail(int gen, const QString &id, QVariantMap base) {
                         if (gen != m_detailGen)
                             return;
                         if (code != 0) {
-                            base[QStringLiteral("error")] = tr("No se pudo obtener la información de AUR.") + QLatin1Char(' ')
+                            base[QStringLiteral("error")] = tr("Could not get the AUR information.") + QLatin1Char(' ')
                                 + QString::fromUtf8(err).trimmed().left(200);
                             setDetail(gen, base, false);
                             return;
@@ -1113,7 +1115,7 @@ void Backend::loadAurDetail(int gen, const QString &id, QVariantMap base) {
                     }, 25000, &m_detailProcs);
                 return;
             }
-            base[QStringLiteral("error")] = tr("No se pudo obtener la información de AUR (sin conexión).");
+            base[QStringLiteral("error")] = tr("Could not get the AUR information (offline).");
             setDetail(gen, base, false);
             return;
         }
@@ -1126,25 +1128,25 @@ void Backend::loadAurDetail(int gen, const QString &id, QVariantMap base) {
         base[QStringLiteral("outOfDate")] = ood;
 
         add(tr("Web"), o.value(QStringLiteral("URL")).toString(), QStringLiteral("link"));
-        add(tr("Página en AUR"), QStringLiteral("https://aur.archlinux.org/packages/") + id, QStringLiteral("link"));
-        add(tr("Licencias"), strs(o.value(QStringLiteral("License"))).join(QLatin1String(", ")));
-        add(tr("Mantenedor"), o.value(QStringLiteral("Maintainer")).toString());
-        add(tr("Votos"), QStringLiteral("%1 · popularidad %2").arg(o.value(QStringLiteral("NumVotes")).toInt())
+        add(tr("AUR page"), QStringLiteral("https://aur.archlinux.org/packages/") + id, QStringLiteral("link"));
+        add(tr("Licences"), strs(o.value(QStringLiteral("License"))).join(QLatin1String(", ")));
+        add(tr("Maintainer"), o.value(QStringLiteral("Maintainer")).toString());
+        add(tr("Votes"), QStringLiteral("%1 · popularidad %2").arg(o.value(QStringLiteral("NumVotes")).toInt())
                 .arg(o.value(QStringLiteral("Popularity")).toDouble(), 0, 'f', 2));
-        add(tr("Primera publicación"), fmtDate(o.value(QStringLiteral("FirstSubmitted")).toVariant().toLongLong()));
-        add(tr("Última modificación"), fmtDate(o.value(QStringLiteral("LastModified")).toVariant().toLongLong()));
+        add(tr("First release"), fmtDate(o.value(QStringLiteral("FirstSubmitted")).toVariant().toLongLong()));
+        add(tr("Last modified"), fmtDate(o.value(QStringLiteral("LastModified")).toVariant().toLongLong()));
         if (ood)
-            add(tr("Estado"), tr("Marcado como desactualizado el %1")
+            add(tr("Status"), tr("Marked out of date on %1")
                     .arg(fmtDate(o.value(QStringLiteral("OutOfDate")).toVariant().toLongLong())));
         const QStringList dep = strs(o.value(QStringLiteral("Depends")));
         const QStringList mk = strs(o.value(QStringLiteral("MakeDepends")));
         const QStringList opt = strs(o.value(QStringLiteral("OptDepends")));
-        if (!dep.isEmpty()) add(tr("Dependencias"), dep.join(QLatin1String(", ")), QStringLiteral("list"), dep);
-        if (!mk.isEmpty()) add(tr("Dependencias de compilación"), mk.join(QLatin1String(", ")), QStringLiteral("list"), mk);
-        if (!opt.isEmpty()) add(tr("Dependencias opcionales"), opt.join(QLatin1String(", ")), QStringLiteral("list"), opt);
+        if (!dep.isEmpty()) add(tr("Dependencies"), dep.join(QLatin1String(", ")), QStringLiteral("list"), dep);
+        if (!mk.isEmpty()) add(tr("Build dependencies"), mk.join(QLatin1String(", ")), QStringLiteral("list"), mk);
+        if (!opt.isEmpty()) add(tr("Optional dependencies"), opt.join(QLatin1String(", ")), QStringLiteral("list"), opt);
         const QString pbase = o.value(QStringLiteral("PackageBase")).toString();
         if (!pbase.isEmpty() && pbase != id)
-            add(tr("Paquete base"), pbase);
+            add(tr("Base package"), pbase);
         base[QStringLiteral("fields")] = fields;
         base[QStringLiteral("canFiles")] = installed;
 
@@ -1159,10 +1161,9 @@ void Backend::loadAurDetail(int gen, const QString &id, QVariantMap base) {
                         const QVariantList local = pacmanFields(parseKeyBlocks(out), true);
                         for (const QVariant &v : local) {
                             const QString l = v.toMap().value(QStringLiteral("label")).toString();
-                            if (l == tr("Tamaño instalado") || l == tr("Requerido por") || l == tr("Instalado el")
-                                || l == tr("Motivo de instalación") || l == QLatin1String("Tamaño instalado")
-                                || l == QLatin1String("Requerido por") || l == QLatin1String("Instalado el")
-                                || l == QLatin1String("Motivo de instalación"))
+                            if (l == QCoreApplication::translate("Backend", "Installed size") || l == QCoreApplication::translate("Backend", "Required by")
+                                || l == QCoreApplication::translate("Backend", "Installed on")
+                                || l == QCoreApplication::translate("Backend", "Reason for installing"))
                                 f.append(v);
                         }
                         base[QStringLiteral("fields")] = f;
@@ -1213,17 +1214,17 @@ void Backend::loadFlatpakDetail(int gen, const QString &id, const QString &repo,
             if (!kv.value(key).isEmpty())
                 f.append(field(label, kv.value(key), kind));
         };
-        f.append(field(tr("ID de aplicación"), id));
-        f.append(field(tr("Ficha en Flathub"), QStringLiteral("https://flathub.org/apps/") + id, QStringLiteral("link")));
-        add(QStringLiteral("License"), tr("Licencia"));
-        add(QStringLiteral("Origin"), tr("Remoto"));
-        add(QStringLiteral("Branch"), tr("Rama"));
-        add(QStringLiteral("Arch"), tr("Arquitectura"));
-        add(QStringLiteral("Installation"), tr("Instalación"));
-        add(QStringLiteral("Download Size"), tr("Tamaño de descarga"));
-        add(QStringLiteral("Installed Size"), tr("Tamaño instalado"));
+        f.append(field(tr("Application ID"), id));
+        f.append(field(tr("Flathub page"), QStringLiteral("https://flathub.org/apps/") + id, QStringLiteral("link")));
+        add(QStringLiteral("License"), tr("Licence"));
+        add(QStringLiteral("Origin"), tr("Remote"));
+        add(QStringLiteral("Branch"), tr("Branch"));
+        add(QStringLiteral("Arch"), tr("Architecture"));
+        add(QStringLiteral("Installation"), tr("Installation"));
+        add(QStringLiteral("Download Size"), tr("Download size"));
+        add(QStringLiteral("Installed Size"), tr("Installed size"));
         add(QStringLiteral("Runtime"), tr("Runtime"));
-        add(QStringLiteral("Date"), tr("Fecha"));
+        add(QStringLiteral("Date"), tr("Date"));
         base[QStringLiteral("fields")] = f;
         setDetail(gen, base, false);
     }, 25000, &m_detailProcs);

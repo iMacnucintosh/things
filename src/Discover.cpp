@@ -186,8 +186,8 @@ void Discover::collectionDone(const QString &id, const QVariantList &items, bool
         return;
 
     if (m_failed == collections().size()) {
-        m_notice = hasData() ? tr("Sin conexión con Flathub: se muestran los últimos datos guardados.")
-                             : tr("No se ha podido contactar con Flathub.");
+        m_notice = hasData() ? tr("No connection to Flathub: the last saved data is shown.")
+                             : tr("Could not reach Flathub.");
         emit loadingChanged();
         emit changed();
         return;
@@ -281,6 +281,6 @@ QString Discover::formatInstalls(double n) const {
     if (n >= 1e6)
         return QStringLiteral("%1 M").arg(QString::number(n / 1e6, 'f', 1).replace(QLatin1Char('.'), QLatin1Char(',')));
     if (n >= 1000)
-        return tr("%1 mil").arg(qRound(n / 1000.0));
+        return tr("%1k").arg(qRound(n / 1000.0));
     return QString::number(qRound(n));
 }

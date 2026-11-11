@@ -28,8 +28,8 @@ Rectangle {
     function scrollTo(y) { flick.contentY = Math.max(0, Math.min(y, flick.contentHeight - flick.height)) }
 
     function linkLabel(kind) {
-        return kind === "homepage" ? qsTr("Web") : kind === "help" ? qsTr("Ayuda") : kind === "faq" ? qsTr("Preguntas")
-             : kind === "bugtracker" ? qsTr("Reportar un fallo") : qsTr("Donar")
+        return kind === "homepage" ? qsTr("Web") : kind === "help" ? qsTr("Help") : kind === "faq" ? qsTr("Questions")
+             : kind === "bugtracker" ? qsTr("Report a bug") : qsTr("Donate")
     }
     function linkIcon(kind) {
         return kind === "homepage" ? "public" : kind === "help" ? "help" : kind === "faq" ? "quiz"
@@ -55,7 +55,7 @@ Rectangle {
             StyledText {
                 Layout.fillWidth: true
                 Layout.leftMargin: 8
-                text: qsTr("Detalles")
+                text: qsTr("Details")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 13
             }
@@ -174,7 +174,7 @@ Rectangle {
                     spacing: 10
                     ActionButton {
                         visible: !root.installed
-                        text: qsTr("Instalar")
+                        text: qsTr("Install")
                         icon: "download"
                         busy: root.busy
                         enabled: !root.loading
@@ -182,7 +182,7 @@ Rectangle {
                     }
                     ActionButton {
                         visible: root.installed
-                        text: qsTr("Eliminar")
+                        text: qsTr("Remove", "package")
                         icon: "delete"
                         tone: "error"
                         busy: root.busy
@@ -198,7 +198,7 @@ Rectangle {
                             colour: Theme.primary
                         }
                         StyledText {
-                            text: qsTr("Instalado") + (root.detail.installedVersion ? " · " + root.detail.installedVersion : "")
+                            text: qsTr("Installed", "package") + (root.detail.installedVersion ? " · " + root.detail.installedVersion : "")
                             color: Theme.onSurfaceVariant
                             font.pixelSize: 13
                             elide: Text.ElideRight
@@ -222,7 +222,7 @@ Rectangle {
                         MaterialIcon { icon: "warning"; size: 20; colour: Theme.error }
                         StyledText {
                             Layout.fillWidth: true
-                            text: qsTr("Este paquete está marcado como desactualizado en AUR.")
+                            text: qsTr("This package is marked out of date in the AUR.")
                             color: Theme.error
                             font.pixelSize: 13
                             wrapMode: Text.Wrap
@@ -239,7 +239,7 @@ Rectangle {
                         colour: Theme.onSurfaceVariant
                     }
                     StyledText {
-                        text: qsTr("Cargando información…")
+                        text: qsTr("Loading information…")
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 13
                     }
@@ -281,7 +281,7 @@ Rectangle {
                     visible: root.hasExtras && (root.extras.description || "").length > 0
                     spacing: 6
                     StyledText {
-                        text: qsTr("Acerca de")
+                        text: qsTr("About")
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 12
                     }
@@ -296,7 +296,7 @@ Rectangle {
                     }
                     Chip {
                         visible: aboutText.truncated || root.aboutOpen
-                        label: root.aboutOpen ? qsTr("Mostrar menos") : qsTr("Mostrar más")
+                        label: root.aboutOpen ? qsTr("Show less") : qsTr("Show more")
                         icon: root.aboutOpen ? "expand_less" : "expand_more"
                         onClicked: root.aboutOpen = !root.aboutOpen
                     }
@@ -307,14 +307,14 @@ Rectangle {
                     visible: root.hasExtras && !!root.extras.release
                     spacing: 4
                     StyledText {
-                        text: qsTr("Novedades")
+                        text: qsTr("What's new")
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 12
                     }
                     StyledText {
                         Layout.fillWidth: true
                         text: root.hasExtras && root.extras.release
-                              ? (qsTr("Versión %1").arg(root.extras.release.version)
+                              ? (qsTr("Version %1").arg(root.extras.release.version)
                                  + (root.extras.release.date ? " · " + root.extras.release.date : "")) : ""
                         font.pixelSize: 13
                     }
@@ -441,7 +441,7 @@ Rectangle {
                     visible: !!root.detail.canFiles
                     spacing: 8
                     ActionButton {
-                        text: root.filesOpen ? qsTr("Ocultar archivos") : qsTr("Ver archivos instalados")
+                        text: root.filesOpen ? qsTr("Hide files") : qsTr("See installed files")
                         icon: root.filesOpen ? "expand_less" : "folder_open"
                         tone: "tonal"
                         onClicked: {
@@ -461,7 +461,7 @@ Rectangle {
                         StyledText {
                             anchors.centerIn: parent
                             visible: Things.detailFilesLoading
-                            text: qsTr("Leyendo archivos…")
+                            text: qsTr("Reading files…")
                             color: Theme.onSurfaceVariant
                             font.pixelSize: 13
                         }

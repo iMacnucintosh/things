@@ -88,7 +88,7 @@ Item {
                     spacing: 0
                     StyledText {
                         Layout.fillWidth: true
-                        text: (root.removing ? qsTr("¿Eliminar %1?") : qsTr("¿Instalar %1?")).arg(root.pkgName)
+                        text: (root.removing ? qsTr("Remove %1?") : qsTr("Install %1?")).arg(root.pkgName)
                         font.pixelSize: 17
                         elide: Text.ElideRight
                     }
@@ -109,7 +109,7 @@ Item {
                     colour: Theme.onSurfaceVariant
                 }
                 StyledText {
-                    text: qsTr("Calculando cambios…")
+                    text: qsTr("Working out the changes…")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 13
                 }
@@ -138,10 +138,10 @@ Item {
                 Layout.fillWidth: true
                 visible: !root.loading && root.ok && root.packages.length > 0 && root.source !== "flatpak" && !(root.source === "aur" && !root.removing)
                 text: root.removing
-                      ? (root.packages.length === 1 ? qsTr("Se eliminará este paquete:")
-                                                     : qsTr("Se eliminarán %1 paquetes (el paquete y las dependencias que ya nadie necesita):").arg(root.packages.length))
-                      : (root.packages.length === 1 ? qsTr("Se instalará 1 paquete")
-                                                     : qsTr("Se instalarán %1 paquetes (con sus dependencias)").arg(root.packages.length))
+                      ? (root.packages.length === 1 ? qsTr("This package will be removed:")
+                                                     : qsTr("%1 packages will be removed (the package and the dependencies nobody needs any more):").arg(root.packages.length))
+                      : (root.packages.length === 1 ? qsTr("1 package will be installed")
+                                                     : qsTr("%1 packages will be installed (with their dependencies)").arg(root.packages.length))
                         + (root.total > 0 ? " · " + Things.formatSize(root.total) : "")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 13
@@ -214,7 +214,7 @@ Item {
             StyledText {
                 Layout.fillWidth: true
                 visible: !root.loading && root.ok && root.removing && root.source === "flatpak"
-                text: qsTr("También se quitarán los runtimes que ninguna otra aplicación use.")
+                text: qsTr("The runtimes no other app uses will also be removed.")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 12
                 wrapMode: Text.Wrap
@@ -236,7 +236,7 @@ Item {
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: root.source === "sylphrena" ? qsTr("Borrar también sus ajustes y sus datos (no se puede deshacer)") : qsTr("Borrar también los datos de la aplicación (no se puede deshacer)")
+                        text: root.source === "sylphrena" ? qsTr("Also delete its settings and data (this cannot be undone)") : qsTr("Also delete the app's data (this cannot be undone)")
                         color: root.deleteData ? Theme.error : Theme.onSurface
                         font.pixelSize: 13
                         wrapMode: Text.Wrap
@@ -261,7 +261,7 @@ Item {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: qsTr("Pedirá tu contraseña de administrador si hace falta.")
+                    text: qsTr("It will ask for your administrator password if needed.")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 12
                     opacity: 0.8
@@ -274,12 +274,12 @@ Item {
                 Layout.topMargin: 4
                 spacing: 8
                 ActionButton {
-                    text: qsTr("Cancelar")
+                    text: qsTr("Cancel")
                     tone: "text"
                     onClicked: root.open = false
                 }
                 ActionButton {
-                    text: root.removing ? qsTr("Eliminar") : qsTr("Instalar")
+                    text: root.removing ? qsTr("Remove", "package") : qsTr("Install")
                     icon: root.removing ? "delete" : "download"
                     tone: root.removing ? "error" : "primary"
                     enabled: root.canConfirm

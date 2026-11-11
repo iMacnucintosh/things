@@ -11,7 +11,7 @@ ApplicationWindow {
     height: 760
     minimumWidth: 880
     minimumHeight: 520
-    title: Things.mode === "installed" ? qsTr("Instalados — Things") : qsTr("Things")
+    title: Things.mode === "installed" ? qsTr("Installed — Things") : qsTr("Things")
     color: Theme.surface
     font.family: Theme.uiFamily
 
@@ -275,8 +275,8 @@ ApplicationWindow {
                     Layout.maximumWidth: 760
                     Layout.preferredHeight: 48
                     Layout.leftMargin: 8
-                    placeholder: win.installedMode ? qsTr("Filtrar paquetes instalados…  (Ctrl+L)")
-                                                   : qsTr("Buscar en pacman, AUR y Flatpak…  (Ctrl+L)")
+                    placeholder: win.installedMode ? qsTr("Filter installed packages…  (Ctrl+L)")
+                                                   : qsTr("Search pacman, AUR and Flatpak…  (Ctrl+L)")
                     busy: !win.installedMode && Things.searching
                     onTextChanged: {
                         if (Things.query !== text)
@@ -351,7 +351,7 @@ ApplicationWindow {
                             id: rDisc
                             width: parent.width
                             symbol: "storefront"
-                            label: qsTr("Descubrir")
+                            label: qsTr("Discover")
                             active: win.railIndex === 0
                             onClicked: win.showSection("discover")
                         }
@@ -359,7 +359,7 @@ ApplicationWindow {
                             id: rSearch
                             width: parent.width
                             symbol: "travel_explore"
-                            label: qsTr("Buscar")
+                            label: qsTr("Search")
                             active: win.railIndex === 1
                             onClicked: win.showSection("search")
                         }
@@ -367,7 +367,7 @@ ApplicationWindow {
                             id: rInst
                             width: parent.width
                             symbol: "inventory_2"
-                            label: qsTr("Instalados")
+                            label: qsTr("Installed", "section")
                             trailing: Things.installedTotal > 0 ? Things.installedTotal : ""
                             active: win.installedMode
                             onClicked: win.showSection("installed")
@@ -426,7 +426,7 @@ ApplicationWindow {
                                 spacing: 8
 
                                 Chip {
-                                    label: qsTr("Todos")
+                                    label: qsTr("All")
                                     count: Things.counts.all
                                     selected: Things.sourceFilter === "all"
                                     onClicked: Things.sourceFilter = "all"
@@ -456,45 +456,45 @@ ApplicationWindow {
                                 // State filters (search) / kind filters (installed)
                                 Chip {
                                     visible: !win.installedMode
-                                    label: qsTr("Cualquiera")
+                                    label: qsTr("Any")
                                     selected: Things.stateFilter === "all"
                                     onClicked: Things.stateFilter = "all"
                                 }
                                 Chip {
                                     visible: !win.installedMode
-                                    label: qsTr("Instalados")
+                                    label: qsTr("Installed", "section")
                                     icon: "check_circle"
                                     selected: Things.stateFilter === "installed"
                                     onClicked: Things.stateFilter = "installed"
                                 }
                                 Chip {
                                     visible: !win.installedMode
-                                    label: qsTr("Disponibles")
+                                    label: qsTr("Available")
                                     icon: "download"
                                     selected: Things.stateFilter === "available"
                                     onClicked: Things.stateFilter = "available"
                                 }
                                 Chip {
                                     visible: win.installedMode
-                                    label: qsTr("Cualquiera")
+                                    label: qsTr("Any")
                                     selected: Things.kindFilter === "all"
                                     onClicked: Things.kindFilter = "all"
                                 }
                                 Chip {
                                     visible: win.installedMode
-                                    label: qsTr("Explícitos")
+                                    label: qsTr("Explicit")
                                     selected: Things.kindFilter === "explicit"
                                     onClicked: Things.kindFilter = "explicit"
                                 }
                                 Chip {
                                     visible: win.installedMode
-                                    label: qsTr("Dependencias")
+                                    label: qsTr("Dependencies")
                                     selected: Things.kindFilter === "dep"
                                     onClicked: Things.kindFilter = "dep"
                                 }
                                 Chip {
                                     visible: win.installedMode
-                                    label: qsTr("Huérfanos")
+                                    label: qsTr("Orphans")
                                     selected: Things.kindFilter === "orphan"
                                     onClicked: Things.kindFilter = "orphan"
                                 }
@@ -629,27 +629,27 @@ ApplicationWindow {
                                     anchors.fill: parent
                                     visible: list.count === 0 && !win.installedMode && Things.query.trim().length < 2
                                     icon: "travel_explore"
-                                    title: qsTr("Busca software en un solo sitio")
-                                    subtitle: qsTr("Repositorios de Arch, AUR y Flathub a la vez. Escribe al menos dos letras.")
+                                    title: qsTr("Find software in one place")
+                                    subtitle: qsTr("Arch repositories, AUR and Flathub at once. Type at least two letters.")
                                 }
                                 EmptyState {
                                     anchors.fill: parent
                                     visible: list.count === 0 && !win.installedMode && Things.query.trim().length >= 2 && Things.searching
                                     busy: true
-                                    title: qsTr("Buscando…")
-                                    subtitle: qsTr("Consultando pacman, AUR y Flatpak")
+                                    title: qsTr("Searching…")
+                                    subtitle: qsTr("Querying pacman, AUR and Flatpak")
                                 }
                                 EmptyState {
                                     anchors.fill: parent
                                     visible: list.count === 0 && !win.installedMode && Things.query.trim().length >= 2 && !Things.searching
                                     icon: "search_off"
-                                    title: qsTr("Sin resultados para «%1»").arg(Things.query.trim())
+                                    title: qsTr("No results for “%1”").arg(Things.query.trim())
                                     subtitle: (Things.sourceFilter !== "all" || Things.stateFilter !== "all")
-                                              ? qsTr("Prueba a quitar los filtros de origen o estado.")
-                                              : qsTr("Revisa la ortografía o prueba con otro término.")
+                                              ? qsTr("Try removing the source or status filters.")
+                                              : qsTr("Check the spelling or try another term.")
                                     ActionButton {
                                         visible: Things.sourceFilter !== "all" || Things.stateFilter !== "all"
-                                        text: qsTr("Quitar filtros")
+                                        text: qsTr("Clear filters")
                                         tone: "tonal"
                                         onClicked: { Things.sourceFilter = "all"; Things.stateFilter = "all" }
                                     }
@@ -658,15 +658,15 @@ ApplicationWindow {
                                     anchors.fill: parent
                                     visible: list.count === 0 && win.installedMode && Things.loadingInstalled
                                     busy: true
-                                    title: qsTr("Leyendo paquetes instalados…")
+                                    title: qsTr("Reading installed packages…")
                                 }
                                 EmptyState {
                                     anchors.fill: parent
                                     visible: list.count === 0 && win.installedMode && !Things.loadingInstalled
                                     icon: "inventory_2"
-                                    title: Things.query.trim().length ? qsTr("Ningún instalado coincide con «%1»").arg(Things.query.trim())
-                                                                      : qsTr("No hay paquetes en esta vista")
-                                    subtitle: Things.kindFilter === "orphan" && !Things.query.length ? qsTr("¡Perfecto! No hay dependencias huérfanas.") : ""
+                                    title: Things.query.trim().length ? qsTr("No installed package matches “%1”").arg(Things.query.trim())
+                                                                      : qsTr("There are no packages in this view")
+                                    subtitle: Things.kindFilter === "orphan" && !Things.query.length ? qsTr("Perfect! There are no orphan dependencies.") : ""
                                 }
                             }
                         }

@@ -8,7 +8,7 @@ Item {
     id: root
     property bool open: Ops.awaitingPassword
     property real progress: open ? 1 : 0
-    property string heading: qsTr("Se necesita autorización")
+    property string heading: qsTr("Authorization needed")
 
     anchors.fill: parent
     visible: progress > 0.01
@@ -118,7 +118,7 @@ Item {
 
             StyledText {
                 Layout.fillWidth: true
-                text: qsTr("Introduce tu contraseña para continuar. Solo se guarda en memoria unos minutos y nunca se escribe en disco.")
+                text: qsTr("Enter your password to continue. It is only kept in memory for a few minutes and is never written to disk.")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 13
                 wrapMode: Text.Wrap
@@ -129,7 +129,7 @@ Item {
                 Layout.fillWidth: true
                 echoMode: TextInput.Password
                 passwordCharacter: "•"
-                placeholderText: qsTr("Contraseña")
+                placeholderText: qsTr("Password")
                 placeholderTextColor: Theme.onSurfaceVariant
                 color: Theme.onSurface
                 selectedTextColor: Theme.onPrimary
@@ -170,12 +170,12 @@ Item {
                 Layout.alignment: Qt.AlignRight
                 spacing: 8
                 ActionButton {
-                    text: qsTr("Cancelar")
+                    text: qsTr("Cancel")
                     tone: "text"
                     onClicked: Ops.cancelPassword()
                 }
                 ActionButton {
-                    text: qsTr("Autorizar")
+                    text: qsTr("Authorize")
                     icon: "key"
                     busy: Ops.authBusy
                     enabled: pw.text.length > 0

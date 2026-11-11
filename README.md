@@ -104,3 +104,10 @@ qml/                Main.qml + components (Material You, copiados/adaptados de S
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
+
+## Idiomas
+
+El código está en inglés (`qsTr("…")`, `tr("…")`) y cada idioma es un catálogo JSON en `i18n/<idioma>.json` (texto en inglés →
+traducción; una clave `contexto\u0004texto` distingue dos traducciones del mismo texto). Hoy: español (`es`). Un idioma sin
+catálogo se ve en inglés; `THINGS_LANG=es` fuerza uno. `scripts/check-i18n.py` comprueba que no falta ni sobra ninguna cadena.
+

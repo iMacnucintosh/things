@@ -37,7 +37,7 @@ Item {
                 StyledText {
                     id: tag
                     anchors.centerIn: parent
-                    text: qsTr("Destacada de hoy")
+                    text: qsTr("Featured today")
                     color: Theme.onPrimaryContainer
                     font.pixelSize: 11
                 }
@@ -93,20 +93,20 @@ Item {
             RowLayout {
                 spacing: 10
                 ActionButton {
-                    text: root.installed ? qsTr("Instalada") : qsTr("Instalar")
+                    text: root.installed ? qsTr("Installed") : qsTr("Install")
                     icon: root.installed ? "check" : "download"
                     tone: root.installed ? "tonal" : "primary"
                     enabled: !root.installed
                     onClicked: root.installApp()
                 }
                 ActionButton {
-                    text: qsTr("Ver detalles")
+                    text: qsTr("See details")
                     tone: "text"
                     onClicked: root.openApp()
                 }
                 StyledText {
                     visible: (root.app.installs || 0) > 0
-                    text: qsTr("%1 instalaciones este mes").arg(Discover.formatInstalls(root.app.installs))
+                    text: qsTr("%1 installs this month").arg(Discover.formatInstalls(root.app.installs))
                     color: Theme.onPrimaryContainer
                     opacity: 0.7
                     font.pixelSize: 12

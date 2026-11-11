@@ -50,7 +50,7 @@ Operations::~Operations() {
 }
 
 QString Operations::title(const Op &op) {
-    const QString verb = op.kind == QLatin1String("install") ? QObject::tr("Instalando") : QObject::tr("Eliminando");
+    const QString verb = op.kind == QLatin1String("install") ? QObject::tr("Installing") : QObject::tr("Removing");
     return verb + QLatin1Char(' ') + (op.name.isEmpty() ? op.pkg : op.name);
 }
 
@@ -182,7 +182,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
         // validation, system pieces, receipt, telling the shell). It asks for root only when the
         // extension has system pieces, through this app's askpass (SUDO_ASKPASS, set in launch()).
         if (!m_hub || m_hub->tool().isEmpty()) {
-            c.error = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            c.error = tr("Sylphrena was not found: Things needs its extensions tool.");
             return c;
         }
         c.program = QStringLiteral("python3");
@@ -190,7 +190,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
         if (install) {
             const QVariantMap e = m_hub->entry(op.pkg);
             if (e.isEmpty()) {
-                c.error = tr("Esta extensión ya no está en el catálogo.");
+                c.error = tr("This extension is no longer in the catalogue.");
                 return c;
             }
             c.args << QStringLiteral("install-hub") << op.pkg << QStringLiteral("--url")
@@ -210,7 +210,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
     if (op.source == QLatin1String("sylphrena-zip")) {
         // A zip the user picked: the shell's own tool validates it and installs it (it stays "local")
         if (!m_hub || m_hub->tool().isEmpty() || !install) {
-            c.error = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            c.error = tr("Sylphrena was not found: Things needs its extensions tool.");
             return c;
         }
         c.program = QStringLiteral("python3");
@@ -221,7 +221,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
     }
     if (op.source == QLatin1String("pacman") || (op.source == QLatin1String("aur") && !install)) {
         if (!m_backend->hasPacman()) {
-            c.error = tr("pacman no está disponible.");
+            c.error = tr("pacman is not available.");
             return c;
         }
         c.program = sudo;
@@ -235,7 +235,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
                << QStringLiteral("--") << op.pkg;
     } else if (op.source == QLatin1String("aur")) {
         if (!m_backend->hasYay()) {
-            c.error = tr("yay no está instalado: no se puede instalar desde AUR.");
+            c.error = tr("yay is not installed: AUR packages cannot be installed.");
             return c;
         }
         // --sudoflags=-A routes every sudo call through askpass. Never --sudoloop (faillock).
@@ -250,7 +250,7 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
                   QStringLiteral("--"), QStringLiteral("aur/") + op.pkg};
     } else {
         if (!m_backend->hasFlatpak()) {
-            c.error = tr("flatpak no está instalado.");
+            c.error = tr("flatpak is not installed.");
             return c;
         }
         QString where = install ? m_backend->flatpakInstallation() : m_backend->flatpakInstalledIn(op.pkg);
@@ -296,25 +296,25 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
 QString Operations::diagnose(const QString &log) const {
     const QString l = log.toLower();
     if (l.contains(QLatin1String("db.lck")) || l.contains(QLatin1String("unable to lock database")))
-        return tr("Otra instancia de pacman está en ejecución o quedó un bloqueo (/var/lib/pacman/db.lck).");
+        return tr("Another instance of pacman is running or a lock was left behind (/var/lib/pacman/db.lck).");
     if (l.contains(QLatin1String("failed retrieving file")) || l.contains(QLatin1String("error 404"))
         || l.contains(QLatin1String("404")))
-        return tr("Las bases de datos de pacman están desactualizadas. Actualiza el sistema (módulo Updates de Nexus) y reintenta.");
+        return tr("The pacman databases are out of date. Update the system (Nexus Updates module) and try again.");
     if (l.contains(QLatin1String("could not satisfy dependencies")) || l.contains(QLatin1String("breaks dependency")))
-        return tr("Hay dependencias sin resolver: otro paquete instalado depende de éste.");
+        return tr("There are unresolved dependencies: another installed package depends on this one.");
     if (l.contains(QLatin1String("conflicting files")) || l.contains(QLatin1String("exists in filesystem")))
-        return tr("Conflicto de archivos con otro paquete instalado.");
+        return tr("File conflict with another installed package.");
     if (l.contains(QLatin1String("target not found")) || l.contains(QLatin1String("no package found")))
-        return tr("El paquete no se encontró. Puede que las bases de datos estén desactualizadas.");
+        return tr("The package was not found. The databases may be out of date.");
     if (l.contains(QLatin1String("signature")) || l.contains(QLatin1String("pgp")) || l.contains(QLatin1String("keyring")))
-        return tr("Problema de firmas o claves PGP. Revisa el llavero de pacman.");
+        return tr("PGP signature or key problem. Check the pacman keyring.");
     if (l.contains(QLatin1String("no space left")))
-        return tr("No queda espacio en disco.");
+        return tr("No space left on the device.");
     if (l.contains(QLatin1String("a password is required")) || l.contains(QLatin1String("incorrect password"))
         || l.contains(QLatin1String("sorry, try again")))
-        return tr("sudo rechazó la contraseña. Vuelve a intentarlo.");
+        return tr("sudo rejected the password. Try again.");
     if (l.contains(QLatin1String("error: failed to build")) || l.contains(QLatin1String("makepkg")))
-        return tr("Falló la compilación del paquete de AUR. Revisa la salida.");
+        return tr("Building the AUR package failed. Check the output.");
     return {};
 }
 
@@ -352,7 +352,7 @@ void Operations::begin(Op &op) {
         op.status = QStringLiteral("waiting");
         m_awaiting = true;
         m_authError.clear();
-        setStatus(tr("Esperando autorización…"));
+        setStatus(tr("Waiting for authorization…"));
         emit queueChanged();
         emit passwordStateChanged();
         return;
@@ -387,8 +387,8 @@ void Operations::launch(Op &op) {
         // /proc instead of two pgrep runs: no blocking wait on the UI thread
         const bool running = processRunning(QStringLiteral("pacman")) || processRunning(QStringLiteral("yay"));
         const QString msg = running
-            ? tr("Otra instancia de pacman o yay está en ejecución. Espera a que termine e inténtalo de nuevo.")
-            : tr("Existe un bloqueo huérfano en %1. Si no hay otro gestor de paquetes en marcha, elimínalo con: sudo rm %1")
+            ? tr("Another instance of pacman or yay is running. Wait for it to finish and try again.")
+            : tr("There is a stale lock at %1. If no other package manager is running, remove it with: sudo rm %1")
                   .arg(QString::fromLatin1(kPacmanLock));
         appendLine(msg);
         op.status = QStringLiteral("failed");
@@ -402,7 +402,7 @@ void Operations::launch(Op &op) {
     }
 
     op.status = QStringLiteral("running");
-    setStatus(tr("Iniciando…"));
+    setStatus(tr("Starting…"));
     emit queueChanged();
 
     appendLine(QStringLiteral("$ ") + cmd.display);
@@ -424,7 +424,7 @@ void Operations::launch(Op &op) {
     });
     connect(m_proc, &QProcess::errorOccurred, this, [this](QProcess::ProcessError e) {
         if (e == QProcess::FailedToStart) {
-            appendLine(tr("No se pudo iniciar: %1").arg(m_proc->errorString()));
+            appendLine(tr("Could not start: %1").arg(m_proc->errorString()));
             finishCurrent(-2, false);
         }
     });
@@ -451,8 +451,8 @@ void Operations::runDry(Op &op, const Cmd &cmd) {
             if (fail) {
                 appendLine(QStringLiteral("error: simulated failure (THINGS_DRY_FAIL)"));
                 o->status = QStringLiteral("failed");
-                o->error = tr("Fallo simulado.");
-                m_hint = tr("Fallo simulado (THINGS_DRY_FAIL).");
+                o->error = tr("Simulated failure.");
+                m_hint = tr("Simulated failure (THINGS_DRY_FAIL).");
             } else {
                 appendLine(QStringLiteral("[dry-run] listo, nada se ha modificado."));
                 o->status = QStringLiteral("done");
@@ -478,7 +478,7 @@ void Operations::cancelCurrent() {
     }
     if (m_dryTimer.isActive()) {
         m_dryTimer.stop();
-        appendLine(tr("Cancelado."));
+        appendLine(tr("Cancelled."));
         op->status = QStringLiteral("cancelled");
         emit queueChanged();
         emit runningChanged();
@@ -488,7 +488,7 @@ void Operations::cancelCurrent() {
     if (!m_proc)
         return;
     m_cancelRequested = true;
-    appendLine(tr("Cancelando…"));
+    appendLine(tr("Cancelling…"));
     // SIGINT first: pacman/yay abort a transaction cleanly. sudo relays the signal.
     ::kill(pid_t(m_proc->processId()), SIGINT);
     QPointer<QProcess> p = m_proc;
@@ -510,14 +510,14 @@ void Operations::finishCurrent(int code, bool cancelled) {
     const bool ok = code == 0 && !cancelled;
     if (cancelled) {
         op->status = QStringLiteral("cancelled");
-        appendLine(tr("Operación cancelada."));
+        appendLine(tr("Operation cancelled."));
     } else if (ok) {
         op->status = QStringLiteral("done");
-        appendLine(tr("Operación completada."));
+        appendLine(tr("Operation completed."));
         m_progress = 1.0;
     } else {
         op->status = QStringLiteral("failed");
-        appendLine(tr("La operación falló (código %1).").arg(code));
+        appendLine(tr("The operation failed (code %1).").arg(code));
         if (op->source == QLatin1String("sylphrena") || op->source == QLatin1String("sylphrena-zip")) {
             // The tool says what went wrong in its last "error:" line (pacman's diagnoses do not apply)
             m_hint.clear();
@@ -531,7 +531,7 @@ void Operations::finishCurrent(int code, bool cancelled) {
         } else {
             m_hint = diagnose(m_logLines.join(QLatin1Char('\n')));
         }
-        op->error = m_hint.isEmpty() ? tr("La operación falló. Revisa la salida.") : m_hint;
+        op->error = m_hint.isEmpty() ? tr("The operation failed. Check the output.") : m_hint;
     }
     flushLog();
     m_priv.keepAlive();
@@ -561,7 +561,7 @@ void Operations::cancelPassword() {
             o.status = QStringLiteral("cancelled");
         }
     }
-    appendLine(tr("Autorización cancelada."));
+    appendLine(tr("Authorization cancelled."));
     setStatus(QString());
     emit queueChanged();
     emit passwordStateChanged();
@@ -647,7 +647,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
 
     if (!Validate::packageId(source, id) || (kind != QLatin1String("install") && kind != QLatin1String("remove"))) {
         res[QStringLiteral("ok")] = false;
-        res[QStringLiteral("error")] = tr("Paquete no válido.");
+        res[QStringLiteral("error")] = tr("Invalid package.");
         emit prepared(res);
         return;
     }
@@ -672,24 +672,24 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         QString note;
         if (install && e.isEmpty()) {
             res[QStringLiteral("ok")] = false;
-            res[QStringLiteral("error")] = tr("Esta extensión ya no está en el catálogo.");
+            res[QStringLiteral("error")] = tr("This extension is no longer in the catalogue.");
         } else if (install) {
-            note = tr("Se descargará del hub de Sylphrena (versión %1), se comprobará su huella y se instalará para tu usuario.")
+            note = tr("It will be downloaded from the Sylphrena hub (version %1), its checksum will be verified and it will be installed for your user.")
                        .arg(e.value(QStringLiteral("version")).toString());
             if (e.value(QStringLiteral("system")).toBool())
-                note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
+                note += QLatin1Char(' ') + tr("It needs administrator permissions to install system pieces (we will ask for your password).");
             if (!e.value(QStringLiteral("requires")).toString().isEmpty())
-                note += QLatin1Char(' ') + tr("Requiere Sylphrena %1.").arg(e.value(QStringLiteral("requires")).toString());
+                note += QLatin1Char(' ') + tr("Requires Sylphrena %1.").arg(e.value(QStringLiteral("requires")).toString());
             const QStringList needs = e.value(QStringLiteral("needs")).toStringList();
             if (!needs.isEmpty())
-                note += QLatin1Char(' ') + tr("Necesita: %1.").arg(needs.join(QStringLiteral("; ")));
+                note += QLatin1Char(' ') + tr("Needs: %1.").arg(needs.join(QStringLiteral("; ")));
             const QStringList optional = e.value(QStringLiteral("optional")).toStringList();
             if (!optional.isEmpty())
-                note += QLatin1Char(' ') + tr("Opcional: %1.").arg(optional.join(QStringLiteral("; ")));
+                note += QLatin1Char(' ') + tr("Optional: %1.").arg(optional.join(QStringLiteral("; ")));
         } else {
-            note = tr("Se quitará la extensión. Sus ajustes y sus datos (tareas, historial…) se conservan por si la vuelves a instalar; puedes borrarlos con la casilla de abajo.");
+            note = tr("The extension will be removed. Its settings and data (tasks, history…) are kept in case you install it again; you can delete them with the box below.");
             if (have.value(QStringLiteral("system")).toBool())
-                note += QLatin1Char(' ') + tr("También se quitarán sus piezas del sistema (te pediremos la contraseña).");
+                note += QLatin1Char(' ') + tr("Its system pieces will also be removed (we will ask for your password).");
         }
         res[QStringLiteral("packages")] = QVariantList{p};
         res[QStringLiteral("note")] = note;
@@ -701,7 +701,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         // Ask the shell's tool what the zip holds (it validates it without installing anything)
         if (!install || !m_hub || m_hub->tool().isEmpty()) {
             res[QStringLiteral("ok")] = false;
-            res[QStringLiteral("error")] = tr("No se encuentra Sylphrena: Things necesita su herramienta de extensiones.");
+            res[QStringLiteral("error")] = tr("Sylphrena was not found: Things needs its extensions tool.");
             QTimer::singleShot(0, this, [=, this]() { finish(res); });
             return;
         }
@@ -712,22 +712,22 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             const QJsonObject o = QJsonDocument::fromJson(proc->readAllStandardOutput()).object();
             if (!o.value(QLatin1String("ok")).toBool()) {
                 r[QStringLiteral("ok")] = false;
-                r[QStringLiteral("error")] = tr("Ese zip no es una extensión válida de Sylphrena.");
+                r[QStringLiteral("error")] = tr("That zip is not a valid Sylphrena extension.");
             } else if (!o.value(QLatin1String("incompatible")).toString().isEmpty()) {
                 r[QStringLiteral("ok")] = false;
-                r[QStringLiteral("error")] = tr("Esta extensión no puede correr en tu Sylphrena: %1.").arg(o.value(QLatin1String("incompatible")).toString());
+                r[QStringLiteral("error")] = tr("This extension cannot run on your Sylphrena: %1.").arg(o.value(QLatin1String("incompatible")).toString());
             } else {
                 m_zipRoot.insert(id, o.value(QLatin1String("system")).toBool());
                 QVariantMap p;
                 p[QStringLiteral("name")] = o.value(QLatin1String("name")).toString().left(80) + QLatin1Char(' ')
                     + o.value(QLatin1String("version")).toString().left(32);
                 p[QStringLiteral("size")] = double(QFileInfo(id).size());
-                QString note = tr("Se instalará para tu usuario desde el zip que has elegido. Su origen no es el hub de Sylphrena: instala solo extensiones en las que confíes; Things la mostrará como «local» y no la actualizará.");
+                QString note = tr("It will be installed for your user from the zip you chose. It does not come from the Sylphrena hub: only install extensions you trust; Things will show it as “local” and will not update it.");
                 const QString desc = o.value(QLatin1String("description")).toString().simplified().left(300);
                 if (!desc.isEmpty())
                     note.prepend(desc + QLatin1String("\n\n"));
                 if (o.value(QLatin1String("system")).toBool())
-                    note += QLatin1Char(' ') + tr("Necesita permisos de administrador para instalar piezas del sistema (te pediremos la contraseña).");
+                    note += QLatin1Char(' ') + tr("It needs administrator permissions to install system pieces (we will ask for your password).");
                 r[QStringLiteral("packages")] = QVariantList{p};
                 r[QStringLiteral("note")] = note;
             }
@@ -737,7 +737,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             proc->deleteLater();
             QVariantMap r = res;
             r[QStringLiteral("ok")] = false;
-            r[QStringLiteral("error")] = tr("No se pudo leer el zip.");
+            r[QStringLiteral("error")] = tr("Could not read the zip.");
             finish(r);
         });
         proc->start(QStringLiteral("python3"), {m_hub->tool(), QStringLiteral("inspect"), id});
@@ -750,7 +750,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         p[QStringLiteral("name")] = id;
         p[QStringLiteral("size")] = 0.0;
         res[QStringLiteral("packages")] = QVariantList{p};
-        res[QStringLiteral("note")] = tr("Se descargará el PKGBUILD de AUR y se compilará con yay. Los paquetes de AUR los mantiene la comunidad: revisa el PKGBUILD si no confías en el origen.");
+        res[QStringLiteral("note")] = tr("The PKGBUILD will be downloaded from the AUR and built with yay. AUR packages are maintained by the community: review the PKGBUILD if you do not trust the source.");
         QTimer::singleShot(0, this, [=, this]() { finish(res); });
         return;
     }
@@ -778,13 +778,13 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             const auto a = dl.match(out);
             const auto b = ins.match(out);
             QString note = m_backend->flatpakInstallation() == QLatin1String("system")
-                ? tr("Se instalará para todo el sistema desde «%1».").arg(remote)
-                : tr("Se instalará solo para tu usuario desde «%1».").arg(remote);
+                ? tr("It will be installed system-wide from “%1”.").arg(remote)
+                : tr("It will be installed for your user only from “%1”.").arg(remote);
             if (a.hasMatch())
-                note += QLatin1Char(' ') + tr("Descarga: %1.").arg(a.captured(1).trimmed());
+                note += QLatin1Char(' ') + tr("Download: %1.").arg(a.captured(1).trimmed());
             if (b.hasMatch())
-                note += QLatin1Char(' ') + tr("Ocupará: %1.").arg(b.captured(1).trimmed());
-            note += QLatin1Char(' ') + tr("Flatpak puede descargar además los runtimes que necesite.");
+                note += QLatin1Char(' ') + tr("It will take up: %1.").arg(b.captured(1).trimmed());
+            note += QLatin1Char(' ') + tr("Flatpak may also download the runtimes it needs.");
             res[QStringLiteral("packages")] = QVariantList{pkg};
             res[QStringLiteral("note")] = note;
             finish(res);
@@ -812,7 +812,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         p->deleteLater();
         if (code != 0) {
             res[QStringLiteral("ok")] = false;
-            QString e = err.isEmpty() ? tr("pacman no ha podido calcular la operación.") : err;
+            QString e = err.isEmpty() ? tr("pacman could not work out the operation.") : err;
             res[QStringLiteral("error")] = e;
             finish(res);
             return;
@@ -834,7 +834,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         res[QStringLiteral("packages")] = list;
         res[QStringLiteral("total")] = total;
         if (list.isEmpty() && install)
-            res[QStringLiteral("note")] = tr("Ya está instalado y actualizado.");
+            res[QStringLiteral("note")] = tr("It is already installed and up to date.");
         finish(res);
     });
     p->start(QStringLiteral("pacman"), args);

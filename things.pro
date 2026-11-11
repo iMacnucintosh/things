@@ -13,6 +13,7 @@ SOURCES += \
     src/Discover.cpp \
     src/FlathubInfo.cpp \
     src/HubCatalog.cpp \
+    src/JsonTranslator.cpp \
     src/Operations.cpp \
     src/PackageModel.cpp \
     src/Privilege.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     src/Discover.h \
     src/FlathubInfo.h \
     src/HubCatalog.h \
+    src/JsonTranslator.h \
     src/Operations.h \
     src/Package.h \
     src/PackageModel.h \

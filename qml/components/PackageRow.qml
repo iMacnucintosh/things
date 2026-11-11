@@ -117,7 +117,7 @@ Item {
                 }
                 StyledText {
                     visible: root.installedView && (root.reason === "dep" || root.orphan)
-                    text: root.orphan ? qsTr("huérfano") : qsTr("dependencia")
+                    text: root.orphan ? qsTr("orphan") : qsTr("dependency")
                     color: root.orphan ? Theme.error : Theme.onSurfaceVariant
                     font.pixelSize: 11
                     opacity: 0.85
@@ -126,7 +126,7 @@ Item {
             }
             StyledText {
                 Layout.fillWidth: true
-                text: root.description.length ? root.description : qsTr("Sin descripción")
+                text: root.description.length ? root.description : qsTr("No description")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 13
                 elide: Text.ElideRight

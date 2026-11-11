@@ -28,5 +28,6 @@
         <file>qml/components/HeroCard.qml</file>
         <file>qml/components/DiscoverPage.qml</file>
         <file>data/things.svg</file>
+        <file>i18n/es.json</file>
     </qresource>
 </RCC>

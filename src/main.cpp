@@ -3,6 +3,7 @@
 #include "DevTools.h"
 #include "Discover.h"
 #include "HubCatalog.h"
+#include "JsonTranslator.h"
 #include "FlathubInfo.h"
 #include "Operations.h"
 #include "Privilege.h"
@@ -11,6 +12,7 @@
 
 #include <QCommandLineParser>
 #include <QCoreApplication>
+#include <QLocale>
 #include <QDir>
 #include <QFile>
 #include <QFontDatabase>
@@ -26,6 +28,18 @@
 #include <QQuickWindow>
 #include <QTextStream>
 #include <QTimer>
+
+/// The code is in English; a language with a catalogue in i18n/<lang>.json (THINGS_LANG overrides the system one)
+/// is shown translated.
+static void installTranslation(QCoreApplication &app) {
+    const QString lang = qEnvironmentVariable("THINGS_LANG", QLocale::system().name()).section(QLatin1Char('_'), 0, 0);
+    auto *t = new JsonTranslator(&app);
+    if (t->loadFile(QStringLiteral(":/i18n/%1.json").arg(lang)))
+        app.installTranslator(t);
+    else
+        delete t;
+}
+
 
 namespace {
 
@@ -68,6 +82,7 @@ QString line(const Package &p) {
 /// Headless self-test: `things --dump-search firefox`, `--dump-installed`, `--dump-detail aur:yay`.
 int runDump(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
+    installTranslation(app);
     QCommandLineParser parser;
     parser.addOption({QStringLiteral("dump-search"), QStringLiteral("Print unified search results"), QStringLiteral("term")});
     parser.addOption({QStringLiteral("dump-installed"), QStringLiteral("Print installed packages")});
@@ -198,6 +213,7 @@ int main(int argc, char *argv[]) {
 
     qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
     QGuiApplication app(argc, argv);
+    installTranslation(app);
     app.setOrganizationName(QStringLiteral("Sylphrena"));
     app.setApplicationName(QStringLiteral("Things"));
     app.setApplicationDisplayName(QStringLiteral("Paquetes"));
@@ -211,7 +227,7 @@ int main(int argc, char *argv[]) {
     parser.addHelpOption();
     parser.addOption({QStringLiteral("dry-run"),
                       QStringLiteral("Simula instalaciones/eliminaciones sin tocar el sistema")});
-    parser.addOption({QStringLiteral("search"), QStringLiteral("Búsqueda inicial"), QStringLiteral("texto")});
+    parser.addOption({QStringLiteral("search"), QStringLiteral("Initial search"), QStringLiteral("text")});
     parser.addOption({QStringLiteral("installed"), QStringLiteral("Abrir en la vista de instalados")});
     parser.addOption({QStringLiteral("shot-dir"), QStringLiteral("(dev) screenshot output dir"), QStringLiteral("dir")});
     parser.addOption({QStringLiteral("demo"), QStringLiteral("(dev) scripted UI demo"), QStringLiteral("name")});
