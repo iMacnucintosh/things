@@ -30,6 +30,8 @@ class HubCatalog : public QObject {
     Q_PROPERTY(QString notice READ notice NOTIFY changed)
     /// Path of the shell's tool; empty when Sylphrena is not found (then nothing can be installed).
     Q_PROPERTY(QString tool READ tool NOTIFY toolChanged)
+    /// Version of the Sylphrena shell that is running ("0.3.1"), empty if it is not running or too old to say
+    Q_PROPERTY(QString shellVersion READ shellVersion NOTIFY shellVersionChanged)
     Q_PROPERTY(int updates READ updates NOTIFY changed)
     Q_PROPERTY(QVariantMap details READ details NOTIFY detailsChanged)
     Q_PROPERTY(bool detailsLoading READ detailsLoading NOTIFY detailsChanged)
@@ -42,6 +44,7 @@ public:
     bool hasData() const { return !m_catalog.isEmpty() || !m_installed.isEmpty(); }
     QString notice() const { return m_notice; }
     QString tool() const { return m_tool; }
+    QString shellVersion() const { return m_shellVersion; }
     int updates() const { return m_updates; }
     QVariantMap details() const { return m_details; }
     bool detailsLoading() const { return m_detailsPending; }
@@ -73,6 +76,7 @@ signals:
     void changed();
     void loadingChanged();
     void toolChanged();
+    void shellVersionChanged();
     void detailsChanged();
     void zipPicked(const QString &path);
 
@@ -94,6 +98,8 @@ private:
     QVariantList m_items;
     QString m_notice;
     QString m_tool;
+    QString m_shellVersion;
+    void loadShellVersion();
     bool m_picking = false;
     QVariantMap m_details;
     bool m_detailsPending = false;

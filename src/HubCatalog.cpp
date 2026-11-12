@@ -41,6 +41,8 @@ bool isHex64(const QString &s) {
 HubCatalog::HubCatalog(QObject *parent)
     : QObject(parent) {
     findTool();
+    connect(this, &HubCatalog::toolChanged, this, &HubCatalog::loadShellVersion);
+    loadShellVersion();
     loadCache();
     scanInstalled();
     rebuild();
@@ -356,6 +358,25 @@ void HubCatalog::rescan() {
     rebuild();
 }
 
+void HubCatalog::loadShellVersion() {
+    if (m_tool.isEmpty())
+        return;
+    // `ext.py info` asks the running shell (it prints {"running", "shellVersion", "apiVersion"})
+    auto *p = new QProcess(this);
+    connect(p, &QProcess::finished, this, [this, p] {
+        const QJsonObject o = QJsonDocument::fromJson(p->readAllStandardOutput()).object();
+        p->deleteLater();
+        const QString v = o.value(QLatin1String("running")).toBool() ? o.value(QLatin1String("shellVersion")).toString().left(32) : QString();
+        if (v != m_shellVersion) {
+            m_shellVersion = v;
+            emit shellVersionChanged();
+        }
+    });
+    connect(p, &QProcess::errorOccurred, p, &QObject::deleteLater);
+    p->start(QStringLiteral("python3"), {m_tool, QStringLiteral("info")});
+    QTimer::singleShot(10000, p, [p] { if (p->state() != QProcess::NotRunning) p->kill(); });
+}
+
 void HubCatalog::pickZip() {
     if (m_picking)
         return;
@@ -522,6 +543,7 @@ void HubCatalog::finishOne() {
 }
 
 void HubCatalog::refresh(bool force) {
+    loadShellVersion();
     if (!qEnvironmentVariable("THINGS_HUB_INDEX").isEmpty())
         return;
     if (m_pending > 0)
