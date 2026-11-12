@@ -677,7 +677,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             note = tr("It will be downloaded from the Sylphrena hub (version %1), its checksum will be verified and it will be installed for your user.")
                        .arg(e.value(QStringLiteral("version")).toString());
             if (!have.isEmpty() && !have.value(QStringLiteral("fromHub")).toBool())
-                note += QLatin1Char(' ') + tr("Sustituirá la copia local que tienes por la del hub; tus ajustes y tus datos se conservan.");
+                note += QLatin1Char(' ') + tr("It will replace your local copy with the hub's; your settings and data are kept.");
             if (e.value(QStringLiteral("system")).toBool())
                 note += QLatin1Char(' ') + tr("It needs administrator permissions to install system pieces (we will ask for your password).");
             if (!e.value(QStringLiteral("requires")).toString().isEmpty())
