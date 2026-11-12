@@ -19,8 +19,8 @@ Item {
     function busy(id) { return !!busyMap["sylphrena:" + id] }
     function stateLabel(state) {
         switch (state) {
-        case "installed": return qsTr("Instalada")
-        case "update": return qsTr("Actualización")
+        case "installed": return qsTr("Installed")
+        case "update": return qsTr("Update available")
         case "local": return qsTr("Local")
         }
         return ""
@@ -50,7 +50,7 @@ Item {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: qsTr("Extensiones para la shell Sylphrena")
+                    text: qsTr("Extensions for the Sylphrena shell")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -59,7 +59,7 @@ Item {
 
             ActionButton {
                 Layout.alignment: Qt.AlignVCenter
-                text: qsTr("Instalar desde zip")
+                text: qsTr("Install from zip")
                 icon: "folder_zip"
                 tone: "tonal"
                 enabled: Hub.tool.length > 0
@@ -90,7 +90,7 @@ Item {
                 wrapMode: Text.WordWrap
                 color: Theme.onSurface
                 font.pixelSize: 13
-                text: qsTr("No se encuentra Sylphrena en este equipo: se puede ver el catálogo, pero no instalar ni quitar extensiones.")
+                text: qsTr("Sylphrena was not found on this computer: you can see the catalogue, but not install or remove extensions.")
             }
         }
 
@@ -239,7 +239,7 @@ Item {
                                     StyledText {
                                         id: rootText
                                         anchors.centerIn: parent
-                                        text: qsTr("Pide contraseña")
+                                        text: qsTr("Asks for a password")
                                         font.pixelSize: 11
                                         color: Theme.onSurfaceVariant
                                     }
@@ -267,8 +267,18 @@ Item {
                         ActionButton {
                             visible: !row.working && (row.state_ === "available" || row.state_ === "update")
                             Layout.alignment: Qt.AlignVCenter
-                            text: row.state_ === "update" ? qsTr("Actualizar") : qsTr("Instalar")
+                            text: row.state_ === "update" ? qsTr("Update") : qsTr("Install")
                             icon: row.state_ === "update" ? "update" : "download"
+                            enabled: Hub.tool.length > 0
+                            onClicked: root.actionRequested("install", row.modelData.id, row.modelData.name)
+                        }
+
+                        // A local copy the hub also has: switch to the hub's, so Things can update it
+                        ActionButton {
+                            visible: !row.working && row.state_ === "local" && !!row.modelData.inHub
+                            Layout.alignment: Qt.AlignVCenter
+                            text: qsTr("Use the hub's copy")
+                            icon: "download"
                             enabled: Hub.tool.length > 0
                             onClicked: root.actionRequested("install", row.modelData.id, row.modelData.name)
                         }
@@ -277,7 +287,7 @@ Item {
                         ActionButton {
                             visible: !row.working && (row.state_ === "installed" || row.state_ === "local")
                             Layout.alignment: Qt.AlignVCenter
-                            text: qsTr("Quitar")
+                            text: qsTr("Remove")
                             icon: "delete"
                             tone: "tonal"
                             enabled: Hub.tool.length > 0
@@ -299,8 +309,8 @@ Item {
                 visible: list.count === 0
                 icon: Hub.loading ? "hourglass_top" : "extension"
                 busy: Hub.loading
-                title: Hub.loading ? qsTr("Cargando el catálogo…") : qsTr("Aún no hay extensiones")
-                subtitle: Hub.loading ? "" : qsTr("Cuando el hub publique extensiones para Sylphrena, aparecerán aquí.")
+                title: Hub.loading ? qsTr("Loading the catalogue…") : qsTr("There are no extensions yet")
+                subtitle: Hub.loading ? "" : qsTr("When the hub publishes extensions for Sylphrena, they will show up here.")
             }
         }
     }

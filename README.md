@@ -9,7 +9,7 @@ Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnuci
 
 ## Funciones
 
-- **Sylphrena (extensiones de la shell)** — sección propia en la columna lateral (`Ctrl+4`) con las extensiones del [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell Sylphrena, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo se pide si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se pide al hub al abrir (la caché solo pinta el primer fotograma y sirve sin conexión); cada entrada se valida antes de mostrarse. Si no se encuentra Sylphrena, se ve el catálogo pero no se instala. **Detalles**: al pulsar una extensión se abre su ficha (descripción larga, capturas, requisitos, qué toca en tu equipo y novedades), que Things descarga del hub (`store/<id>.json`, solo de sus URLs). **Instalar desde zip** (botón de la cabecera) abre el selector de Seeker, enseña qué trae el zip (nombre, versión, descripción, si pide contraseña) y pide confirmación; la extensión queda como «local». Lo valida `ext.py inspect`/`install` de la shell.
+- **Sylphrena (extensiones de la shell)** — sección propia en la columna lateral (`Ctrl+4`) con las extensiones del [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell Sylphrena, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo se pide si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se pide al hub al abrir (la caché solo pinta el primer fotograma y sirve sin conexión); cada entrada se valida antes de mostrarse. Si no se encuentra Sylphrena, se ve el catálogo pero no se instala. **Detalles**: al pulsar una extensión se abre su ficha (descripción larga, capturas, requisitos, qué toca en tu equipo y novedades), que Things descarga del hub (`store/<id>.json`, solo de sus URLs). Una copia **local** que el hub también tiene (puesta a mano o desde un zip) se puede cambiar por la del hub con «Usar la del hub», para que Things la actualice; tus ajustes y datos se conservan. **Instalar desde zip** (botón de la cabecera) abre el selector de Seeker, enseña qué trae el zip (nombre, versión, descripción, si pide contraseña) y pide confirmación; la extensión queda como «local». Lo valida `ext.py inspect`/`install` de la shell.
 
 - **Detalle con capturas (Flatpak)** — el panel de una app de Flathub muestra su galería de capturas de pantalla (con pie de foto, flechas y puntos; clic para verlas a pantalla completa, `←`/`→` para pasar, `Esc` para cerrar), «Acerca de» con la descripción completa, las novedades de la última versión y enlaces (web, ayuda, reportar un fallo, donar). Solo se contacta con `dl.flathub.org` para las imágenes. Los paquetes de pacman/AUR no tienen capturas: las del catálogo de Arch están en webs de terceros y no se cargan.
 
@@ -52,7 +52,7 @@ Opciones de línea de comandos: `--search <texto>`, `--installed`, `--dry-run`.
 
 ## Tema Sylphrena
 
-Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y recarga en caliente. Lo escribe `_sync_things` en `scripts/sylphrena-quiet.py` de Sylphrena en cada apply (rama `feature/things-theme-sync` del repo de la shell, pendiente de PR). Sin fichero usa una paleta oscura por defecto.
+Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y recarga en caliente. Lo escribe `_sync_things` en `scripts/sylphrena-quiet.py` de Sylphrena en cada apply. Sin fichero usa una paleta oscura por defecto.
 
 ## Privilegios
 
@@ -104,3 +104,10 @@ qml/                Main.qml + components (Material You, copiados/adaptados de S
 ## Licencia
 
 MIT — ver [LICENSE](LICENSE).
+
+## Idiomas
+
+El código está en inglés (`qsTr("…")`, `tr("…")`) y cada idioma es un catálogo JSON en `i18n/<idioma>.json` (texto en inglés →
+traducción; una clave `contexto\u0004texto` distingue dos traducciones del mismo texto). Hoy: español (`es`). Un idioma sin
+catálogo se ve en inglés; `THINGS_LANG=es` fuerza uno. `scripts/check-i18n.py` comprueba que no falta ni sobra ninguna cadena.
+

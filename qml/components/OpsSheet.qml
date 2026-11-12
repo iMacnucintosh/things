@@ -87,22 +87,22 @@ Rectangle {
                         Layout.fillWidth: true
                         text: {
                             if (root.working)
-                                return Ops.currentTitle + (root.pendingCount > 0 ? "  ·  +" + root.pendingCount + " " + qsTr("en cola") : "")
+                                return Ops.currentTitle + (root.pendingCount > 0 ? "  ·  +" + root.pendingCount + " " + qsTr("queued") : "")
                             if (root.anyFailed)
-                                return qsTr("La operación ha fallado")
+                                return qsTr("The operation has failed")
                             if (root.allCancelled)
-                                return qsTr("Operación cancelada")
+                                return qsTr("Operation cancelled")
                             if (items.length === 1)
-                                return (items[0].kind === "install" ? qsTr("%1 instalado") : qsTr("%1 eliminado")).arg(items[0].name)
-                            return qsTr("%1 operaciones completadas").arg(items.length)
+                                return (items[0].kind === "install" ? qsTr("%1 installed") : qsTr("%1 removed")).arg(items[0].name)
+                            return qsTr("%1 operations completed").arg(items.length)
                         }
                         font.pixelSize: 15
                         elide: Text.ElideRight
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: Ops.awaitingPassword ? qsTr("Esperando tu contraseña…")
-                              : (root.working ? Ops.statusText : (root.anyFailed ? qsTr("Despliega la salida para ver el detalle") : ""))
+                        text: Ops.awaitingPassword ? qsTr("Waiting for your password…")
+                              : (root.working ? Ops.statusText : (root.anyFailed ? qsTr("Expand the output to see the details") : ""))
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 12
                         elide: Text.ElideRight

@@ -68,12 +68,12 @@ void Privilege::authenticate(const QString &password) {
     if (m_authBusy)
         return;
     if (password.isEmpty()) {
-        emit authenticated(false, tr("Introduce tu contraseña."));
+        emit authenticated(false, tr("Enter your password."));
         return;
     }
     const QString sudo = Backend::which(QStringLiteral("sudo"));
     if (sudo.isEmpty()) {
-        emit authenticated(false, tr("sudo no está instalado."));
+        emit authenticated(false, tr("sudo is not installed."));
         return;
     }
     m_authBusy = true;
@@ -101,7 +101,7 @@ void Privilege::authenticate(const QString &password) {
                 startServer();
                 if (!ready()) {
                     forget();
-                    emit authenticated(false, tr("No se pudo preparar el canal seguro de contraseña."));
+                    emit authenticated(false, tr("Could not set up the secure password channel."));
                     return;
                 }
                 m_idle.start();
@@ -109,11 +109,11 @@ void Privilege::authenticate(const QString &password) {
                 return;
             }
             wipe(pw);
-            QString msg = tr("Contraseña incorrecta");
+            QString msg = tr("Wrong password");
             if (err.contains(QLatin1String("locked")) || err.contains(QLatin1String("too many")))
-                msg = tr("Demasiados intentos fallidos. Espera un minuto e inténtalo de nuevo.");
+                msg = tr("Too many failed attempts. Wait a minute and try again.");
             else if (err.contains(QLatin1String("not in the sudoers")) || err.contains(QLatin1String("may not run sudo")))
-                msg = tr("Este usuario no tiene permisos de sudo.");
+                msg = tr("This user has no sudo permissions.");
             emit authenticated(false, msg);
         });
         check->start(sudo, {QStringLiteral("-S"), QStringLiteral("-p"), QString(), QStringLiteral("-v")});

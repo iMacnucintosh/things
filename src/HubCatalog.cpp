@@ -74,13 +74,13 @@ QVector<QVariantMap> HubCatalog::parseIndex(const QByteArray &json, QString *err
     const QJsonDocument doc = QJsonDocument::fromJson(json, &pe);
     if (pe.error != QJsonParseError::NoError || !doc.isObject()) {
         if (error)
-            *error = QObject::tr("El índice del hub no es válido.");
+            *error = QObject::tr("The hub index is not valid.");
         return out;
     }
     const QJsonObject root = doc.object();
     if (root.value(QLatin1String("schema")).toInt() != 1) {
         if (error)
-            *error = QObject::tr("El índice del hub es de una versión que esta versión de Things no entiende.");
+            *error = QObject::tr("The hub index is from a version this version of Things does not understand.");
         return out;
     }
     for (const QJsonValue &v : root.value(QLatin1String("items")).toArray()) {
@@ -169,6 +169,7 @@ QVariantList HubCatalog::merge(const QVector<QVariantMap> &catalog, const QHash<
         r.remove(QStringLiteral("zip"));
         r.remove(QStringLiteral("sha256"));
         r[QStringLiteral("local")] = false;
+        r[QStringLiteral("inHub")] = true;
         r[QStringLiteral("installedVersion")] = QString();
         r[QStringLiteral("state")] = QStringLiteral("available");
         const auto it = installed.constFind(id);
@@ -363,7 +364,7 @@ void HubCatalog::pickZip() {
     if (!QFileInfo(seeker).isExecutable())
         seeker = QStandardPaths::findExecutable(QStringLiteral("seeker"));
     if (seeker.isEmpty()) {
-        m_notice = tr("Para elegir el zip hace falta Seeker, el explorador de archivos de Sylphrena.");
+        m_notice = tr("Choosing the zip needs Seeker, the file manager of Sylphrena.");
         emit changed();
         return;
     }
@@ -395,8 +396,8 @@ void HubCatalog::pickZip() {
     });
     p->start(seeker, {QStringLiteral("--pick"), QStringLiteral("--pick-mode=file"),
                       QStringLiteral("--pick-result=") + result,
-                      QStringLiteral("--pick-title=") + tr("Elige el zip de una extensión"),
-                      QStringLiteral("--pick-accept=") + tr("Elegir"),
+                      QStringLiteral("--pick-title=") + tr("Choose an extension's zip"),
+                      QStringLiteral("--pick-accept=") + tr("Choose"),
                       QStringLiteral("--pick-extensions=zip"),
                       QStringLiteral("--pick-current=") + home});
 }
@@ -536,10 +537,10 @@ void HubCatalog::refresh(bool force) {
         if (r->error() == QNetworkReply::NoError) {
             ingest(r->read(kMaxIndex + 1).left(kMaxIndex), true);
         } else if (m_catalog.isEmpty()) {
-            m_notice = tr("No se pudo leer el catálogo de Sylphrena. Comprueba tu conexión.");
+            m_notice = tr("Could not read the Sylphrena catalogue. Check your connection.");
             emit changed();
         } else {
-            m_notice = tr("Sin conexión: se muestra el último catálogo guardado.");
+            m_notice = tr("No connection: the last saved catalogue is shown.");
             emit changed();
         }
         finishOne();

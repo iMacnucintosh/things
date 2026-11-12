@@ -32,16 +32,16 @@ Flickable {
     }
 
     function sectionTitle(id) {
-        return id === "trending" ? qsTr("Tendencias")
-             : id === "popular" ? qsTr("Más instaladas")
-             : id === "new" ? qsTr("Novedades")
-             : qsTr("Actualizadas hace poco")
+        return id === "trending" ? qsTr("Trending")
+             : id === "popular" ? qsTr("Most installed")
+             : id === "new" ? qsTr("What's new")
+             : qsTr("Recently updated")
     }
     function sectionSubtitle(id) {
-        return id === "trending" ? qsTr("Las que más están subiendo")
-             : id === "popular" ? qsTr("Las más instaladas del último mes")
-             : id === "new" ? qsTr("Recién llegadas a Flathub")
-             : qsTr("Con una versión nueva")
+        return id === "trending" ? qsTr("Rising the fastest")
+             : id === "popular" ? qsTr("Most installed in the last month")
+             : id === "new" ? qsTr("New on Flathub")
+             : qsTr("With a new version")
     }
     function footerFor(id) {
         return id === "new" ? "added" : id === "updated" ? "updated" : "installs"
@@ -86,7 +86,7 @@ Flickable {
             spacing: 12
             Spinner { size: 22; colour: Theme.onSurfaceVariant }
             StyledText {
-                text: qsTr("Buscando novedades en Flathub…")
+                text: qsTr("Looking for news on Flathub…")
                 color: Theme.onSurfaceVariant
                 font.pixelSize: 14
             }
@@ -116,12 +116,12 @@ Flickable {
                     anchors.rightMargin: 12
                     spacing: 0
                     StyledText {
-                        text: qsTr("Populares en Arch")
+                        text: qsTr("Popular on Arch")
                         font.pixelSize: 19
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: qsTr("Aplicaciones de los repositorios oficiales que más usuarios tienen instaladas")
+                        text: qsTr("The apps most installed from the official repositories")
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 12
                         elide: Text.ElideRight
@@ -171,19 +171,19 @@ Flickable {
                     Layout.fillWidth: true
                     spacing: 0
                     StyledText {
-                        text: qsTr("Añade las aplicaciones de Arch a Descubrir")
+                        text: qsTr("Adds the Arch apps to Discover")
                         font.pixelSize: 14
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: qsTr("Instala archlinux-appstream-data (el catálogo oficial de aplicaciones de Arch, ~20 MB) para ver aquí las más populares.")
+                        text: qsTr("Install archlinux-appstream-data (the official catalogue of Arch apps, ~20 MB) to see the most popular ones here.")
                         color: Theme.onSurfaceVariant
                         font.pixelSize: 12
                         wrapMode: Text.Wrap
                     }
                 }
                 ActionButton {
-                    text: qsTr("Instalar")
+                    text: qsTr("Install")
                     icon: "download"
                     tone: "tonal"
                     onClicked: root.installCatalog()
@@ -249,7 +249,7 @@ Flickable {
         StyledText {
             Layout.fillWidth: true
             visible: Discover.hasData
-            text: qsTr("Aplicaciones Flatpak de Flathub · datos y capturas de flathub.org")
+            text: qsTr("Flatpak apps from Flathub · data and screenshots from flathub.org")
             color: Theme.onSurfaceVariant
             opacity: 0.7
             font.pixelSize: 11
