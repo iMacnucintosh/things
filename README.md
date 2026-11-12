@@ -52,7 +52,7 @@ Opciones de línea de comandos: `--search <texto>`, `--installed`, `--dry-run`.
 
 ## Tema Sylphrena
 
-Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y recarga en caliente. Lo escribe `_sync_things` en `scripts/sylphrena-quiet.py` de Sylphrena en cada apply (rama `feature/things-theme-sync` del repo de la shell, pendiente de PR). Sin fichero usa una paleta oscura por defecto.
+Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y recarga en caliente. Lo escribe `_sync_things` en `scripts/sylphrena-quiet.py` de Sylphrena en cada apply. Sin fichero usa una paleta oscura por defecto.
 
 ## Privilegios
 
