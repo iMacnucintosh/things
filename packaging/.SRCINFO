@@ -1,6 +1,6 @@
 pkgbase = things-git
 	pkgdesc = Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena
-	pkgver = r0.0000000
+	pkgver = 0.0.0.r0.g0000000
 	pkgrel = 1
 	url = https://github.com/iMacnucintosh/things
 	arch = x86_64
