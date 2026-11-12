@@ -42,11 +42,30 @@ Item {
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 2
-                StyledText {
-                    text: qsTr("Sylphrena")
-                    font.pixelSize: 24
-                    font.weight: Font.Medium
-                    color: Theme.onSurface
+                RowLayout {
+                    spacing: 10
+                    StyledText {
+                        text: qsTr("Sylphrena")
+                        font.pixelSize: 24
+                        font.weight: Font.Medium
+                        color: Theme.onSurface
+                    }
+                    // The version of the shell that is running: the one the extensions' "requires" are checked against
+                    Rectangle {
+                        visible: Hub.shellVersion.length > 0
+                        Layout.alignment: Qt.AlignVCenter
+                        implicitWidth: shellVersionText.implicitWidth + 16
+                        implicitHeight: 24
+                        radius: 12
+                        color: Theme.surfaceContainerHigh
+                        StyledText {
+                            id: shellVersionText
+                            anchors.centerIn: parent
+                            text: "v" + Hub.shellVersion
+                            font.pixelSize: 12
+                            color: Theme.onSurfaceVariant
+                        }
+                    }
                 }
                 StyledText {
                     Layout.fillWidth: true
