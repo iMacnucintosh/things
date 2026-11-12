@@ -2,7 +2,7 @@
 # Builds Things from the git repository (a -git package: pkgver follows the commits).
 #   cd packaging && makepkg -si
 pkgname=things-git
-pkgver=r0.0000000
+pkgver=0.0.0.r0.g0000000
 pkgrel=1
 pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena"
 arch=('x86_64')
@@ -16,12 +16,19 @@ optdepends=('yay: AUR packages'
             'python: install Sylphrena extensions (uses its ext.py)')
 provides=('things')
 conflicts=('things')
-source=("git+${url}.git")
+# SYLPHRENA_REF=<tag> builds that release (the Sylphrena installer and its updates set it); without it, the latest commit
+source=("git+${url}.git${SYLPHRENA_REF:+#tag=$SYLPHRENA_REF}")
 sha256sums=('SKIP')
 
 pkgver() {
   cd things
-  printf 'r%s.%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  # The release it was built from (v0.1.2 → 0.1.2.r0.g…), which is what the Sylphrena updates compare with
+  local described
+  if described="$(git describe --tags --long --match 'v0.*' 2>/dev/null)"; then
+    printf '%s' "$described" | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+  else
+    printf '0.0.0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  fi
 }
 
 build() {
