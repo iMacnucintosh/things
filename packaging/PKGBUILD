@@ -33,5 +33,9 @@ build() {
 package() {
   cd things
   make INSTALL_ROOT="$pkgdir" install
+  # The launcher entries (and Seeker's D-Bus service) start the user-local build in ~/.local/bin; a package lives in /usr/bin
+  find "$pkgdir/usr/share" \( -name '*.desktop' -o -name '*.service' \) -exec sed -i -E \
+    -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\" \"\\\$@\"' sh#/usr/bin/things#" \
+    -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\"([^']*)'#/usr/bin/things\\1#" {} +
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
