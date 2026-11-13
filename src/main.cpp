@@ -74,7 +74,8 @@ void loadSylphrenaUiFont() {
 
 QString line(const Package &p) {
     return QStringLiteral("%1\t%2/%3\t%4\t%5%6\t%7")
-        .arg(p.source, p.repo, p.id, p.version, p.installed ? QStringLiteral("[installed] ") : QString(),
+        .arg(p.source, p.repo, p.id, p.update.isEmpty() ? p.version : p.version + QStringLiteral(" -> ") + p.update,
+             p.installed ? QStringLiteral("[installed] ") : QString(),
              p.source == QLatin1String("aur") ? QStringLiteral("+%1").arg(p.votes) : QString(),
              p.description.left(70));
 }
@@ -170,7 +171,10 @@ int runDump(int argc, char *argv[]) {
         });
     } else if (parser.isSet(QStringLiteral("dump-installed"))) {
         be.setMode(QStringLiteral("installed"));
-        QObject::connect(&be, &Backend::installedChanged, &app, dumpList);
+        // The shell's updates come on their own: give them a moment when the list asks for them
+        QObject::connect(&be, &Backend::installedChanged, &app, [&] {
+            QTimer::singleShot(be.kindFilter() == QLatin1String("updates") ? 1500 : 0, &app, dumpList);
+        });
     } else if (parser.isSet(QStringLiteral("dump-detail"))) {
         const QStringList parts = parser.value(QStringLiteral("dump-detail")).split(QLatin1Char(':'));
         QObject::connect(&be, &Backend::installedChanged, &app, [&, parts] {

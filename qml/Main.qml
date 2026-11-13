@@ -14,6 +14,8 @@ ApplicationWindow {
     title: Things.mode === "installed" ? qsTr("Installed — Things") : qsTr("Things")
     color: Theme.surface
     font.family: Theme.uiFamily
+    // Coming back to the window: what the shell has found to update may have changed
+    onActiveChanged: if (active) Things.loadShellUpdates()
 
     readonly property int railWidth: 232
     readonly property bool installedMode: Things.mode === "installed"
@@ -498,6 +500,15 @@ ApplicationWindow {
                                     selected: Things.kindFilter === "orphan"
                                     onClicked: Things.kindFilter = "orphan"
                                 }
+                                // What the shell found to update (Nexus → Updates): only when there is something
+                                Chip {
+                                    visible: win.installedMode && (Object.keys(Things.pendingUpdates).length > 0 || Things.kindFilter === "updates")
+                                    label: qsTr("Updates")
+                                    icon: "upgrade"
+                                    count: Object.keys(Things.pendingUpdates).length
+                                    selected: Things.kindFilter === "updates"
+                                    onClicked: Things.kindFilter = "updates"
+                                }
                             }
 
                             // Notices (AUR offline…)
@@ -666,7 +677,9 @@ ApplicationWindow {
                                     icon: "inventory_2"
                                     title: Things.query.trim().length ? qsTr("No installed package matches “%1”").arg(Things.query.trim())
                                                                       : qsTr("There are no packages in this view")
-                                    subtitle: Things.kindFilter === "orphan" && !Things.query.length ? qsTr("Perfect! There are no orphan dependencies.") : ""
+                                    subtitle: Things.query.length ? ""
+                                              : Things.kindFilter === "orphan" ? qsTr("Perfect! There are no orphan dependencies.")
+                                              : Things.kindFilter === "updates" ? qsTr("Everything is up to date.") : ""
                                 }
                             }
                         }
@@ -789,6 +802,13 @@ ApplicationWindow {
     ] : Dev.demo === "theme" ? [
         { wait: 2500, run: function () { Dev.take("theme-a") } },
         { wait: 4000, run: function () { Dev.take("theme-b") } },
+        { wait: 200, run: function () { Dev.quit() } }
+    ] : Dev.demo === "updates" ? [
+        { wait: 200, run: function () { win.showSection("installed") } },
+        { wait: 4000, run: function () { Things.kindFilter = "updates" } },
+        { wait: 1200, run: function () { Dev.take("u1-installed-updates") } },
+        { wait: 200, run: function () { const k = Object.keys(Things.pendingUpdates)[0]; if (k) win.openDetail(k.split(":")[0], k.split(":")[1], "") } },
+        { wait: 2500, run: function () { Dev.take("u2-detail-update") } },
         { wait: 200, run: function () { Dev.quit() } }
     ] : Dev.demo === "password" ? [
         { wait: 2500, run: function () { Ops.enqueue("install", "pacman", "gnuplot", "gnuplot", "extra") } },

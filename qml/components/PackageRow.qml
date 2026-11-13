@@ -23,6 +23,8 @@ Item {
     /// Installed view: every row is installed, so drop the redundant check and show the install reason.
     property bool installedView: false
     required property string reason
+    /// The newer version the shell found ("" when none): shown as "installed → new"
+    required property string update
     signal activated()
     signal actionRequested()
 
@@ -108,11 +110,12 @@ Item {
                     Layout.maximumWidth: Math.max(80, root.width * 0.5)
                 }
                 StyledText {
-                    text: root.version
-                    color: Theme.onSurfaceVariant
+                    text: root.update.length ? root.version + " → " + root.update : root.version
+                    color: root.update.length ? Theme.primary : Theme.onSurfaceVariant
                     font.pixelSize: 12
+                    font.weight: root.update.length ? Font.Medium : Font.Normal
                     elide: Text.ElideRight
-                    opacity: 0.85
+                    opacity: root.update.length ? 1 : 0.85
                     Layout.maximumWidth: Math.max(60, root.width * 0.3)
                 }
                 StyledText {

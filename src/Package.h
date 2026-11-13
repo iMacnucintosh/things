@@ -20,6 +20,7 @@ struct Package {
     bool outOfDate = false;  // AUR
     qint64 size = 0;         // installed size in bytes when known
     double score = 0;        // search ranking
+    QString update;          // the newer version the shell found (Nexus → Updates), "" when none
 
     QString key() const { return source + QLatin1Char(':') + id; }
 };

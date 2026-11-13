@@ -27,6 +27,7 @@ QVariant PackageModel::data(const QModelIndex &index, int role) const {
     case OutOfDateRole: return p.outOfDate;
     case SizeRole: return p.size;
     case KeyRole: return p.key();
+    case UpdateRole: return p.update;
     }
     return {};
 }
@@ -48,6 +49,7 @@ QHash<int, QByteArray> PackageModel::roleNames() const {
         {OutOfDateRole, "outOfDate"},
         {SizeRole, "size"},
         {KeyRole, "key"},
+        {UpdateRole, "update"},
     };
 }
 
