@@ -59,7 +59,6 @@ public:
     Q_INVOKABLE bool enqueue(const QString &kind, const QString &source, const QString &id,
                              const QString &name, const QString &repo, bool deleteData = false);
     Q_INVOKABLE void cancelCurrent();
-    Q_INVOKABLE void cancelQueued(int opId);
     Q_INVOKABLE void dismissFinished();
     Q_INVOKABLE void submitPassword(const QString &password);
     Q_INVOKABLE void cancelPassword();

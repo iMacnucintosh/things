@@ -135,16 +135,6 @@ bool Operations::enqueue(const QString &kind, const QString &source, const QStri
     return true;
 }
 
-void Operations::cancelQueued(int opId) {
-    for (Op &o : m_ops) {
-        if (o.id == opId && o.status == QLatin1String("queued")) {
-            o.status = QStringLiteral("cancelled");
-            emit queueChanged();
-            return;
-        }
-    }
-}
-
 void Operations::dismissFinished() {
     if (active())
         return;
