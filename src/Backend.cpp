@@ -7,6 +7,7 @@
 #include <QIcon>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QRegularExpression>
@@ -85,6 +86,7 @@ Backend::Backend(QObject *parent)
     if (m_hasFlatpak)
         loadFlatpakRemotes();
     loadInstalled();
+    loadShellUpdates();
 }
 
 Backend::~Backend() {
@@ -619,8 +621,12 @@ void Backend::rebuild() {
     // State / kind filter first so the source chips show meaningful counts.
     QVector<Package> stage;
     stage.reserve(all.size());
+    for (Package &p : all)
+        p.update = p.installed ? m_pendingUpdates.value(p.key()).toMap().value(QStringLiteral("to")).toString() : QString();
     for (const Package &p : std::as_const(all)) {
         if (installedMode) {
+            if (m_kindFilter == QLatin1String("updates") && p.update.isEmpty())
+                continue;
             if (m_kindFilter == QLatin1String("explicit") && (p.reason == QLatin1String("dep") || p.orphan))
                 continue;
             if (m_kindFilter == QLatin1String("dep") && p.reason != QLatin1String("dep"))
@@ -832,6 +838,7 @@ void Backend::finishInstalled() {
     m_tmpPacman.clear();
     m_tmpFlatpak.clear();
     emit loadingInstalledChanged();
+    matchShellUpdates();
 
     if (m_mode == QLatin1String("installed")) {
         rebuild();
@@ -1256,4 +1263,83 @@ void Backend::loadFiles(const QString &source, const QString &id) {
             m_filesLoading = false;
             emit detailFilesChanged();
         }, 20000, &m_detailProcs);
+}
+
+// ───────────────────────── updates (from the shell) ─────────────────────────
+
+void Backend::loadShellUpdates() {
+    if (which(QStringLiteral("qs")).isEmpty())
+        return;
+    run(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("sylphrena"), QStringLiteral("ipc"), QStringLiteral("call"),
+                               QStringLiteral("updates"), QStringLiteral("list")},
+        [this](int code, const QByteArray &out, const QByteArray &) {
+            const QJsonObject o = QJsonDocument::fromJson(out).object();
+            if (code != 0 || !o.contains(QLatin1String("entries")))
+                return; // the shell is not running (or is older): leave things as they are
+            QHash<QString, QPair<QString, QString>> next;
+            for (const QJsonValue &v : o.value(QLatin1String("entries")).toArray()) {
+                const QJsonObject e = v.toObject();
+                const QString src = e.value(QLatin1String("source")).toString();
+                const QString from = e.value(QLatin1String("from")).toString();
+                const QString to = e.value(QLatin1String("to")).toString();
+                if (src == QLatin1String("EXTENSION"))
+                    continue; // the Sylphrena section marks those itself, from the hub
+                if (src.startsWith(QLatin1String("FLATPAK"))) {
+                    // `from` is the application id; Flatpak gives no old version here
+                    if (Validate::flatpakId(from))
+                        next.insert(QStringLiteral("flatpak:") + from, {QString(), to});
+                    continue;
+                }
+                // Sylphrena's own: its package name, built locally (listed as foreign, so AUR, or pacman)
+                const QString name = src == QLatin1String("SYLPHRENA") ? e.value(QLatin1String("pkg")).toString()
+                                                                        : e.value(QLatin1String("name")).toString();
+                if (!Validate::pacmanName(name))
+                    continue;
+                if (src != QLatin1String("AUR"))
+                    next.insert(QStringLiteral("pacman:") + name, {from, to});
+                if (src == QLatin1String("AUR") || src == QLatin1String("SYLPHRENA"))
+                    next.insert(QStringLiteral("aur:") + name, {from, to});
+            }
+            m_shellUpdates = next;
+            matchShellUpdates();
+            rebuild();
+        },
+        5000);
+}
+
+void Backend::matchShellUpdates() {
+    // Only while what is installed is still the version the shell saw as old: once updated (from here, a terminal
+    // or the shell) the mark goes, without waiting for the shell's next check
+    QVariantMap pending;
+    for (auto it = m_shellUpdates.cbegin(); it != m_shellUpdates.cend(); ++it) {
+        const QString key = it.key();
+        const QString source = key.section(QLatin1Char(':'), 0, 0);
+        const QString id = key.section(QLatin1Char(':'), 1);
+        const QString from = it.value().first;
+        QString have;
+        if (source == QLatin1String("flatpak")) {
+            if (!m_instFlatpak.contains(id))
+                continue;
+            have = m_instFlatpak.value(id).installedVersion;
+        } else {
+            const auto inst = m_instPacman.constFind(id);
+            if (inst == m_instPacman.constEnd() || inst->source != source)
+                continue;
+            have = inst->installedVersion.isEmpty() ? inst->version : inst->installedVersion;
+            // Sylphrena's say "0.5.5" for 0.5.5.r0.g…-1
+            if (!from.isEmpty() && have != from && !have.startsWith(from + QLatin1Char('.')) && !have.startsWith(from + QLatin1Char('-')))
+                continue;
+        }
+        pending.insert(key, QVariantMap{{QStringLiteral("from"), have}, {QStringLiteral("to"), it.value().second}});
+    }
+    if (pending != m_pendingUpdates) {
+        m_pendingUpdates = pending;
+        emit pendingUpdatesChanged();
+    }
+}
+
+void Backend::openShellUpdates() {
+    QProcess::startDetached(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("sylphrena"), QStringLiteral("ipc"),
+                                                   QStringLiteral("call"), QStringLiteral("nexus"), QStringLiteral("openPage"),
+                                                   QStringLiteral("updates")});
 }

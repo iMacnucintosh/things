@@ -23,6 +23,8 @@ Item {
     /// Installed view: every row is installed, so drop the redundant check and show the install reason.
     property bool installedView: false
     required property string reason
+    /// The newer version the shell found ("" when none): shown as "installed → new"
+    required property string update
     signal activated()
     signal actionRequested()
 
@@ -94,6 +96,9 @@ Item {
 
         ColumnLayout {
             Layout.fillWidth: true
+            // Takes what is left, never more: its natural width (a long name + version) pushed the action button out
+            Layout.preferredWidth: 0
+            Layout.minimumWidth: 0
             Layout.alignment: Qt.AlignVCenter
             spacing: 2
 
@@ -105,15 +110,19 @@ Item {
                     text: root.name
                     font.pixelSize: 15
                     elide: Text.ElideRight
-                    Layout.maximumWidth: Math.max(80, root.width * 0.5)
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: implicitWidth
+                    Layout.minimumWidth: Math.min(implicitWidth, 80)
                 }
                 StyledText {
-                    text: root.version
-                    color: Theme.onSurfaceVariant
+                    text: root.update.length ? root.version + " → " + root.update : root.version
+                    color: root.update.length ? Theme.primary : Theme.onSurfaceVariant
                     font.pixelSize: 12
+                    font.weight: root.update.length ? Font.Medium : Font.Normal
                     elide: Text.ElideRight
-                    opacity: 0.85
-                    Layout.maximumWidth: Math.max(60, root.width * 0.3)
+                    opacity: root.update.length ? 1 : 0.85
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: implicitWidth
                 }
                 StyledText {
                     visible: root.installedView && (root.reason === "dep" || root.orphan)
@@ -121,6 +130,9 @@ Item {
                     color: root.orphan ? Theme.error : Theme.onSurfaceVariant
                     font.pixelSize: 11
                     opacity: 0.85
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: implicitWidth
                 }
                 Item { Layout.fillWidth: true }
             }

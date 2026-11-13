@@ -37,6 +37,8 @@ class Backend : public QObject {
     Q_PROPERTY(bool detailLoading READ detailLoading NOTIFY detailChanged)
     Q_PROPERTY(QStringList detailFiles READ detailFiles NOTIFY detailFilesChanged)
     Q_PROPERTY(bool detailFilesLoading READ detailFilesLoading NOTIFY detailFilesChanged)
+    /// Installed packages with a newer version, as the shell found them: "source:id" → {from, to}
+    Q_PROPERTY(QVariantMap pendingUpdates READ pendingUpdates NOTIFY pendingUpdatesChanged)
 
 public:
     explicit Backend(QObject *parent = nullptr);
@@ -65,6 +67,7 @@ public:
     bool detailLoading() const { return m_detailLoading; }
     QStringList detailFiles() const { return m_detailFiles; }
     bool detailFilesLoading() const { return m_filesLoading; }
+    QVariantMap pendingUpdates() const { return m_pendingUpdates; }
 
     /// Flatpak installation to target: "system" when a system remote exists, else "user".
     QString flatpakInstallation() const { return m_flatpakInstallation; }
@@ -82,6 +85,10 @@ public:
     /// Theme icon name for the package, or "" when the theme has none.
     Q_INVOKABLE QString iconFor(const QString &source, const QString &id);
     Q_INVOKABLE QString formatSize(double bytes) const;
+    /// Ask the running shell which packages have a newer version (its updates list); nothing if it is not running.
+    Q_INVOKABLE void loadShellUpdates();
+    /// Updating is the shell's job (one password, in the background): open Nexus on its updates page.
+    Q_INVOKABLE void openShellUpdates();
 
     /// Used by headless self-tests (--dump-*).
     QVector<Package> currentItems() const { return m_model.items(); }
@@ -100,6 +107,7 @@ signals:
     void installedChanged();
     void detailChanged();
     void detailFilesChanged();
+    void pendingUpdatesChanged();
     /// Emitted when a search round or installed load settles (used by self-tests).
     void settled();
 
@@ -123,6 +131,7 @@ private:
     void loadInstalled();
     void finishInstalled();
     void loadFlatpakRemotes();
+    void matchShellUpdates();
 
     void loadPacmanDetail(int gen, const QString &id, const QString &repo, bool installed,
                           QVariantMap base);
@@ -179,6 +188,10 @@ private:
     int m_filesGen = 0;
     QList<QPointer<QProcess>> m_detailProcs;
     QPointer<QNetworkReply> m_detailReply;
+
+    // updates: what the shell lists ("source:id" → {from, to}), and those still pending for what is installed
+    QHash<QString, QPair<QString, QString>> m_shellUpdates;
+    QVariantMap m_pendingUpdates;
 
     QHash<QString, QString> m_iconCache;
     bool m_hasPacman = false;

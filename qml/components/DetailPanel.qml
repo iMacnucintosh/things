@@ -20,6 +20,8 @@ Rectangle {
 
     readonly property string source: detail.source || "pacman"
     readonly property bool installed: !!detail.installed
+    // A newer version the shell found ({from, to}), or undefined
+    readonly property var pendingUpdate: installed && detail.id ? Things.pendingUpdates[source + ":" + detail.id] : undefined
     readonly property string iconName: detail.id ? Things.iconFor(source, detail.id) : ""
     readonly property var fields: detail.fields || []
     readonly property bool hasExtras: !!detail.id && extras.id === detail.id
@@ -205,6 +207,60 @@ Rectangle {
                         }
                     }
                     Item { Layout.fillWidth: true }
+                }
+
+                // A newer version: it is updated by Sylphrena, with the rest of the system (one password, in the background)
+                Rectangle {
+                    Layout.fillWidth: true
+                    visible: !!root.pendingUpdate
+                    implicitHeight: updCol.implicitHeight + 28
+                    radius: 18
+                    color: Theme.primaryContainer
+                    ColumnLayout {
+                        id: updCol
+                        anchors.fill: parent
+                        anchors.margins: 14
+                        anchors.leftMargin: 16
+                        spacing: 10
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+                            MaterialIcon {
+                                Layout.alignment: Qt.AlignTop
+                                icon: "upgrade"
+                                size: 22
+                                colour: Theme.onPrimaryContainer
+                            }
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: root.pendingUpdate && root.pendingUpdate.from
+                                          ? qsTr("New version: %1 → %2").arg(root.pendingUpdate.from).arg(root.pendingUpdate.to)
+                                          : qsTr("New version: %1").arg(root.pendingUpdate ? root.pendingUpdate.to : "")
+                                    color: Theme.onPrimaryContainer
+                                    font.pixelSize: 14
+                                    font.weight: Font.Medium
+                                    wrapMode: Text.Wrap
+                                }
+                                StyledText {
+                                    Layout.fillWidth: true
+                                    text: qsTr("Sylphrena updates it with the rest of the system")
+                                    color: Theme.onPrimaryContainer
+                                    font.pixelSize: 12
+                                    opacity: 0.8
+                                    wrapMode: Text.Wrap
+                                }
+                            }
+                        }
+                        ActionButton {
+                            Layout.leftMargin: 34
+                            text: qsTr("Open updates")
+                            icon: "open_in_new"
+                            onClicked: Things.openShellUpdates()
+                        }
+                    }
                 }
 
                 // AUR warnings

@@ -26,6 +26,7 @@ public:
         OutOfDateRole,
         SizeRole,
         KeyRole,
+        UpdateRole,
     };
 
     explicit PackageModel(QObject *parent = nullptr);
