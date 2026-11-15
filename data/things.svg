@@ -1,6 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <!-- Material You: flat package, primary + primary-container tones -->
-  <path d="M16 46h96v50a14 14 0 0 1-14 14H30a14 14 0 0 1-14-14z" fill="#B99875"/>
-  <rect x="8" y="18" width="112" height="34" rx="12" fill="#E4C09B"/>
-  <rect x="48" y="66" width="32" height="10" rx="5" fill="#75593B"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Things: the symbol alone, in its own flat colour -->
+  <g transform="translate(64 64) scale(1.6) translate(-64 -64)">
+  <path d="M64 33.5 91 47.5 64 61.5 37 47.5z" fill="#2e9b7a"/>
+  <path d="M35 51.5 62 65.5v30L38.2 83.1c-2-1-3.2-3.1-3.2-5.3z" fill="#2e9b7a" opacity=".78"/>
+  <path d="M93 51.5 66 65.5v30l23.8-12.4c2-1 3.2-3.1 3.2-5.3z" fill="#2e9b7a" opacity=".58"/>
+  </g>
 </svg>
