@@ -189,7 +189,7 @@
  "The operation failed. Check the output.": "La operación falló. Revisa la salida.",
  "The operation has failed": "La operación ha fallado",
  "The package was not found. The databases may be out of date.": "El paquete no se encontró. Puede que las bases de datos estén desactualizadas.",
- "The pacman databases are out of date. Update the system (Nexus Updates module) and try again.": "Las bases de datos de pacman están desactualizadas. Actualiza el sistema (módulo Updates de Nexus) y reintenta.",
+ "The pacman databases are out of date. Update the system (Sylphrena Settings \u2192 Updates) and try again.": "Las bases de datos de pacman están desactualizadas. Actualiza el sistema (Ajustes de Sylphrena → Actualizaciones) y reintenta.",
  "The runtimes no other app uses will also be removed.": "También se quitarán los runtimes que ninguna otra aplicación use.",
  "There are no extensions yet": "Aún no hay extensiones",
  "There are no packages in this view": "No hay paquetes en esta vista",

@@ -289,7 +289,7 @@ QString Operations::diagnose(const QString &log) const {
         return tr("Another instance of pacman is running or a lock was left behind (/var/lib/pacman/db.lck).");
     if (l.contains(QLatin1String("failed retrieving file")) || l.contains(QLatin1String("error 404"))
         || l.contains(QLatin1String("404")))
-        return tr("The pacman databases are out of date. Update the system (Nexus Updates module) and try again.");
+        return tr("The pacman databases are out of date. Update the system (Sylphrena Settings → Updates) and try again.");
     if (l.contains(QLatin1String("could not satisfy dependencies")) || l.contains(QLatin1String("breaks dependency")))
         return tr("There are unresolved dependencies: another installed package depends on this one.");
     if (l.contains(QLatin1String("conflicting files")) || l.contains(QLatin1String("exists in filesystem")))

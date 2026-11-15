@@ -500,7 +500,7 @@ ApplicationWindow {
                                     selected: Things.kindFilter === "orphan"
                                     onClicked: Things.kindFilter = "orphan"
                                 }
-                                // What the shell found to update (Nexus → Updates): only when there is something
+                                // What the shell found to update (Settings → Updates): only when there is something
                                 Chip {
                                     visible: win.installedMode && (Object.keys(Things.pendingUpdates).length > 0 || Things.kindFilter === "updates")
                                     label: qsTr("Updates")

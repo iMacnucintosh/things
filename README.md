@@ -5,7 +5,7 @@ Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnuci
 - Producto y lanzador: **Things**
 - Stack: **Qt 6 Quick / QML + C++20** (qmake), sin más dependencias que Qt
 - Binario: `~/.local/bin/things` · config: `~/.config/things/`
-- Es el «Octopi moderno y mínimo»: buscar, ver instalados, instalar, eliminar. Las actualizaciones del sistema completo siguen en Nexus → Actualizaciones; Things solo marca qué paquetes las tienen.
+- Es el «Octopi moderno y mínimo»: buscar, ver instalados, instalar, eliminar. Las actualizaciones del sistema completo siguen en Ajustes → Actualizaciones; Things solo marca qué paquetes las tienen.
 
 ## Funciones
 
@@ -17,11 +17,11 @@ Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnuci
 
 - **Búsqueda unificada** — pacman (repos), AUR (RPC oficial, con `yay -Ssa` de respaldo sin red) y Flatpak/Flathub a la vez, asíncrona, con *debounce* de 250 ms y cancelación (los resultados de búsquedas viejas se descartan y sus procesos se matan). Sin botones para «activar AUR».
 - **Ranking útil** — coincidencia exacta e instalados primero; los orígenes se mezclan, no se apilan en bloques. Votos/popularidad pesan en AUR.
-- **Origen siempre visible** — pacman = `settings`, Flatpak = `deployed_code`, AUR = 👽 (mismos glifos que la página Updates de Nexus), más un chip con el repo (`core`/`extra`/`multilib`/remoto Flatpak) o los votos de AUR.
+- **Origen siempre visible** — pacman = `settings`, Flatpak = `deployed_code`, AUR = 👽 (mismos glifos que la página Actualizaciones de Ajustes), más un chip con el repo (`core`/`extra`/`multilib`/remoto Flatpak) o los votos de AUR.
 - **Iconos reales** — si el tema de iconos (Papirus vía qt6ct) tiene icono para el paquete o el id de Flatpak, se muestra; si no, el glifo de origen.
 - **Filtros** — origen (Todos · pacman · AUR · Flatpak, con contadores) y estado (Cualquiera · Instalados · Disponibles).
 - **Instalados** — explícitos, dependencias y huérfanos (`pacman -Qdt`), AUR (foráneos) y Flatpak, con filtro por origen y búsqueda local.
-- **Actualizaciones pendientes** — los paquetes instalados con versión nueva se marcan («2.19.2-1 → 2.19.3-1») y tienen su filtro «Actualizaciones» en Instalados; su ficha lo dice con un botón que abre Nexus → Actualizaciones. Things no comprueba nada por su cuenta: pide a la shell la misma lista que enseñan la barra y Nexus (`qs ipc call updates list`, Sylphrena 0.5.7 o posterior) y la vuelve a pedir al volver a la ventana. Actualizar sigue siendo cosa de la shell (una contraseña, en segundo plano).
+- **Actualizaciones pendientes** — los paquetes instalados con versión nueva se marcan («2.19.2-1 → 2.19.3-1») y tienen su filtro «Actualizaciones» en Instalados; su ficha lo dice con un botón que abre Ajustes → Actualizaciones. Things no comprueba nada por su cuenta: pide a la shell la misma lista que enseñan la barra y Ajustes (`qs ipc call updates list`, Sylphrena 0.5.7 o posterior) y la vuelve a pedir al volver a la ventana. Actualizar sigue siendo cosa de la shell (una contraseña, en segundo plano).
 - **Detalle** — descripción, versión, web, licencias, tamaños, dependencias (opcionales, requerido por…), motivo de instalación, ficha de AUR/Flathub y lista de archivos instalados.
 - **Instalar / eliminar** — cola serie con progreso, salida en vivo plegable, cancelación (SIGINT limpio → SIGTERM → SIGKILL) y errores diagnosticados (bloqueo `db.lck`, bases desactualizadas, dependencias, conflictos, firmas…).
 - **Confirmación con vista previa real** — `pacman -S --print` / `pacman -Rs --print` (dependencias que entran o se van y tamaño), `flatpak remote-info`.
