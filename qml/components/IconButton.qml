@@ -25,11 +25,11 @@ Item {
     Rectangle {
         id: chrome
         anchors.centerIn: parent
-        width: parent.width + (layer.pressed ? 8 : 0)
+        width: parent.width + (stateLayer.pressed ? 8 : 0)
         height: width
-        radius: layer.pressed ? 10 : width / 2
+        radius: stateLayer.pressed ? 10 : width / 2
         color: root.bg
-        scale: layer.pressed ? 0.94 : 1
+        scale: stateLayer.pressed ? 0.94 : 1
 
         Behavior on width {
             NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
@@ -51,7 +51,7 @@ Item {
     }
 
     StateLayer {
-        id: layer
+        id: stateLayer
         z: 2
         radius: chrome.radius
         shapeMorph: true

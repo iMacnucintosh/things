@@ -26,9 +26,9 @@ Item {
     Rectangle {
         id: bg
         anchors.fill: parent
-        radius: layer.pressed ? 12 : height / 2
+        radius: stateLayer.pressed ? 12 : height / 2
         color: root.bgColor
-        scale: layer.pressed ? 0.97 : 1
+        scale: stateLayer.pressed ? 0.97 : 1
         Behavior on radius { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
         Behavior on color { ColorAnimation { duration: 160 } }
@@ -60,7 +60,7 @@ Item {
     }
 
     StateLayer {
-        id: layer
+        id: stateLayer
         radius: bg.radius
         shapeMorph: true
         color: root.fgColor

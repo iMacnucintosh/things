@@ -25,7 +25,7 @@ Item {
         color: root.selected ? Theme.primaryContainer : "transparent"
         border.width: root.selected ? 0 : 1
         border.color: Theme.outlineVariant
-        scale: layer.pressed ? 0.96 : 1
+        scale: stateLayer.pressed ? 0.96 : 1
         Behavior on color { ColorAnimation { duration: 160 } }
         Behavior on scale { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
     }
@@ -66,7 +66,7 @@ Item {
     }
 
     StateLayer {
-        id: layer
+        id: stateLayer
         radius: bg.radius
         color: root.selected ? Theme.accentFg : Theme.onSurface
         onClicked: root.clicked()
