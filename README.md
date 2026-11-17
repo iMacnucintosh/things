@@ -1,114 +1,125 @@
-# Things
+<h1 align="center">Things</h1>
 
-Gestor de paquetes **Material You** para [Sylphrena](https://github.com/iMacnucintosh/sylphrena-shell): pacman, AUR y Flatpak en **una sola lista**.
+<p align="center"><strong>English</strong> · <a href="./README.es.md">Español</a></p>
 
-- Producto y lanzador: **Things**
-- Stack: **Qt 6 Quick / QML + C++20** (qmake), sin más dependencias que Qt
-- Binario: `~/.local/bin/things` · config: `~/.config/things/`
-- Es el «Octopi moderno y mínimo»: buscar, ver instalados, instalar, eliminar. Las actualizaciones del sistema completo siguen en Ajustes → Actualizaciones; Things solo marca qué paquetes las tienen.
+<p align="center">
+The <strong>Material You</strong> package manager of <a href="https://github.com/iMacnucintosh/sylphrena-shell">Sylphrena</a>: pacman, the AUR and Flatpak in <strong>one list</strong>, plus the extensions of the shell.
+</p>
 
-## Funciones
+<p align="center"><img src="docs/screenshot.webp" width="760" alt="Things searching for firefox in pacman, the AUR and Flathub at once"></p>
 
-- **Sylphrena (extensiones de la shell)** — sección propia en la columna lateral (`Ctrl+4`) (junto al título, la versión de Sylphrena que corre) con las extensiones del [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell Sylphrena, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo se pide si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se pide al hub al abrir (la caché solo pinta el primer fotograma y sirve sin conexión); cada entrada se valida antes de mostrarse. Si no se encuentra Sylphrena, se ve el catálogo pero no se instala. **Detalles**: al pulsar una extensión se abre su ficha (descripción larga, capturas, requisitos, qué toca en tu equipo y novedades), que Things descarga del hub (`store/<id>.json`, solo de sus URLs). Una copia **local** que el hub también tiene (puesta a mano o desde un zip) se puede cambiar por la del hub con «Usar la del hub», para que Things la actualice; tus ajustes y datos se conservan. **Instalar desde zip** (botón de la cabecera) abre el selector de Seeker, enseña qué trae el zip (nombre, versión, descripción, si pide contraseña) y pide confirmación; la extensión queda como «local». Lo valida `ext.py inspect`/`install` de la shell.
+- Product and launcher name: **Things**
+- Stack: **Qt 6 Quick / QML + C++20** (qmake), with no dependencies besides Qt
+- Binary: `~/.local/bin/things` · config: `~/.config/things/`
+- It is the "modern and minimal Octopi": search, see what is installed, install, remove. Updating the whole system stays in Settings → Updates; Things only marks which packages have an update.
 
-- **Detalle con capturas (Flatpak)** — el panel de una app de Flathub muestra su galería de capturas de pantalla (con pie de foto, flechas y puntos; clic para verlas a pantalla completa, `←`/`→` para pasar, `Esc` para cerrar), «Acerca de» con la descripción completa, las novedades de la última versión y enlaces (web, ayuda, reportar un fallo, donar). Solo se contacta con `dl.flathub.org` para las imágenes. Los paquetes de pacman/AUR no tienen capturas: las del catálogo de Arch están en webs de terceros y no se cargan.
+## Features
 
-- **Descubrir (pantalla inicial)** — estilo tienda de aplicaciones: una destacada del día con su captura de pantalla y filas de **Tendencias**, **Más instaladas** (último mes), **Novedades** y **Actualizadas hace poco**, con iconos reales. Los datos salen de la API pública de Flathub (sin cuenta ni datos tuyos), se guardan en caché (`~/.cache/things/`, se renueva cada hora) y funcionan sin conexión con los últimos datos. Además, **Populares en Arch**: las aplicaciones de los repos oficiales ordenadas por cuántos usuarios las tienen instaladas ([pkgstats](https://pkgstats.archlinux.de)), con nombre y resumen en tu idioma e icono del tema. Necesita el paquete `archlinux-appstream-data` (catálogo oficial de Arch, ~20 MB): si falta, Descubrir ofrece instalarlo con un botón. Se excluyen herramientas de desarrollo/sistema y dependencias que casi todo el mundo tiene, que no son una recomendación. Al escribir en el buscador salta a los resultados; `Esc` vuelve. Atajos: `Ctrl+1` Descubrir · `Ctrl+2` Buscar · `Ctrl+3` Instalados.
+- **Discover (home page)**: app-store style: an app of the day with its screenshot and rows of **Trending**, **Most installed** (last month), **New** and **Recently updated**, with real icons. The data comes from Flathub's public API (no account, none of your data), is cached (`~/.cache/things/`, renewed every hour) and works offline with the latest data. Also **Popular on Arch**: the apps of the official repositories sorted by how many users have them installed ([pkgstats](https://pkgstats.archlinux.de)), with name and summary in your language and the theme's icon. It needs the `archlinux-appstream-data` package (Arch's official catalogue, ~20 MB): if it is missing, Discover offers to install it with a button. Development/system tools and dependencies almost everybody has are left out: they are not a recommendation. Typing in the search box jumps to the results; `Esc` goes back.
+- **Unified search**: pacman (repositories), the AUR (official RPC, with `yay -Ssa` as a fallback offline) and Flatpak/Flathub at once, asynchronous, with a 250 ms debounce and cancellation (the results of old searches are discarded and their processes killed). No "enable AUR" buttons.
+- **Useful ranking**: exact matches and installed packages first; the origins are mixed, not stacked in blocks. Votes/popularity weigh on the AUR.
+- **Origin always visible**: pacman = `settings`, Flatpak = `deployed_code`, AUR = 👽 (the same glyphs as Settings' Updates page), plus a chip with the repository (`core`/`extra`/`multilib`/Flatpak remote) or the AUR votes.
+- **Real icons**: if the icon theme (Papirus via qt6ct) has an icon for the package or the Flatpak id, it shows; otherwise the origin glyph.
+- **Filters**: origin (All · pacman · AUR · Flatpak, with counters) and state (Any · Installed · Available).
+- **Installed**: explicit, dependencies and orphans (`pacman -Qdt`), AUR (foreign) and Flatpak, with an origin filter and local search.
+- **Pending updates**: installed packages with a new version are marked ("2.19.2-1 → 2.19.3-1") and have their own "Updates" filter in Installed; their page says so with a button that opens Settings → Updates. Things checks nothing by itself: it asks the shell for the same list the bar and Settings show (`qs ipc call updates list`, Sylphrena 0.5.7 or later) and asks again when you come back to the window. Updating stays the shell's job (one password, in the background).
+- **Details**: description, version, web, licences, sizes, dependencies (optional, required by…), install reason, AUR/Flathub page and the list of installed files.
+- **Flatpak details with screenshots**: the page of a Flathub app shows its screenshot gallery (with captions, arrows and dots; click to see them full screen, `←`/`→` to move, `Esc` to close), "About" with the full description, the news of the latest version and links (web, help, report a bug, donate). `dl.flathub.org` is only contacted for the images. pacman/AUR packages have no screenshots: the ones in Arch's catalogue are on third-party sites and are not loaded.
+- **Install / remove**: a serial queue with progress, collapsible live output, cancellation (clean SIGINT → SIGTERM → SIGKILL) and diagnosed errors (`db.lck` lock, outdated databases, dependencies, conflicts, signatures…).
+- **Confirmation with a real preview**: `pacman -S --print` / `pacman -Rs --print` (dependencies that come in or go and the size), `flatpak remote-info`.
+- **Sylphrena (shell extensions)**: its own section in the side column (`Ctrl+4`), with the version of Sylphrena that is running next to the title, with the extensions of the [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): available, installed, **updatable** (with a counter) and **local** (put there by hand: Things shows them and does not touch them unless you ask to remove them). Installing, updating and removing go through the same queue, confirmation and live log as packages. **Things installs nothing by itself**: it runs the shell's `scripts/ext.py`, which downloads only from the hub's releases, checks the catalogue's `sha256` and the compatibility, validates the zip, installs the system parts with `sudo -A` (the password is asked by Things' dialog, and only if the extension needs it) and tells the shell. The catalogue (`index.json`) is requested from the hub on opening (the cache only paints the first frame and serves offline); every entry is validated before it shows. If Sylphrena cannot be found, the catalogue is visible but nothing installs.
+  - **Details**: clicking an extension opens its page (long description, screenshots, requirements, what it touches on your computer and news), which Things downloads from the hub (`store/<id>.json`, only from its URLs).
+  - A **local** copy that the hub also has (put there by hand or from a zip) can be swapped for the hub's with "Use the hub's", so Things updates it; your settings and data are kept.
+  - **Install from zip** (the header button) opens Seeker's picker, shows what the zip brings (name, version, description, whether it asks for a password) and asks for confirmation; the extension stays "local". It is validated by the shell's `ext.py inspect`/`install`.
+- **Theme**: Material You, live from Sylphrena (`theme.json`, light or dark as the file says).
 
-- **Búsqueda unificada** — pacman (repos), AUR (RPC oficial, con `yay -Ssa` de respaldo sin red) y Flatpak/Flathub a la vez, asíncrona, con *debounce* de 250 ms y cancelación (los resultados de búsquedas viejas se descartan y sus procesos se matan). Sin botones para «activar AUR».
-- **Ranking útil** — coincidencia exacta e instalados primero; los orígenes se mezclan, no se apilan en bloques. Votos/popularidad pesan en AUR.
-- **Origen siempre visible** — pacman = `settings`, Flatpak = `deployed_code`, AUR = 👽 (mismos glifos que la página Actualizaciones de Ajustes), más un chip con el repo (`core`/`extra`/`multilib`/remoto Flatpak) o los votos de AUR.
-- **Iconos reales** — si el tema de iconos (Papirus vía qt6ct) tiene icono para el paquete o el id de Flatpak, se muestra; si no, el glifo de origen.
-- **Filtros** — origen (Todos · pacman · AUR · Flatpak, con contadores) y estado (Cualquiera · Instalados · Disponibles).
-- **Instalados** — explícitos, dependencias y huérfanos (`pacman -Qdt`), AUR (foráneos) y Flatpak, con filtro por origen y búsqueda local.
-- **Actualizaciones pendientes** — los paquetes instalados con versión nueva se marcan («2.19.2-1 → 2.19.3-1») y tienen su filtro «Actualizaciones» en Instalados; su ficha lo dice con un botón que abre Ajustes → Actualizaciones. Things no comprueba nada por su cuenta: pide a la shell la misma lista que enseñan la barra y Ajustes (`qs ipc call updates list`, Sylphrena 0.5.7 o posterior) y la vuelve a pedir al volver a la ventana. Actualizar sigue siendo cosa de la shell (una contraseña, en segundo plano).
-- **Detalle** — descripción, versión, web, licencias, tamaños, dependencias (opcionales, requerido por…), motivo de instalación, ficha de AUR/Flathub y lista de archivos instalados.
-- **Instalar / eliminar** — cola serie con progreso, salida en vivo plegable, cancelación (SIGINT limpio → SIGTERM → SIGKILL) y errores diagnosticados (bloqueo `db.lck`, bases desactualizadas, dependencias, conflictos, firmas…).
-- **Confirmación con vista previa real** — `pacman -S --print` / `pacman -Rs --print` (dependencias que entran o se van y tamaño), `flatpak remote-info`.
-- **Tema** — Material You en vivo desde Sylphrena (`theme.json`, claro u oscuro según diga el fichero).
+### Keyboard
 
-## Build
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl+L` / `Ctrl+F` | Focus the search |
+| `↓` in the search | Go to the list (`↑` on the first row goes back) |
+| `Enter` in the list | Open the details |
+| `Esc` | Close the details → clear the search |
+| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Discover / Search / Installed / Sylphrena |
+| `F5` | Refresh the installed list and repeat the search |
 
-```bash
-cd ~/Desarrollo/things
+Command line options: `--search <text>`, `--installed`, `--dry-run`.
+
+## Install
+
+It comes with Sylphrena: [its installer](https://github.com/iMacnucintosh/sylphrena-shell#installation) sets it up. On its own, on Arch Linux, add the [Sylphrena package repository](https://github.com/iMacnucintosh/sylphrena-packages) and install it with pacman:
+
+```sh
+sudo pacman -S things-git
+```
+
+## Build from source
+
+```sh
+git clone https://github.com/iMacnucintosh/things
+cd things
 qmake6 PREFIX=$HOME/.local
 make -j$(nproc)
 make install
 ```
 
-Instala `things`, `things.desktop` («Things») y `things.svg` en `~/.local`.
+It installs `things`, `things.desktop` ("Things") and `things.svg` into `~/.local`.
 
-## Atajos
+## Sylphrena integration
 
-| Atajo | Acción |
-| --- | --- |
-| `Ctrl+L` / `Ctrl+F` | Enfocar la búsqueda |
-| `↓` en la búsqueda | Pasar a la lista (`↑` en la primera fila, vuelve) |
-| `Enter` en la lista | Abrir detalle |
-| `Esc` | Cerrar detalle → limpiar búsqueda |
-| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Descubrir / Buscar / Instalados / Sylphrena |
-| `F5` | Refrescar instalados y repetir búsqueda |
+- **Theme**: Things reads `~/.config/things/theme.json` (the same format as Seeker: `mode` + the Material palette + `transparency`) and reloads it live. Sylphrena's `scripts/sylphrena-quiet.py` writes it (`_sync_things`) with every apply. Without the file it uses a dark palette.
+- **Extensions**: it is the extension manager of the shell (see above); the contract between the two lives in Sylphrena's `AGENTS.md`.
+- **Updates**: it asks the shell which packages have an update (`qs ipc call updates list`).
 
-Opciones de línea de comandos: `--search <texto>`, `--installed`, `--dry-run`.
+## Privileges
 
-## Tema Sylphrena
+polkit is not used. It follows the pattern of Sylphrena's Updates service, in C++:
 
-Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y recarga en caliente. Lo escribe `_sync_things` en `scripts/sylphrena-quiet.py` de Sylphrena en cada apply. Sin fichero usa una paleta oscura por defecto.
+1. Its own Material You password dialog when an operation needs root.
+2. Verification with `sudo -k` + `sudo -S -p '' -v` (the password goes through stdin, which is closed: sudo never stays waiting).
+3. The password lives **only in the RAM** of the `things` process and is served over a private Unix socket (`$XDG_RUNTIME_DIR/things-askpass-*.sock`, 0600, with an `SO_PEERCRED` check). The askpass program is the binary itself (`SUDO_ASKPASS=~/.local/bin/things` + `THINGS_ASKPASS_SOCK`).
+4. Operations run with `sudo -A …` / `yay --sudoflags=-A`. Never `--sudoloop` (it blocks with faillock) nor `sudo -n` (the timestamp is per TTY).
+5. The password is erased after 5 minutes of inactivity or on exit. Child processes start with stdin on `/dev/null`.
 
-## Privilegios
+Flatpak: it installs **system-wide** if there is a system remote (the usual case with Flathub); user-only (no sudo) if the machine only has user remotes. Removing respects where the package is installed.
 
-No se usa polkit. Patrón del servicio Updates de Sylphrena, en C++:
+**Removing leaves the system clean:**
 
-1. Diálogo propio de contraseña (Material You) cuando una operación necesita root.
-2. Verificación con `sudo -k` + `sudo -S -p '' -v` (contraseña por stdin, que se cierra: sudo nunca queda esperando).
-3. La contraseña vive **solo en RAM** del proceso `things` y se sirve por un socket Unix privado (`$XDG_RUNTIME_DIR/things-askpass-*.sock`, 0600, con comprobación `SO_PEERCRED`). El programa askpass es el propio binario (`SUDO_ASKPASS=~/.local/bin/things` + `THINGS_ASKPASS_SOCK`).
-4. Las operaciones corren con `sudo -A …` / `yay --sudoflags=-A`. Nunca `--sudoloop` (bloquea con faillock) ni `sudo -n` (el timestamp es por TTY).
-5. La contraseña se borra tras 5 minutos de inactividad o al salir. Los procesos hijos arrancan con stdin en `/dev/null`.
+- pacman / AUR: `pacman -Rns`: it removes the package, the dependencies nobody needs any more and its system configuration files. Dependencies used by another package, or that you installed by hand, stay.
+- Flatpak: it uninstalls the app and then the runtimes no other application uses (`flatpak uninstall --unused`). The app's data in `~/.var/app` is only deleted if you tick "Also delete the data" in the confirmation (unticked by default, it cannot be undone).
+- It never touches your personal data (`~/.config`, `~/.local/share`).
 
-Flatpak: se instala **a nivel sistema** si existe un remote de sistema (lo normal con Flathub); solo a nivel usuario (sin sudo) si la máquina solo tiene remotes de usuario. Eliminar respeta dónde está instalado el paquete.
+Argument safety: no `sh -c` with user content; everything goes through argv, and package names are validated with conservative regular expressions before anything runs.
 
-**Eliminar deja el sistema limpio:**
-- pacman / AUR: `pacman -Rns` — quita el paquete, las dependencias que ya nadie necesita y sus archivos de configuración de sistema. Las dependencias que usa otro paquete, o que instalaste a mano, se quedan.
-- Flatpak: desinstala la app y después los runtimes que ninguna otra aplicación use (`flatpak uninstall --unused`). Los datos de la app en `~/.var/app` solo se borran si marcas «Borrar también los datos» en la confirmación (desmarcado por defecto, no se puede deshacer).
-- Nunca toca tus datos personales de pacman (`~/.config`, `~/.local/share`).
+## Development
 
-Seguridad de argumentos: ningún `sh -c` con contenido de usuario; todo va por argv, y los nombres de paquete se validan con expresiones regulares conservadoras antes de lanzar nada.
+Try it without touching the system:
 
-## Idioma
-
-Interfaz en español (cadenas directas en QML/C++, envueltas en `qsTr()`/`tr()` para poder traducir luego). Decisión: no hay `.ts`/`.qm` porque `lupdate`/`lrelease` de Qt 6 no están instalados en el sistema y la app solo se usa en español.
-
-## Pruebas sin tocar el sistema
-
-```bash
-./things --dry-run            # install/remove simulados (THINGS_DRY_FAIL=1 simula un fallo)
-./things --dump-search blender   # búsqueda unificada en texto (sin GUI)
+```sh
+./things --dry-run               # simulated install/remove (THINGS_DRY_FAIL=1 simulates a failure)
+./things --dump-search blender   # the unified search as text (no GUI)
 ./things --dump-installed --filter-kind dep
 ./things --dump-detail aur:yay
-./things --dump-hub           # filas del hub de Sylphrena (THINGS_HUB_INDEX=<index.json> lo lee de un fichero en vez de la red)
-./things --hub-op install:<id>   # (dev) encola una operación del hub sin hacer clic; con THINGS_HUB_INDEX y
-                                 # SYLPHRENA_HUB_TEST_PREFIX=file://<carpeta de zips> se prueba todo el flujo en local
-dev/run-demos.sh              # capturas offscreen: recorrido de la UI + flujo de contraseña con un sudo falso
+./things --dump-hub              # the rows of the Sylphrena hub (THINGS_HUB_INDEX=<index.json> reads it from a file instead of the network)
+./things --hub-op install:<id>   # (dev) queues a hub operation without clicking; with THINGS_HUB_INDEX and
+                                 # SYLPHRENA_HUB_TEST_PREFIX=file://<zips folder> the whole flow is tested locally
+dev/run-demos.sh                 # offscreen screenshots: a tour of the UI + the password flow with a fake sudo
 ```
 
-## Estructura
-
 ```
-src/Backend.*       búsqueda unificada, instalados y detalle (QProcess + QNetworkAccessManager)
-src/HubCatalog.*    catálogo del hub de Sylphrena (índice, caché, validación) cruzado con lo instalado
-src/Operations.*    cola de instalar/eliminar, salida en vivo, vistas previas y diagnóstico de errores
-src/Privilege.*     contraseña en RAM + socket askpass
-src/Theme.*         tema en vivo desde theme.json
-qml/                Main.qml + components (Material You, copiados/adaptados de Seeker)
+src/Backend.*       unified search, installed and details (QProcess + QNetworkAccessManager)
+src/HubCatalog.*    the Sylphrena hub catalogue (index, cache, validation) crossed with what is installed
+src/Operations.*    install/remove queue, live output, previews and error diagnosis
+src/Privilege.*     password in RAM + askpass socket
+src/Theme.*         live theme from theme.json
+qml/                Main.qml + components (Material You, copied/adapted from Seeker)
 ```
 
-## Licencia
+## Languages
 
-MIT — ver [LICENSE](LICENSE).
+The code is in English (`qsTr("…")`, `tr("…")`) and each language is a JSON catalogue in `i18n/<language>.json` (English text → translation; a `context\u0004text` key tells apart two translations of the same text). Today: Spanish (`es`). A language without a catalogue shows in English; `THINGS_LANG=es` forces one. `scripts/check-i18n.py` checks that no string is missing or left over.
 
-## Idiomas
+## License
 
-El código está en inglés (`qsTr("…")`, `tr("…")`) y cada idioma es un catálogo JSON en `i18n/<idioma>.json` (texto en inglés →
-traducción; una clave `contexto\u0004texto` distingue dos traducciones del mismo texto). Hoy: español (`es`). Un idioma sin
-catálogo se ve en inglés; `THINGS_LANG=es` fuerza uno. `scripts/check-i18n.py` comprueba que no falta ni sobra ninguna cadena.
-
+MIT, see [LICENSE](LICENSE).
