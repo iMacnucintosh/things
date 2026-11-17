@@ -21,8 +21,8 @@
 
 namespace {
 
-constexpr auto kIndexUrl = "https://raw.githubusercontent.com/iMacnucintosh/sylphrena-hub/main/index.json";
-constexpr auto kReleases = "https://github.com/iMacnucintosh/sylphrena-hub/releases/download/";
+constexpr auto kIndexUrl = "https://raw.githubusercontent.com/iMacnucintosh/lunele-hub/main/index.json";
+constexpr auto kReleases = "https://github.com/iMacnucintosh/lunele-hub/releases/download/";
 constexpr qint64 kTtlSecs = 600;
 constexpr int kMaxIndex = 1024 * 1024;
 
@@ -55,7 +55,7 @@ QString HubCatalog::cachePath() {
 QString HubCatalog::installedDir() {
     const QString data = qEnvironmentVariable("XDG_DATA_HOME",
                                               QDir::homePath() + QStringLiteral("/.local/share"));
-    return data + QStringLiteral("/sylphrena/extensions");
+    return data + QStringLiteral("/lunele/extensions");
 }
 
 bool HubCatalog::validId(const QString &id) {
@@ -64,9 +64,9 @@ bool HubCatalog::validId(const QString &id) {
 }
 
 bool HubCatalog::validZipUrl(const QString &url) {
-    // Only the hub's releases. Tests may point SYLPHRENA_HUB_TEST_PREFIX at a local folder, the same
+    // Only the hub's releases. Tests may point LUNELE_HUB_TEST_PREFIX at a local folder, the same
     // variable the shell's tool honours, so both ends agree.
-    const QString test = qEnvironmentVariable("SYLPHRENA_HUB_TEST_PREFIX");
+    const QString test = qEnvironmentVariable("LUNELE_HUB_TEST_PREFIX");
     return url.startsWith(QLatin1String(kReleases)) || (!test.isEmpty() && url.startsWith(test));
 }
 
@@ -313,12 +313,12 @@ void HubCatalog::findTool() {
     const QString before = m_tool;
     const QString home = QDir::homePath();
     QStringList candidates;
-    const QString env = qEnvironmentVariable("SYLPHRENA_EXT_TOOL");
+    const QString env = qEnvironmentVariable("LUNELE_EXT_TOOL");
     if (!env.isEmpty())
         candidates << env;
-    candidates << home + QStringLiteral("/.config/quickshell/sylphrena/scripts/ext.py")
-               << QStringLiteral("/etc/xdg/quickshell/sylphrena/scripts/ext.py")
-               << QStringLiteral("/usr/share/sylphrena/scripts/ext.py");
+    candidates << home + QStringLiteral("/.config/quickshell/lunele/scripts/ext.py")
+               << QStringLiteral("/etc/xdg/quickshell/lunele/scripts/ext.py")
+               << QStringLiteral("/usr/share/lunele/scripts/ext.py");
     for (const QString &c : candidates) {
         if (QFileInfo(c).isFile()) {
             m_tool = c;
@@ -337,7 +337,7 @@ void HubCatalog::findTool() {
         }
     });
     connect(p, &QProcess::errorOccurred, p, &QObject::deleteLater);
-    p->start(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("sylphrena"), QStringLiteral("ipc"),
+    p->start(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("lunele"), QStringLiteral("ipc"),
                                     QStringLiteral("call"), QStringLiteral("extensions"), QStringLiteral("tools")});
     QTimer::singleShot(5000, p, [p] { if (p->state() != QProcess::NotRunning) p->kill(); });
     if (m_tool != before)
@@ -385,7 +385,7 @@ void HubCatalog::pickZip() {
     if (!QFileInfo(seeker).isExecutable())
         seeker = QStandardPaths::findExecutable(QStringLiteral("seeker"));
     if (seeker.isEmpty()) {
-        m_notice = tr("Choosing the zip needs Seeker, the file manager of Sylphrena.");
+        m_notice = tr("Choosing the zip needs Seeker, the file manager of Lunele.");
         emit changed();
         return;
     }
@@ -423,10 +423,10 @@ void HubCatalog::pickZip() {
                       QStringLiteral("--pick-current=") + home});
 }
 
-static const QString kStoreBase = QStringLiteral("https://raw.githubusercontent.com/iMacnucintosh/sylphrena-hub/main/");
+static const QString kStoreBase = QStringLiteral("https://raw.githubusercontent.com/iMacnucintosh/lunele-hub/main/");
 
 bool HubCatalog::validStoreUrl(const QString &url) {
-    const QString test = qEnvironmentVariable("SYLPHRENA_HUB_TEST_PREFIX");
+    const QString test = qEnvironmentVariable("LUNELE_HUB_TEST_PREFIX");
     static const QRegularExpression re(QStringLiteral("^store/[a-z0-9-]{1,64}\\.json$"));
     if (!test.isEmpty() && url.startsWith(test))
         return true;
@@ -434,7 +434,7 @@ bool HubCatalog::validStoreUrl(const QString &url) {
 }
 
 bool HubCatalog::validShotUrl(const QString &url) {
-    const QString test = qEnvironmentVariable("SYLPHRENA_HUB_TEST_PREFIX");
+    const QString test = qEnvironmentVariable("LUNELE_HUB_TEST_PREFIX");
     static const QRegularExpression re(QStringLiteral("^extensions/[a-z0-9-]{1,64}/store/screenshots/[A-Za-z0-9._-]{1,100}$"));
     if (!test.isEmpty() && url.startsWith(test))
         return true;
@@ -559,7 +559,7 @@ void HubCatalog::refresh(bool force) {
         if (r->error() == QNetworkReply::NoError) {
             ingest(r->read(kMaxIndex + 1).left(kMaxIndex), true);
         } else if (m_catalog.isEmpty()) {
-            m_notice = tr("Could not read the Sylphrena catalogue. Check your connection.");
+            m_notice = tr("Could not read the Lunele catalogue. Check your connection.");
             emit changed();
         } else {
             m_notice = tr("No connection: the last saved catalogue is shown.");

@@ -128,7 +128,7 @@ bool Operations::enqueue(const QString &kind, const QString &source, const QStri
     op.pkg = id;
     op.name = name;
     op.repo = repo;
-    op.deleteData = deleteData && (source == QLatin1String("flatpak") || source == QLatin1String("sylphrena")) && kind == QLatin1String("remove");
+    op.deleteData = deleteData && (source == QLatin1String("flatpak") || source == QLatin1String("lunele")) && kind == QLatin1String("remove");
     m_ops.append(op);
     emit queueChanged();
     pump();
@@ -167,12 +167,12 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
     Cmd c;
     const QString sudo = QStringLiteral("sudo");
     const bool install = op.kind == QLatin1String("install");
-    if (op.source == QLatin1String("sylphrena")) {
-        // An extension of the Sylphrena Hub: the shell's own tool does it all (download, sha256,
+    if (op.source == QLatin1String("lunele")) {
+        // An extension of the Lunele Hub: the shell's own tool does it all (download, sha256,
         // validation, system pieces, receipt, telling the shell). It asks for root only when the
         // extension has system pieces, through this app's askpass (SUDO_ASKPASS, set in launch()).
         if (!m_hub || m_hub->tool().isEmpty()) {
-            c.error = tr("Sylphrena was not found: Things needs its extensions tool.");
+            c.error = tr("Lunele was not found: Things needs its extensions tool.");
             return c;
         }
         c.program = QStringLiteral("python3");
@@ -197,10 +197,10 @@ Operations::Cmd Operations::buildCommand(const Op &op) const {
         c.display = c.program + QLatin1Char(' ') + c.args.join(QLatin1Char(' '));
         return c;
     }
-    if (op.source == QLatin1String("sylphrena-zip")) {
+    if (op.source == QLatin1String("lunele-zip")) {
         // A zip the user picked: the shell's own tool validates it and installs it (it stays "local")
         if (!m_hub || m_hub->tool().isEmpty() || !install) {
-            c.error = tr("Sylphrena was not found: Things needs its extensions tool.");
+            c.error = tr("Lunele was not found: Things needs its extensions tool.");
             return c;
         }
         c.program = QStringLiteral("python3");
@@ -289,7 +289,7 @@ QString Operations::diagnose(const QString &log) const {
         return tr("Another instance of pacman is running or a lock was left behind (/var/lib/pacman/db.lck).");
     if (l.contains(QLatin1String("failed retrieving file")) || l.contains(QLatin1String("error 404"))
         || l.contains(QLatin1String("404")))
-        return tr("The pacman databases are out of date. Update the system (Sylphrena Settings → Updates) and try again.");
+        return tr("The pacman databases are out of date. Update the system (Lunele Settings → Updates) and try again.");
     if (l.contains(QLatin1String("could not satisfy dependencies")) || l.contains(QLatin1String("breaks dependency")))
         return tr("There are unresolved dependencies: another installed package depends on this one.");
     if (l.contains(QLatin1String("conflicting files")) || l.contains(QLatin1String("exists in filesystem")))
@@ -508,7 +508,7 @@ void Operations::finishCurrent(int code, bool cancelled) {
     } else {
         op->status = QStringLiteral("failed");
         appendLine(tr("The operation failed (code %1).").arg(code));
-        if (op->source == QLatin1String("sylphrena") || op->source == QLatin1String("sylphrena-zip")) {
+        if (op->source == QLatin1String("lunele") || op->source == QLatin1String("lunele-zip")) {
             // The tool says what went wrong in its last "error:" line (pacman's diagnoses do not apply)
             m_hint.clear();
             for (int i = m_logLines.size() - 1; i >= 0; --i) {
@@ -652,7 +652,7 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
 
     const bool install = kind == QLatin1String("install");
 
-    if (source == QLatin1String("sylphrena")) {
+    if (source == QLatin1String("lunele")) {
         // What will happen, from the catalog and the installed copy (nothing to ask any tool)
         const QVariantMap e = m_hub ? m_hub->entry(id) : QVariantMap();
         const QVariantMap have = m_hub ? m_hub->installedInfo(id) : QVariantMap();
@@ -664,14 +664,14 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             res[QStringLiteral("ok")] = false;
             res[QStringLiteral("error")] = tr("This extension is no longer in the catalogue.");
         } else if (install) {
-            note = tr("It will be downloaded from the Sylphrena hub (version %1), its checksum will be verified and it will be installed for your user.")
+            note = tr("It will be downloaded from the Lunele hub (version %1), its checksum will be verified and it will be installed for your user.")
                        .arg(e.value(QStringLiteral("version")).toString());
             if (!have.isEmpty() && !have.value(QStringLiteral("fromHub")).toBool())
                 note += QLatin1Char(' ') + tr("It will replace your local copy with the hub's; your settings and data are kept.");
             if (e.value(QStringLiteral("system")).toBool())
                 note += QLatin1Char(' ') + tr("It needs administrator permissions to install system pieces (we will ask for your password).");
             if (!e.value(QStringLiteral("requires")).toString().isEmpty())
-                note += QLatin1Char(' ') + tr("Requires Sylphrena %1.").arg(e.value(QStringLiteral("requires")).toString());
+                note += QLatin1Char(' ') + tr("Requires Lunele %1.").arg(e.value(QStringLiteral("requires")).toString());
             const QStringList needs = e.value(QStringLiteral("needs")).toStringList();
             if (!needs.isEmpty())
                 note += QLatin1Char(' ') + tr("Needs: %1.").arg(needs.join(QStringLiteral("; ")));
@@ -689,11 +689,11 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
         return;
     }
 
-    if (source == QLatin1String("sylphrena-zip")) {
+    if (source == QLatin1String("lunele-zip")) {
         // Ask the shell's tool what the zip holds (it validates it without installing anything)
         if (!install || !m_hub || m_hub->tool().isEmpty()) {
             res[QStringLiteral("ok")] = false;
-            res[QStringLiteral("error")] = tr("Sylphrena was not found: Things needs its extensions tool.");
+            res[QStringLiteral("error")] = tr("Lunele was not found: Things needs its extensions tool.");
             QTimer::singleShot(0, this, [=, this]() { finish(res); });
             return;
         }
@@ -704,17 +704,17 @@ void Operations::prepare(const QString &kind, const QString &source, const QStri
             const QJsonObject o = QJsonDocument::fromJson(proc->readAllStandardOutput()).object();
             if (!o.value(QLatin1String("ok")).toBool()) {
                 r[QStringLiteral("ok")] = false;
-                r[QStringLiteral("error")] = tr("That zip is not a valid Sylphrena extension.");
+                r[QStringLiteral("error")] = tr("That zip is not a valid Lunele extension.");
             } else if (!o.value(QLatin1String("incompatible")).toString().isEmpty()) {
                 r[QStringLiteral("ok")] = false;
-                r[QStringLiteral("error")] = tr("This extension cannot run on your Sylphrena: %1.").arg(o.value(QLatin1String("incompatible")).toString());
+                r[QStringLiteral("error")] = tr("This extension cannot run on your Lunele: %1.").arg(o.value(QLatin1String("incompatible")).toString());
             } else {
                 m_zipRoot.insert(id, o.value(QLatin1String("system")).toBool());
                 QVariantMap p;
                 p[QStringLiteral("name")] = o.value(QLatin1String("name")).toString().left(80) + QLatin1Char(' ')
                     + o.value(QLatin1String("version")).toString().left(32);
                 p[QStringLiteral("size")] = double(QFileInfo(id).size());
-                QString note = tr("It will be installed for your user from the zip you chose. It does not come from the Sylphrena hub: only install extensions you trust; Things will show it as “local” and will not update it.");
+                QString note = tr("It will be installed for your user from the zip you chose. It does not come from the Lunele hub: only install extensions you trust; Things will show it as “local” and will not update it.");
                 const QString desc = o.value(QLatin1String("description")).toString().simplified().left(300);
                 if (!desc.isEmpty())
                     note.prepend(desc + QLatin1String("\n\n"));

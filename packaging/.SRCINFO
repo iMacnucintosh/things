@@ -1,5 +1,5 @@
 pkgbase = things-git
-	pkgdesc = Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena
+	pkgdesc = Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Lunele
 	pkgver = 0.0.0.r0.g0000000
 	pkgrel = 1
 	url = https://github.com/iMacnucintosh/things
@@ -15,7 +15,7 @@ pkgbase = things-git
 	optdepends = yay: AUR packages
 	optdepends = flatpak: Flatpak apps
 	optdepends = archlinux-appstream-data: descriptions and icons of the Arch packages
-	optdepends = python: install Sylphrena extensions (uses its ext.py)
+	optdepends = python: install Lunele extensions (uses its ext.py)
 	provides = things
 	conflicts = things
 	source = git+https://github.com/iMacnucintosh/things.git

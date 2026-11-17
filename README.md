@@ -3,7 +3,7 @@
 <p align="center"><strong>English</strong> · <a href="./README.es.md">Español</a></p>
 
 <p align="center">
-The <strong>Material You</strong> package manager of <a href="https://github.com/iMacnucintosh/sylphrena-shell">Sylphrena</a>: pacman, the AUR and Flatpak in <strong>one list</strong>, plus the extensions of the shell.
+The <strong>Material You</strong> package manager of <a href="https://github.com/iMacnucintosh/lunele-shell">Lunele</a>: pacman, the AUR and Flatpak in <strong>one list</strong>, plus the extensions of the shell.
 </p>
 
 <p align="center"><img src="docs/screenshot.webp" width="760" alt="Things searching for firefox in pacman, the AUR and Flathub at once"></p>
@@ -22,16 +22,16 @@ The <strong>Material You</strong> package manager of <a href="https://github.com
 - **Real icons**: if the icon theme (Papirus via qt6ct) has an icon for the package or the Flatpak id, it shows; otherwise the origin glyph.
 - **Filters**: origin (All · pacman · AUR · Flatpak, with counters) and state (Any · Installed · Available).
 - **Installed**: explicit, dependencies and orphans (`pacman -Qdt`), AUR (foreign) and Flatpak, with an origin filter and local search.
-- **Pending updates**: installed packages with a new version are marked ("2.19.2-1 → 2.19.3-1") and have their own "Updates" filter in Installed; their page says so with a button that opens Settings → Updates. Things checks nothing by itself: it asks the shell for the same list the bar and Settings show (`qs ipc call updates list`, Sylphrena 0.5.7 or later) and asks again when you come back to the window. Updating stays the shell's job (one password, in the background).
+- **Pending updates**: installed packages with a new version are marked ("2.19.2-1 → 2.19.3-1") and have their own "Updates" filter in Installed; their page says so with a button that opens Settings → Updates. Things checks nothing by itself: it asks the shell for the same list the bar and Settings show (`qs ipc call updates list`, Lunele 0.5.7 or later) and asks again when you come back to the window. Updating stays the shell's job (one password, in the background).
 - **Details**: description, version, web, licences, sizes, dependencies (optional, required by…), install reason, AUR/Flathub page and the list of installed files.
 - **Flatpak details with screenshots**: the page of a Flathub app shows its screenshot gallery (with captions, arrows and dots; click to see them full screen, `←`/`→` to move, `Esc` to close), "About" with the full description, the news of the latest version and links (web, help, report a bug, donate). `dl.flathub.org` is only contacted for the images. pacman/AUR packages have no screenshots: the ones in Arch's catalogue are on third-party sites and are not loaded.
 - **Install / remove**: a serial queue with progress, collapsible live output, cancellation (clean SIGINT → SIGTERM → SIGKILL) and diagnosed errors (`db.lck` lock, outdated databases, dependencies, conflicts, signatures…).
 - **Confirmation with a real preview**: `pacman -S --print` / `pacman -Rs --print` (dependencies that come in or go and the size), `flatpak remote-info`.
-- **Sylphrena (shell extensions)**: its own section in the side column (`Ctrl+4`), with the version of Sylphrena that is running next to the title, with the extensions of the [Sylphrena Hub](https://github.com/iMacnucintosh/sylphrena-hub): available, installed, **updatable** (with a counter) and **local** (put there by hand: Things shows them and does not touch them unless you ask to remove them). Installing, updating and removing go through the same queue, confirmation and live log as packages. **Things installs nothing by itself**: it runs the shell's `scripts/ext.py`, which downloads only from the hub's releases, checks the catalogue's `sha256` and the compatibility, validates the zip, installs the system parts with `sudo -A` (the password is asked by Things' dialog, and only if the extension needs it) and tells the shell. The catalogue (`index.json`) is requested from the hub on opening (the cache only paints the first frame and serves offline); every entry is validated before it shows. If Sylphrena cannot be found, the catalogue is visible but nothing installs.
+- **Lunele (shell extensions)**: its own section in the side column (`Ctrl+4`), with the version of Lunele that is running next to the title, with the extensions of the [Lunele Hub](https://github.com/iMacnucintosh/lunele-hub): available, installed, **updatable** (with a counter) and **local** (put there by hand: Things shows them and does not touch them unless you ask to remove them). Installing, updating and removing go through the same queue, confirmation and live log as packages. **Things installs nothing by itself**: it runs the shell's `scripts/ext.py`, which downloads only from the hub's releases, checks the catalogue's `sha256` and the compatibility, validates the zip, installs the system parts with `sudo -A` (the password is asked by Things' dialog, and only if the extension needs it) and tells the shell. The catalogue (`index.json`) is requested from the hub on opening (the cache only paints the first frame and serves offline); every entry is validated before it shows. If Lunele cannot be found, the catalogue is visible but nothing installs.
   - **Details**: clicking an extension opens its page (long description, screenshots, requirements, what it touches on your computer and news), which Things downloads from the hub (`store/<id>.json`, only from its URLs).
   - A **local** copy that the hub also has (put there by hand or from a zip) can be swapped for the hub's with "Use the hub's", so Things updates it; your settings and data are kept.
   - **Install from zip** (the header button) opens Seeker's picker, shows what the zip brings (name, version, description, whether it asks for a password) and asks for confirmation; the extension stays "local". It is validated by the shell's `ext.py inspect`/`install`.
-- **Theme**: Material You, live from Sylphrena (`theme.json`, light or dark as the file says).
+- **Theme**: Material You, live from Lunele (`theme.json`, light or dark as the file says).
 
 ### Keyboard
 
@@ -41,14 +41,14 @@ The <strong>Material You</strong> package manager of <a href="https://github.com
 | `↓` in the search | Go to the list (`↑` on the first row goes back) |
 | `Enter` in the list | Open the details |
 | `Esc` | Close the details → clear the search |
-| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Discover / Search / Installed / Sylphrena |
+| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Discover / Search / Installed / Lunele |
 | `F5` | Refresh the installed list and repeat the search |
 
 Command line options: `--search <text>`, `--installed`, `--dry-run`.
 
 ## Install
 
-It comes with Sylphrena: [its installer](https://github.com/iMacnucintosh/sylphrena-shell#installation) sets it up. On its own, on Arch Linux, add the [Sylphrena package repository](https://github.com/iMacnucintosh/sylphrena-packages) and install it with pacman:
+It comes with Lunele: [its installer](https://github.com/iMacnucintosh/lunele-shell#installation) sets it up. On its own, on Arch Linux, add the [Lunele package repository](https://github.com/iMacnucintosh/lunele-packages) and install it with pacman:
 
 ```sh
 sudo pacman -S things-git
@@ -66,15 +66,15 @@ make install
 
 It installs `things`, `things.desktop` ("Things") and `things.svg` into `~/.local`.
 
-## Sylphrena integration
+## Lunele integration
 
-- **Theme**: Things reads `~/.config/things/theme.json` (the same format as Seeker: `mode` + the Material palette + `transparency`) and reloads it live. Sylphrena's `scripts/sylphrena-quiet.py` writes it (`_sync_things`) with every apply. Without the file it uses a dark palette.
-- **Extensions**: it is the extension manager of the shell (see above); the contract between the two lives in Sylphrena's `AGENTS.md`.
+- **Theme**: Things reads `~/.config/things/theme.json` (the same format as Seeker: `mode` + the Material palette + `transparency`) and reloads it live. Lunele's `scripts/lunele-quiet.py` writes it (`_sync_things`) with every apply. Without the file it uses a dark palette.
+- **Extensions**: it is the extension manager of the shell (see above); the contract between the two lives in Lunele's `AGENTS.md`.
 - **Updates**: it asks the shell which packages have an update (`qs ipc call updates list`).
 
 ## Privileges
 
-polkit is not used. It follows the pattern of Sylphrena's Updates service, in C++:
+polkit is not used. It follows the pattern of Lunele's Updates service, in C++:
 
 1. Its own Material You password dialog when an operation needs root.
 2. Verification with `sudo -k` + `sudo -S -p '' -v` (the password goes through stdin, which is closed: sudo never stays waiting).
@@ -101,15 +101,15 @@ Try it without touching the system:
 ./things --dump-search blender   # the unified search as text (no GUI)
 ./things --dump-installed --filter-kind dep
 ./things --dump-detail aur:yay
-./things --dump-hub              # the rows of the Sylphrena hub (THINGS_HUB_INDEX=<index.json> reads it from a file instead of the network)
+./things --dump-hub              # the rows of the Lunele hub (THINGS_HUB_INDEX=<index.json> reads it from a file instead of the network)
 ./things --hub-op install:<id>   # (dev) queues a hub operation without clicking; with THINGS_HUB_INDEX and
-                                 # SYLPHRENA_HUB_TEST_PREFIX=file://<zips folder> the whole flow is tested locally
+                                 # LUNELE_HUB_TEST_PREFIX=file://<zips folder> the whole flow is tested locally
 dev/run-demos.sh                 # offscreen screenshots: a tour of the UI + the password flow with a fake sudo
 ```
 
 ```
 src/Backend.*       unified search, installed and details (QProcess + QNetworkAccessManager)
-src/HubCatalog.*    the Sylphrena hub catalogue (index, cache, validation) crossed with what is installed
+src/HubCatalog.*    the Lunele hub catalogue (index, cache, validation) crossed with what is installed
 src/Operations.*    install/remove queue, live output, previews and error diagnosis
 src/Privilege.*     password in RAM + askpass socket
 src/Theme.*         live theme from theme.json

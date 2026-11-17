@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Shapes
 
-// Port of Sylphrena StateLayer: hover wash + Material ripple on press/release.
+// Port of Lunele StateLayer: hover wash + Material ripple on press/release.
 MouseArea {
     id: root
 
