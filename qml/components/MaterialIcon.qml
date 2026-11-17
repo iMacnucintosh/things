@@ -1,6 +1,6 @@
 import QtQuick
 
-// Material Symbols Rounded — same family Sylphrena uses for chrome icons.
+// Material Symbols Rounded — same family Sylenara uses for chrome icons.
 Text {
     id: root
     property string icon: ""

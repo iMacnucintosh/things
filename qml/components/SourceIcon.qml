@@ -1,6 +1,6 @@
 import QtQuick
 
-// Origin glyph — same mapping as Sylphrena's Updates page:
+// Origin glyph — same mapping as Sylenara's Updates page:
 // pacman = settings, Flatpak = deployed_code, AUR = 👽 (Noto Color Emoji, 1.35× icon size).
 Item {
     id: root

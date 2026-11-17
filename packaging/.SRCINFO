@@ -1,13 +1,13 @@
 pkgbase = things-git
-	pkgdesc = Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena
+	pkgdesc = Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylenara
 	pkgver = 0.0.0.r0.g0000000
 	pkgrel = 1
 	url = https://github.com/iMacnucintosh/things
 	arch = x86_64
-	license = MIT
+	license = GPL-3.0-only
 	makedepends = git
 	depends = qt6-base
-	depends = qt6-declarative
+	depends = qt6-declarative>=6.9
 	depends = qt6-svg
 	depends = qt6-wayland
 	depends = pacman
@@ -15,7 +15,7 @@ pkgbase = things-git
 	optdepends = yay: AUR packages
 	optdepends = flatpak: Flatpak apps
 	optdepends = archlinux-appstream-data: descriptions and icons of the Arch packages
-	optdepends = python: install Sylphrena extensions (uses its ext.py)
+	optdepends = python: install Sylenara extensions (uses its ext.py)
 	provides = things
 	conflicts = things
 	source = git+https://github.com/iMacnucintosh/things.git

@@ -11,8 +11,8 @@
 
 class QNetworkReply;
 
-/// The Sylphrena Hub: extensions (and later widgets) published for the Sylphrena shell, read from the
-/// hub's index.json, crossed with what is installed in ~/.local/share/sylphrena/extensions.
+/// The Sylenara Hub: extensions (and later widgets) published for the Sylenara shell, read from the
+/// hub's index.json, crossed with what is installed in ~/.local/share/sylenara/extensions.
 ///
 /// Installing, updating and removing are NOT done here: Operations runs the shell's own tool
 /// (scripts/ext.py), which owns the extension contract (download, sha256, validation, system pieces,
@@ -28,9 +28,9 @@ class HubCatalog : public QObject {
     Q_PROPERTY(bool loading READ loading NOTIFY loadingChanged)
     Q_PROPERTY(bool hasData READ hasData NOTIFY changed)
     Q_PROPERTY(QString notice READ notice NOTIFY changed)
-    /// Path of the shell's tool; empty when Sylphrena is not found (then nothing can be installed).
+    /// Path of the shell's tool; empty when Sylenara is not found (then nothing can be installed).
     Q_PROPERTY(QString tool READ tool NOTIFY toolChanged)
-    /// Version of the Sylphrena shell that is running ("0.3.1"), empty if it is not running or too old to say
+    /// Version of the Sylenara shell that is running ("0.3.1"), empty if it is not running or too old to say
     Q_PROPERTY(QString shellVersion READ shellVersion NOTIFY shellVersionChanged)
     Q_PROPERTY(int updates READ updates NOTIFY changed)
     Q_PROPERTY(QVariantMap details READ details NOTIFY detailsChanged)

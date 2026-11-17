@@ -209,7 +209,7 @@ Rectangle {
                     Item { Layout.fillWidth: true }
                 }
 
-                // A newer version: it is updated by Sylphrena, with the rest of the system (one password, in the background)
+                // A newer version: it is updated by Sylenara, with the rest of the system (one password, in the background)
                 Rectangle {
                     Layout.fillWidth: true
                     visible: !!root.pendingUpdate
@@ -246,7 +246,7 @@ Rectangle {
                                 }
                                 StyledText {
                                     Layout.fillWidth: true
-                                    text: qsTr("Sylphrena updates it with the rest of the system")
+                                    text: qsTr("Sylenara updates it with the rest of the system")
                                     color: Theme.onPrimaryContainer
                                     font.pixelSize: 12
                                     opacity: 0.8

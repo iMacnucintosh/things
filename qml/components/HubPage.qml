@@ -2,13 +2,13 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-// "Sylphrena" section: the extensions of the Sylphrena Hub (and what is installed for the shell).
+// "Sylenara" section: the extensions of the Sylenara Hub (and what is installed for the shell).
 // Rows: available · installed · update · local (put there by hand: never touched unless asked).
 Item {
     id: root
 
     property real bottomPad: 20
-    /// "sylphrena:<id>" → true while queued/running (row spinner)
+    /// "sylenara:<id>" → true while queued/running (row spinner)
     property var busyMap: ({})
     /// kind: install | remove
     signal actionRequested(string kind, string id, string name)
@@ -16,7 +16,7 @@ Item {
     signal openRequested(string id)
     property string selectedId: ""
 
-    function busy(id) { return !!busyMap["sylphrena:" + id] }
+    function busy(id) { return !!busyMap["sylenara:" + id] }
     function stateLabel(state) {
         switch (state) {
         case "installed": return qsTr("Installed")
@@ -45,7 +45,7 @@ Item {
                 RowLayout {
                     spacing: 10
                     StyledText {
-                        text: qsTr("Sylphrena")
+                        text: qsTr("Sylenara")
                         font.pixelSize: 24
                         font.weight: Font.Medium
                         color: Theme.onSurface
@@ -69,7 +69,7 @@ Item {
                 }
                 StyledText {
                     Layout.fillWidth: true
-                    text: qsTr("Extensions for the Sylphrena shell")
+                    text: qsTr("Extensions for the Sylenara shell")
                     color: Theme.onSurfaceVariant
                     font.pixelSize: 13
                     elide: Text.ElideRight
@@ -92,7 +92,7 @@ Item {
             }
         }
 
-        // No Sylphrena found: nothing can be installed
+        // No Sylenara found: nothing can be installed
         Rectangle {
             visible: Hub.tool.length === 0
             Layout.fillWidth: true
@@ -109,7 +109,7 @@ Item {
                 wrapMode: Text.WordWrap
                 color: Theme.onSurface
                 font.pixelSize: 13
-                text: qsTr("Sylphrena was not found on this computer: you can see the catalogue, but not install or remove extensions.")
+                text: qsTr("Sylenara was not found on this computer: you can see the catalogue, but not install or remove extensions.")
             }
         }
 
@@ -329,7 +329,7 @@ Item {
                 icon: Hub.loading ? "hourglass_top" : "extension"
                 busy: Hub.loading
                 title: Hub.loading ? qsTr("Loading the catalogue…") : qsTr("There are no extensions yet")
-                subtitle: Hub.loading ? "" : qsTr("When the hub publishes extensions for Sylphrena, they will show up here.")
+                subtitle: Hub.loading ? "" : qsTr("When the hub publishes extensions for Sylenara, they will show up here.")
             }
         }
     }

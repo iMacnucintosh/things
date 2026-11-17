@@ -58,10 +58,10 @@ public:
     }
 };
 
-void loadSylphrenaUiFont() {
+void loadSylenaraUiFont() {
     const QStringList candidates = {
         QDir::home().filePath(QStringLiteral(
-            ".config/quickshell/sylphrena/assets/google-sans-flex/"
+            ".config/quickshell/sylenara/assets/google-sans-flex/"
             "GoogleSansFlex-VariableFont_GRAD,ROND,opsz,slnt,wdth,wght.ttf")),
         QDir::home().filePath(QStringLiteral(".local/share/things/fonts/GoogleSansFlex.ttf")),
         QDir::home().filePath(QStringLiteral(".local/share/seeker/fonts/GoogleSansFlex.ttf")),
@@ -87,7 +87,7 @@ int runDump(int argc, char *argv[]) {
     QCommandLineParser parser;
     parser.addOption({QStringLiteral("dump-search"), QStringLiteral("Print unified search results"), QStringLiteral("term")});
     parser.addOption({QStringLiteral("dump-installed"), QStringLiteral("Print installed packages")});
-    parser.addOption({QStringLiteral("dump-hub"), QStringLiteral("Print the Sylphrena Hub rows (THINGS_HUB_INDEX replaces the network)")});
+    parser.addOption({QStringLiteral("dump-hub"), QStringLiteral("Print the Sylenara Hub rows (THINGS_HUB_INDEX replaces the network)")});
     parser.addOption({QStringLiteral("dump-detail"), QStringLiteral("Print package detail"), QStringLiteral("source:id[:repo]")});
     parser.addOption({QStringLiteral("filter-source"), QStringLiteral("all|pacman|aur|flatpak"), QStringLiteral("s")});
     parser.addOption({QStringLiteral("filter-kind"), QStringLiteral("all|explicit|dep|orphan"), QStringLiteral("k")});
@@ -218,13 +218,13 @@ int main(int argc, char *argv[]) {
     qputenv("QT_QUICK_CONTROLS_STYLE", "Basic");
     QGuiApplication app(argc, argv);
     installTranslation(app);
-    app.setOrganizationName(QStringLiteral("Sylphrena"));
+    app.setOrganizationName(QStringLiteral("Sylenara"));
     app.setApplicationName(QStringLiteral("Things"));
     app.setApplicationDisplayName(QStringLiteral("Paquetes"));
     app.setDesktopFileName(QStringLiteral("things"));
     app.setWindowIcon(QIcon::fromTheme(QStringLiteral("things"),
                                        QIcon(QStringLiteral(":/data/things.svg"))));
-    loadSylphrenaUiFont();
+    loadSylenaraUiFont();
 
     QCommandLineParser parser;
     parser.setApplicationDescription(QStringLiteral("Things — gestor de paquetes Material You (pacman · AUR · Flatpak)"));
@@ -236,7 +236,7 @@ int main(int argc, char *argv[]) {
     parser.addOption({QStringLiteral("shot-dir"), QStringLiteral("(dev) screenshot output dir"), QStringLiteral("dir")});
     parser.addOption({QStringLiteral("demo"), QStringLiteral("(dev) scripted UI demo"), QStringLiteral("name")});
     parser.addOption({QStringLiteral("select"), QStringLiteral("(dev) open detail source:id[:repo]"), QStringLiteral("pkg")});
-    parser.addOption({QStringLiteral("hub-op"), QStringLiteral("(dev) queue a Sylphrena Hub operation: install:<id> | remove:<id>"), QStringLiteral("op")});
+    parser.addOption({QStringLiteral("hub-op"), QStringLiteral("(dev) queue a Sylenara Hub operation: install:<id> | remove:<id>"), QStringLiteral("op")});
     parser.process(app);
 
     QQuickWindow::setDefaultAlphaBuffer(true);
@@ -255,7 +255,7 @@ int main(int argc, char *argv[]) {
     ops.setHub(&hub);
     QObject::connect(&ops, &Operations::operationFinished, &hub,
                      [&](bool, const QString &, const QString &source, const QString &) {
-        if (source == QLatin1String("sylphrena"))
+        if (source == QLatin1String("sylenara"))
             hub.rescan();
     });
 
@@ -282,25 +282,25 @@ int main(int argc, char *argv[]) {
         // (dev) the same call the Install / Remove buttons end up making, without needing a click
         const QStringList op = parser.value(QStringLiteral("hub-op")).split(QLatin1Char(':'));
         if (op.size() == 2 && op[0] == QLatin1String("open") && !engine.rootObjects().isEmpty()) {
-            // (dev) open the Sylphrena section on an extension's details, without needing a click
+            // (dev) open the Sylenara section on an extension's details, without needing a click
             QObject *root = engine.rootObjects().first();
             QTimer::singleShot(2500, &app, [root, id = op[1]] {
-                QMetaObject::invokeMethod(root, "showSection", Q_ARG(QVariant, QStringLiteral("sylphrena")));
+                QMetaObject::invokeMethod(root, "showSection", Q_ARG(QVariant, QStringLiteral("sylenara")));
                 QMetaObject::invokeMethod(root, "openHubDetail", Q_ARG(QVariant, id));
             });
         } else if (op.size() == 2 && op[0] == QLatin1String("zip")) {
             // (dev) install a local zip: prepare (inspect) first, as the confirmation dialog does, then queue it
-            ops.prepare(QStringLiteral("install"), QStringLiteral("sylphrena-zip"), op[1], QString());
+            ops.prepare(QStringLiteral("install"), QStringLiteral("sylenara-zip"), op[1], QString());
             QObject::connect(&ops, &Operations::prepared, &app, [&ops, op](const QVariantMap &r) {
                 qInfo().noquote() << "prepared:" << r.value(QStringLiteral("ok")).toBool() << r.value(QStringLiteral("error")).toString()
                                   << r.value(QStringLiteral("packages")).toList().value(0).toMap().value(QStringLiteral("name")).toString();
                 if (r.value(QStringLiteral("ok")).toBool())
-                    ops.enqueue(QStringLiteral("install"), QStringLiteral("sylphrena-zip"), op[1], op[1], QString());
+                    ops.enqueue(QStringLiteral("install"), QStringLiteral("sylenara-zip"), op[1], op[1], QString());
             });
         } else if (op.size() == 2) {
             QTimer::singleShot(1500, &app, [&ops, op, &hub] {
                 const QVariantMap e = hub.entry(op[1]);
-                ops.enqueue(op[0], QStringLiteral("sylphrena"), op[1], e.value(QStringLiteral("name"), op[1]).toString(), QString());
+                ops.enqueue(op[0], QStringLiteral("sylenara"), op[1], e.value(QStringLiteral("name"), op[1]).toString(), QString());
             });
         }
     }

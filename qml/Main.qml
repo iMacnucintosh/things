@@ -24,9 +24,9 @@ ApplicationWindow {
     property string section: "discover"
     property bool autoSearch: false          // arrived at search by typing → Esc goes back
     readonly property bool discoverMode: section === "discover"
-    // The Sylphrena Hub (extensions for the shell): a section of its own, not a package source
-    readonly property bool sylphrenaMode: section === "sylphrena"
-    readonly property int railIndex: sylphrenaMode ? 3 : (discoverMode ? 0 : (installedMode ? 2 : 1))
+    // The Sylenara Hub (extensions for the shell): a section of its own, not a package source
+    readonly property bool sylenaraMode: section === "sylenara"
+    readonly property int railIndex: sylenaraMode ? 3 : (discoverMode ? 0 : (installedMode ? 2 : 1))
     property string selKey: ""
     property bool detailOpen: false
     // source:id → true while queued/running (drives row spinners)
@@ -64,7 +64,7 @@ ApplicationWindow {
         }
         section = s
         autoSearch = false
-        if (s === "sylphrena")
+        if (s === "sylenara")
             Hub.refresh()
     }
 
@@ -79,7 +79,7 @@ ApplicationWindow {
     }
     // An extension of the hub: its details come from the hub, not from the package backend
     function openHubDetail(id) {
-        selKey = "sylphrena:" + id
+        selKey = "sylenara:" + id
         detailOpen = true
         Hub.loadDetails(id)
     }
@@ -90,7 +90,7 @@ ApplicationWindow {
         return ({})
     }
     function closeDetail() {
-        if (sylphrenaMode)
+        if (sylenaraMode)
             Hub.clearDetails()
         detailOpen = false
         selKey = ""
@@ -98,12 +98,12 @@ ApplicationWindow {
         Things.closeDetail()
     }
 
-    // A zip the user picked in the Sylphrena section: same confirmation as any install
+    // A zip the user picked in the Sylenara section: same confirmation as any install
     Connections {
         target: Hub
         function onZipPicked(path) {
             const file = path.substring(path.lastIndexOf("/") + 1)
-            win.requestAction("install", "sylphrena-zip", path, file, "")
+            win.requestAction("install", "sylenara-zip", path, file, "")
         }
     }
 
@@ -223,7 +223,7 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: "Ctrl+4"
-        onActivated: win.showSection("sylphrena")
+        onActivated: win.showSection("sylenara")
     }
     Shortcut {
         sequence: "F5"
@@ -378,11 +378,11 @@ ApplicationWindow {
                             id: rHub
                             width: parent.width
                             symbol: "extension"
-                            label: qsTr("Sylphrena")
+                            label: qsTr("Sylenara")
                             readonly property int installedCount: Hub.items.filter(i => i.state !== "available").length
                             trailing: installedCount > 0 ? installedCount : ""
-                            active: win.sylphrenaMode
-                            onClicked: win.showSection("sylphrena")
+                            active: win.sylenaraMode
+                            onClicked: win.showSection("sylenara")
                         }
                     }
                 }
@@ -419,7 +419,7 @@ ApplicationWindow {
                             // Filter chips
                             Flow {
                                 id: filters
-                                visible: !win.discoverMode && !win.sylphrenaMode
+                                visible: !win.discoverMode && !win.sylenaraMode
                                 Layout.fillWidth: true
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
@@ -500,7 +500,7 @@ ApplicationWindow {
                                     selected: Things.kindFilter === "orphan"
                                     onClicked: Things.kindFilter = "orphan"
                                 }
-                                // What the shell found to update (Nexus → Updates): only when there is something
+                                // What the shell found to update (Settings → Updates): only when there is something
                                 Chip {
                                     visible: win.installedMode && (Object.keys(Things.pendingUpdates).length > 0 || Things.kindFilter === "updates")
                                     label: qsTr("Updates")
@@ -517,7 +517,7 @@ ApplicationWindow {
                                 Layout.leftMargin: 16
                                 Layout.rightMargin: 16
                                 Layout.bottomMargin: 8
-                                visible: !win.discoverMode && !win.sylphrenaMode && !win.installedMode && Things.notice.length > 0
+                                visible: !win.discoverMode && !win.sylenaraMode && !win.installedMode && Things.notice.length > 0
                                 implicitHeight: noticeText.implicitHeight + 16
                                 radius: 12
                                 color: Theme.surfaceContainerHigh
@@ -539,7 +539,7 @@ ApplicationWindow {
                             }
 
                             Rectangle {
-                                visible: !win.discoverMode && !win.sylphrenaMode
+                                visible: !win.discoverMode && !win.sylenaraMode
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 1
                                 color: Theme.outlineVariant
@@ -559,22 +559,22 @@ ApplicationWindow {
                                                                     "archlinux-appstream-data", "extra")
                             }
 
-                            // Extensions of the Sylphrena Hub
+                            // Extensions of the Sylenara Hub
                             HubPage {
                                 id: hubPage
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
-                                visible: win.sylphrenaMode
+                                visible: win.sylenaraMode
                                 bottomPad: sheet.visible ? sheet.height + 28 : 20
                                 busyMap: win.busyMap
-                                selectedId: win.sylphrenaMode && win.detailOpen ? win.selKey.replace("sylphrena:", "") : ""
+                                selectedId: win.sylenaraMode && win.detailOpen ? win.selKey.replace("sylenara:", "") : ""
                                 onOpenRequested: (id) => win.openHubDetail(id)
-                                onActionRequested: (kind, id, name) => win.requestAction(kind, "sylphrena", id, name, "")
+                                onActionRequested: (kind, id, name) => win.requestAction(kind, "sylenara", id, name, "")
                             }
 
                             // List + states
                             Item {
-                                visible: !win.discoverMode && !win.sylphrenaMode
+                                visible: !win.discoverMode && !win.sylenaraMode
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
 
@@ -699,20 +699,20 @@ ApplicationWindow {
                                 x: 0
                                 width: card.detailWidth
                                 height: parent.height
-                                visible: win.sylphrenaMode
-                                row: win.hubRow(win.selKey.replace("sylphrena:", ""))
+                                visible: win.sylenaraMode
+                                row: win.hubRow(win.selKey.replace("sylenara:", ""))
                                 details: Hub.details
                                 loading: Hub.detailsLoading
                                 busy: !!win.busyMap[win.selKey]
                                 onCloseRequested: win.closeDetail()
                                 onScreenshotRequested: (i) => viewer.show(i)
-                                onInstallRequested: win.requestAction("install", "sylphrena", row.id, row.name, "")
-                                onRemoveRequested: win.requestAction("remove", "sylphrena", row.id, row.name, "")
+                                onInstallRequested: win.requestAction("install", "sylenara", row.id, row.name, "")
+                                onRemoveRequested: win.requestAction("remove", "sylenara", row.id, row.name, "")
                             }
 
                             DetailPanel {
                                 id: detailPanel
-                                visible: !win.sylphrenaMode
+                                visible: !win.sylenaraMode
                                 x: 0
                                 width: card.detailWidth
                                 height: parent.height
@@ -837,7 +837,7 @@ ApplicationWindow {
 
     ScreenshotViewer {
         id: viewer
-        shots: win.sylphrenaMode ? (Hub.details.screenshots || []) : (FlathubInfo.info.screenshots || [])
+        shots: win.sylenaraMode ? (Hub.details.screenshots || []) : (FlathubInfo.info.screenshots || [])
         onCloseRequested: open = false
     }
 

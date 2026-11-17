@@ -4,25 +4,25 @@
 pkgname=things-git
 pkgver=0.0.0.r0.g0000000
 pkgrel=1
-pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylphrena"
+pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Sylenara"
 arch=('x86_64')
 url="https://github.com/iMacnucintosh/things"
-license=('MIT')
-depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'qt6-wayland' 'pacman' 'sudo')
+license=('GPL-3.0-only')
+depends=('qt6-base' 'qt6-declarative>=6.9' 'qt6-svg' 'qt6-wayland' 'pacman' 'sudo')
 makedepends=('git')
 optdepends=('yay: AUR packages'
             'flatpak: Flatpak apps'
             'archlinux-appstream-data: descriptions and icons of the Arch packages'
-            'python: install Sylphrena extensions (uses its ext.py)')
+            'python: install Sylenara extensions (uses its ext.py)')
 provides=('things')
 conflicts=('things')
-# SYLPHRENA_REF=<tag> builds that release (the Sylphrena installer and its updates set it); without it, the latest commit
-source=("git+${url}.git${SYLPHRENA_REF:+#tag=$SYLPHRENA_REF}")
+# SYLENARA_REF=<tag> builds that release (the Sylenara installer and its updates set it); without it, the latest commit
+source=("git+${url}.git${SYLENARA_REF:+#tag=$SYLENARA_REF}")
 sha256sums=('SKIP')
 
 pkgver() {
   cd things
-  # The release it was built from (v0.1.2 → 0.1.2.r0.g…), which is what the Sylphrena updates compare with
+  # The release it was built from (v0.1.2 → 0.1.2.r0.g…), which is what the Sylenara updates compare with
   local described
   if described="$(git describe --tags --long --match 'v0.*' 2>/dev/null)"; then
     printf '%s' "$described" | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
@@ -45,4 +45,5 @@ package() {
     -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\" \"\\\$@\"' sh#/usr/bin/things#" \
     -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\"([^']*)'#/usr/bin/things\\1#" {} +
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
 }

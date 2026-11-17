@@ -87,7 +87,7 @@ public:
     Q_INVOKABLE QString formatSize(double bytes) const;
     /// Ask the running shell which packages have a newer version (its updates list); nothing if it is not running.
     Q_INVOKABLE void loadShellUpdates();
-    /// Updating is the shell's job (one password, in the background): open Nexus on its updates page.
+    /// Updating is the shell's job (one password, in the background): open the shell's Settings on its updates page.
     Q_INVOKABLE void openShellUpdates();
 
     /// Used by headless self-tests (--dump-*).
