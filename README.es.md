@@ -122,4 +122,4 @@ El código está en inglés (`qsTr("…")`, `tr("…")`) y cada idioma es un cat
 
 ## Licencia
 
-MIT, ver [LICENSE](LICENSE).
+GPL-3.0-only, ver [LICENSE](LICENSE). Copyright (C) 2026 Manuel López Mallorquín. Créditos en [NOTICE](NOTICE).

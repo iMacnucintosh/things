@@ -7,7 +7,7 @@ pkgrel=1
 pkgdesc="Package manager for Arch: pacman, AUR and Flatpak in one list, and the extensions of Lunele"
 arch=('x86_64')
 url="https://github.com/iMacnucintosh/things"
-license=('MIT')
+license=('GPL-3.0-only')
 depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'qt6-wayland' 'pacman' 'sudo')
 makedepends=('git')
 optdepends=('yay: AUR packages'
@@ -45,4 +45,5 @@ package() {
     -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\" \"\\\$@\"' sh#/usr/bin/things#" \
     -e "s#/bin/sh -c 'exec \"\\\$HOME/\\.local/bin/things\"([^']*)'#/usr/bin/things\\1#" {} +
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 NOTICE "$pkgdir/usr/share/licenses/$pkgname/NOTICE"
 }
