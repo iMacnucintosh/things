@@ -7,7 +7,7 @@ pkgbase = things-git
 	license = GPL-3.0-only
 	makedepends = git
 	depends = qt6-base
-	depends = qt6-declarative
+	depends = qt6-declarative>=6.9
 	depends = qt6-svg
 	depends = qt6-wayland
 	depends = pacman

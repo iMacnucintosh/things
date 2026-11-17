@@ -1,178 +1,126 @@
 import QtQuick
 import QtQuick.Shapes
 
-// Port of Sylenara StateLayer: hover wash + Material ripple on press/release.
+// Feedback of a control under the pointer: a faint wash while it rests on it, and a ripple that spreads from the
+// point of the press. It fills its parent and follows the rounding of the parent's shape.
 MouseArea {
     id: root
 
     property bool disabled: false
+    // The control changes shape while it is pressed: the ripple travels a little further to still cover it
     property bool shapeMorph: false
-    property real stateOpacity: (containsMouse && !disabled) ? 0.08 : 0
-    property real pressX: width / 2
-    property real pressY: height / 2
-    property real circleRadius: 0
-    property real endRadiusAtPress: 0
     property color color: Theme.onSurface
     property real radius: parent && parent.radius !== undefined ? parent.radius : 0
+    // How visible the wash is; a control that paints its own can set it to 0
+    property real stateOpacity: containsMouse && !disabled ? 0.08 : 0
+    property real pressX: width / 2
+    property real pressY: height / 2
 
-    readonly property real endRadius: {
-        const d1 = distSq(0, 0)
-        const d2 = distSq(width, 0)
-        const d3 = distSq(0, height)
-        const d4 = distSq(width, height)
-        return (Math.sqrt(Math.max(d1, d2, d3, d4)) + (shapeMorph ? 24 : 0)) * 1.3
-    }
+    // Progress of the ripple (0 = just born, 1 = it has reached the farthest corner) and how visible it is
+    property real wave: 0
+    property real tint: 0
 
-    function distSq(x, y) {
-        return (pressX - x) * (pressX - x) + (pressY - y) * (pressY - y)
-    }
+    readonly property real reach: 1.25 * (Math.hypot(Math.max(pressX, width - pressX), Math.max(pressY, height - pressY)) + (shapeMorph ? 24 : 0))
+    readonly property real corner: Math.max(0, Math.min(radius, width / 2, height / 2))
+    // The ripple only starts to fade once it has spread everywhere and the button is let go
+    readonly property bool settled: wave >= 0.99 && !pressed
 
-    function clampR(r) {
-        return Math.max(0, Math.min(r, width / 2, height / 2))
-    }
-
-    function clamp01(v) {
-        return Math.max(0, Math.min(1, v))
-    }
-
-    function pressAt(x, y) {
-        pressX = x
-        pressY = y
-        fadeAnim.stop()
-        circleRadius = 0
-        circle.opacity = 0.12
-        endRadiusAtPress = endRadius
-        rippleAnim.restart()
+    function startRipple(x: real, y: real): void {
+        pressX = x;
+        pressY = y;
+        fade.stop();
+        wave = 0;
+        tint = 0.12;
+        spread.restart();
     }
 
     anchors.fill: parent
     enabled: !disabled
     hoverEnabled: true
-    cursorShape: disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
     acceptedButtons: Qt.LeftButton
+    cursorShape: disabled ? Qt.ArrowCursor : Qt.PointingHandCursor
 
-    onPressed: (e) => pressAt(e.x, e.y)
-
-    onPressedChanged: {
-        if (!pressed && !rippleAnim.running && circle.opacity > 0)
-            fadeAnim.start()
-    }
-
-    onCircleRadiusChanged: {
-        if (!pressed && circleRadius > endRadiusAtPress * 0.99 && !fadeAnim.running)
-            fadeAnim.start()
+    onPressed: event => startRipple(event.x, event.y)
+    onSettledChanged: {
+        if (settled && tint > 0)
+            fade.restart();
     }
 
     NumberAnimation {
-        id: rippleAnim
+        id: spread
+
         target: root
-        property: "circleRadius"
-        to: root.endRadius
-        duration: 520
+        property: "wave"
+        from: 0
+        to: 1
+        duration: 500
         easing.type: Easing.OutCubic
+        // A quick tap still shows the whole ripple
         alwaysRunToEnd: true
     }
 
     NumberAnimation {
-        id: fadeAnim
-        target: circle
-        property: "opacity"
+        id: fade
+
+        target: root
+        property: "tint"
         to: 0
-        duration: 280
+        duration: 260
         easing.type: Easing.OutCubic
     }
 
     Rectangle {
-        id: base
         anchors.fill: parent
-        radius: root.radius
+        radius: root.corner
         color: root.color
         opacity: root.stateOpacity
-        z: 0
 
         Behavior on opacity {
-            NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+            NumberAnimation {
+                duration: 120
+                easing.type: Easing.OutCubic
+            }
         }
     }
 
     Shape {
-        id: circle
         anchors.fill: parent
-        opacity: 0
-        z: 1
+        visible: root.tint > 0
+        opacity: root.tint
         preferredRendererType: Shape.CurveRenderer
-        clip: false
 
         ShapePath {
-            strokeWidth: 0
-            strokeColor: "transparent"
-            fillColor: root.color
+            strokeWidth: -1
+
+            // Solid at the centre with a soft rim that grows with the ripple and hardens as it ends, so the
+            // whole control ends up tinted evenly before it fades
             fillGradient: RadialGradient {
                 centerX: root.pressX
                 centerY: root.pressY
-                centerRadius: Math.max(0.01, root.circleRadius)
                 focalX: centerX
                 focalY: centerY
+                centerRadius: Math.max(0.5, root.wave * root.reach)
 
                 GradientStop {
                     position: 0
-                    color: Qt.alpha(root.color, 1)
+                    color: root.color
                 }
+
                 GradientStop {
-                    position: {
-                        const t = 1 - 0.2 * root.endRadius / Math.max(0.01, root.circleRadius)
-                        return Math.max(0.01, Math.min(0.99, t))
-                    }
-                    color: Qt.alpha(root.color, 1)
+                    position: 0.55
+                    color: root.color
                 }
+
                 GradientStop {
                     position: 1
-                    color: Qt.alpha(root.color, root.clamp01((root.circleRadius / Math.max(0.01, root.endRadius) - 0.9) / 0.1))
+                    color: Qt.alpha(root.color, Math.pow(root.wave, 4))
                 }
             }
 
-            startX: root.clampR(root.radius)
-            startY: 0
-
-            PathLine {
-                x: root.width - root.clampR(root.radius)
-                y: 0
-            }
-            PathArc {
-                relativeX: root.clampR(root.radius)
-                relativeY: root.clampR(root.radius)
-                radiusX: root.clampR(root.radius)
-                radiusY: root.clampR(root.radius)
-            }
-            PathLine {
-                x: root.width
-                y: root.height - root.clampR(root.radius)
-            }
-            PathArc {
-                relativeX: -root.clampR(root.radius)
-                relativeY: root.clampR(root.radius)
-                radiusX: root.clampR(root.radius)
-                radiusY: root.clampR(root.radius)
-            }
-            PathLine {
-                x: root.clampR(root.radius)
-                y: root.height
-            }
-            PathArc {
-                relativeX: -root.clampR(root.radius)
-                relativeY: -root.clampR(root.radius)
-                radiusX: root.clampR(root.radius)
-                radiusY: root.clampR(root.radius)
-            }
-            PathLine {
-                x: 0
-                y: root.clampR(root.radius)
-            }
-            PathArc {
-                x: root.clampR(root.radius)
-                y: 0
-                radiusX: root.clampR(root.radius)
-                radiusY: root.clampR(root.radius)
+            PathRectangle {
+                width: root.width
+                height: root.height
+                radius: root.corner
             }
         }
     }

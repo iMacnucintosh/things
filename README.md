@@ -122,4 +122,4 @@ The code is in English (`qsTr("…")`, `tr("…")`) and each language is a JSON 
 
 ## License
 
-GPL-3.0-only, see [LICENSE](LICENSE). Copyright (C) 2026 Manuel López Mallorquín. Credits in [NOTICE](NOTICE).
+GPL-3.0-only, see [LICENSE](LICENSE). Copyright (C) 2026 Manuel López Mallorquín. See [NOTICE](NOTICE).
