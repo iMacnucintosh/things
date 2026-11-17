@@ -222,7 +222,7 @@ Item {
 
             Item {
                 Layout.fillWidth: true
-                visible: !root.loading && root.ok && root.removing && (root.source === "flatpak" || root.source === "lunele")
+                visible: !root.loading && root.ok && root.removing && (root.source === "flatpak" || root.source === "sylenara")
                 implicitHeight: dataRow.implicitHeight + 8
 
                 RowLayout {
@@ -236,7 +236,7 @@ Item {
                     }
                     StyledText {
                         Layout.fillWidth: true
-                        text: root.source === "lunele" ? qsTr("Also delete its settings and data (this cannot be undone)") : qsTr("Also delete the app's data (this cannot be undone)")
+                        text: root.source === "sylenara" ? qsTr("Also delete its settings and data (this cannot be undone)") : qsTr("Also delete the app's data (this cannot be undone)")
                         color: root.deleteData ? Theme.error : Theme.onSurface
                         font.pixelSize: 13
                         wrapMode: Text.Wrap

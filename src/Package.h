@@ -58,9 +58,9 @@ inline bool zipPath(const QString &s) {
 }
 
 inline bool packageId(const QString &source, const QString &id) {
-    if (source == QLatin1String("lunele"))
+    if (source == QLatin1String("sylenara"))
         return extensionId(id);
-    if (source == QLatin1String("lunele-zip"))
+    if (source == QLatin1String("sylenara-zip"))
         return zipPath(id);
     if (source == QLatin1String("flatpak"))
         return flatpakId(id);

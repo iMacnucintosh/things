@@ -16,7 +16,7 @@ QString thingsThemePath() {
 }
 
 QString schemePath() {
-    return QDir::home().filePath(QStringLiteral(".local/state/lunele/scheme.json"));
+    return QDir::home().filePath(QStringLiteral(".local/state/sylenara/scheme.json"));
 }
 
 QColor parseHex(const QString &raw) {
@@ -95,7 +95,7 @@ void Theme::applyDefaults() {
     m_mode = QStringLiteral("dark");
     m_transparencyEnabled = false;
     m_transparencyBase = 0.85;
-    // Lunele tokens say "GoogleSansFlex"; the TTF registers "Google Sans Flex".
+    // Sylenara tokens say "GoogleSansFlex"; the TTF registers "Google Sans Flex".
     m_uiFamily = pickFamily({
         QStringLiteral("Google Sans Flex"),
         QStringLiteral("GoogleSansFlex"),
@@ -167,7 +167,7 @@ void Theme::loadFrom(const QString &path) {
 
 void Theme::reload() {
     applyDefaults();
-    // Prefer dedicated Things theme; fall back to Lunele scheme.json.
+    // Prefer dedicated Things theme; fall back to Sylenara scheme.json.
     if (QFile::exists(thingsThemePath()))
         loadFrom(thingsThemePath());
     else if (QFile::exists(schemePath()))

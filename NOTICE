@@ -4,7 +4,7 @@ Copyright (C) 2026 Manuel López Mallorquín
 Things is free software, licensed under the GNU General Public License,
 version 3 (see LICENSE).
 
-Some components were ported from the Lunele shell (https://github.com/iMacnucintosh/lunele-shell),
+Some components were ported from the Sylenara shell (https://github.com/iMacnucintosh/sylenara-shell),
 which is a fork of caelestia-shell (https://github.com/caelestia-dots/shell), by soramane and the
 Caelestia contributors, also licensed under the GPL-3.0.
 

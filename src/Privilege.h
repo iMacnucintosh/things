@@ -9,7 +9,7 @@ class QLocalServer;
 
 /// Holds the sudo password in RAM only and serves it to `sudo -A` over a private unix socket.
 ///
-/// Pattern shared with Lunele's Updates service, minus the Python helper: the askpass
+/// Pattern shared with Sylenara's Updates service, minus the Python helper: the askpass
 /// program is this very binary (`things`) started with THINGS_ASKPASS_SOCK set; it connects
 /// to the socket, prints the password and exits. Nothing is ever written to disk, the socket
 /// lives in $XDG_RUNTIME_DIR (0700) with 0600 permissions and every peer is checked with

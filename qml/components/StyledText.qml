@@ -1,6 +1,6 @@
 import QtQuick
 
-// Match Lunele bar/panel labels: Google Sans Flex Medium + ROND 25 + opsz.
+// Match Sylenara bar/panel labels: Google Sans Flex Medium + ROND 25 + opsz.
 // (Places / ActiveWindow read heavier than body Normal — use Medium.)
 Text {
     id: root

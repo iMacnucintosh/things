@@ -29,7 +29,7 @@ class Theme : public QObject {
     Q_PROPERTY(QColor accentFg READ accentFg NOTIFY changed)
     Q_PROPERTY(QColor error READ error NOTIFY changed)
     Q_PROPERTY(QColor onError READ onError NOTIFY changed)
-    // Match Lunele appearance.font defaults (with local fallbacks).
+    // Match Sylenara appearance.font defaults (with local fallbacks).
     Q_PROPERTY(QString uiFamily READ uiFamily NOTIFY changed)
     Q_PROPERTY(QString iconFamily READ iconFamily NOTIFY changed)
     /// Mirrors GlobalConfig.appearance.transparency (written into theme.json).

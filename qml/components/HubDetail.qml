@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-// Right-hand drawer of an extension of the Lunele Hub: what it is, what it needs, what it touches on
+// Right-hand drawer of an extension of the Sylenara Hub: what it is, what it needs, what it touches on
 // this computer and what changed. The texts come from the hub (store/<id>.json); the rest from its row.
 Rectangle {
     id: root
@@ -259,7 +259,7 @@ Rectangle {
                     visible: !!root.row.requires || root.needs.length > 0 || root.optional.length > 0
                     Bullet {
                         visible: !!root.row.requires
-                        text: qsTr("Lunele %1").arg(root.row.requires || "")
+                        text: qsTr("Sylenara %1").arg(root.row.requires || "")
                         icon: "deployed_code"
                     }
                     Repeater {
@@ -298,12 +298,12 @@ Rectangle {
                         model: root.touchedData
                         Bullet {
                             required property string modelData
-                            text: qsTr("Stores data in %1").arg(modelData.replace("state:", "~/.local/state/lunele/").replace("config:", "~/.config/lunele/"))
+                            text: qsTr("Stores data in %1").arg(modelData.replace("state:", "~/.local/state/sylenara/").replace("config:", "~/.config/sylenara/"))
                             icon: "database"
                         }
                     }
                     Bullet {
-                        text: qsTr("Its settings go in ~/.config/lunele/extensions/%1.json").arg(root.row.id || "")
+                        text: qsTr("Its settings go in ~/.config/sylenara/extensions/%1.json").arg(root.row.id || "")
                         icon: "tune"
                     }
                 }

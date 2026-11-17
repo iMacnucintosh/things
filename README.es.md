@@ -3,7 +3,7 @@
 <p align="center"><a href="./README.md">English</a> · <strong>Español</strong></p>
 
 <p align="center">
-El gestor de paquetes <strong>Material You</strong> de <a href="https://github.com/iMacnucintosh/lunele-shell">Lunele</a>: pacman, AUR y Flatpak en <strong>una sola lista</strong>, y además las extensiones de la shell.
+El gestor de paquetes <strong>Material You</strong> de <a href="https://github.com/iMacnucintosh/sylenara-shell">Sylenara</a>: pacman, AUR y Flatpak en <strong>una sola lista</strong>, y además las extensiones de la shell.
 </p>
 
 <p align="center"><img src="docs/screenshot.es.webp" width="760" alt="Things buscando firefox en pacman, AUR y Flathub a la vez"></p>
@@ -22,16 +22,16 @@ El gestor de paquetes <strong>Material You</strong> de <a href="https://github.c
 - **Iconos reales**: si el tema de iconos (Papirus vía qt6ct) tiene icono para el paquete o el id de Flatpak, se muestra; si no, el glifo de origen.
 - **Filtros**: origen (Todos · pacman · AUR · Flatpak, con contadores) y estado (Cualquiera · Instalados · Disponibles).
 - **Instalados**: explícitos, dependencias y huérfanos (`pacman -Qdt`), AUR (foráneos) y Flatpak, con filtro por origen y búsqueda local.
-- **Actualizaciones pendientes**: los paquetes instalados con versión nueva se marcan («2.19.2-1 → 2.19.3-1») y tienen su filtro «Actualizaciones» en Instalados; su ficha lo dice con un botón que abre Ajustes → Actualizaciones. Things no comprueba nada por su cuenta: pide a la shell la misma lista que enseñan la barra y Ajustes (`qs ipc call updates list`, Lunele 0.5.7 o posterior) y la vuelve a pedir al volver a la ventana. Actualizar sigue siendo cosa de la shell (una contraseña, en segundo plano).
+- **Actualizaciones pendientes**: los paquetes instalados con versión nueva se marcan («2.19.2-1 → 2.19.3-1») y tienen su filtro «Actualizaciones» en Instalados; su ficha lo dice con un botón que abre Ajustes → Actualizaciones. Things no comprueba nada por su cuenta: pide a la shell la misma lista que enseñan la barra y Ajustes (`qs ipc call updates list`, Sylenara 0.5.7 o posterior) y la vuelve a pedir al volver a la ventana. Actualizar sigue siendo cosa de la shell (una contraseña, en segundo plano).
 - **Detalle**: descripción, versión, web, licencias, tamaños, dependencias (opcionales, requerido por…), motivo de instalación, ficha de AUR/Flathub y lista de archivos instalados.
 - **Detalle con capturas (Flatpak)**: el panel de una app de Flathub muestra su galería de capturas de pantalla (con pie de foto, flechas y puntos; clic para verlas a pantalla completa, `←`/`→` para pasar, `Esc` para cerrar), «Acerca de» con la descripción completa, las novedades de la última versión y enlaces (web, ayuda, reportar un fallo, donar). Solo se contacta con `dl.flathub.org` para las imágenes. Los paquetes de pacman/AUR no tienen capturas: las del catálogo de Arch están en webs de terceros y no se cargan.
 - **Instalar / eliminar**: cola serie con progreso, salida en vivo plegable, cancelación (SIGINT limpio → SIGTERM → SIGKILL) y errores diagnosticados (bloqueo `db.lck`, bases desactualizadas, dependencias, conflictos, firmas…).
 - **Confirmación con vista previa real**: `pacman -S --print` / `pacman -Rs --print` (dependencias que entran o se van y tamaño), `flatpak remote-info`.
-- **Lunele (extensiones de la shell)**: sección propia en la columna lateral (`Ctrl+4`), con la versión de Lunele que corre junto al título, con las extensiones del [Lunele Hub](https://github.com/iMacnucintosh/lunele-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se pide al hub al abrir (la caché solo pinta el primer fotograma y sirve sin conexión); cada entrada se valida antes de mostrarse. Si no se encuentra Lunele, se ve el catálogo pero no se instala.
+- **Sylenara (extensiones de la shell)**: sección propia en la columna lateral (`Ctrl+4`), con la versión de Sylenara que corre junto al título, con las extensiones del [Sylenara Hub](https://github.com/iMacnucintosh/sylenara-hub): disponibles, instaladas, **actualizables** (con contador) y **locales** (puestas a mano: Things las muestra y no las toca salvo que pidas quitarlas). Instalar, actualizar y quitar pasan por la misma cola, confirmación y registro en vivo que los paquetes. **Things no instala nada por su cuenta**: lanza `scripts/ext.py` de la shell, que descarga solo de las releases del hub, comprueba el `sha256` del catálogo y la compatibilidad, valida el zip, instala las piezas de sistema con `sudo -A` (la contraseña la pide el diálogo de Things y solo si la extensión lo necesita) y avisa a la shell. El catálogo (`index.json`) se pide al hub al abrir (la caché solo pinta el primer fotograma y sirve sin conexión); cada entrada se valida antes de mostrarse. Si no se encuentra Sylenara, se ve el catálogo pero no se instala.
   - **Detalles**: al pulsar una extensión se abre su ficha (descripción larga, capturas, requisitos, qué toca en tu equipo y novedades), que Things descarga del hub (`store/<id>.json`, solo de sus URLs).
   - Una copia **local** que el hub también tiene (puesta a mano o desde un zip) se puede cambiar por la del hub con «Usar la del hub», para que Things la actualice; tus ajustes y datos se conservan.
   - **Instalar desde zip** (botón de la cabecera) abre el selector de Seeker, enseña qué trae el zip (nombre, versión, descripción, si pide contraseña) y pide confirmación; la extensión queda como «local». Lo valida `ext.py inspect`/`install` de la shell.
-- **Tema**: Material You en vivo desde Lunele (`theme.json`, claro u oscuro según diga el fichero).
+- **Tema**: Material You en vivo desde Sylenara (`theme.json`, claro u oscuro según diga el fichero).
 
 ### Teclado
 
@@ -41,14 +41,14 @@ El gestor de paquetes <strong>Material You</strong> de <a href="https://github.c
 | `↓` en la búsqueda | Pasar a la lista (`↑` en la primera fila, vuelve) |
 | `Enter` en la lista | Abrir detalle |
 | `Esc` | Cerrar detalle → limpiar búsqueda |
-| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Descubrir / Buscar / Instalados / Lunele |
+| `Ctrl+1` / `Ctrl+2` / `Ctrl+3` / `Ctrl+4` | Descubrir / Buscar / Instalados / Sylenara |
 | `F5` | Refrescar instalados y repetir búsqueda |
 
 Opciones de línea de comandos: `--search <texto>`, `--installed`, `--dry-run`.
 
 ## Instalación
 
-Viene con Lunele: [su instalador](https://github.com/iMacnucintosh/lunele-shell/blob/main/README.es.md#instalación) lo instala. Por separado, en Arch Linux, añade el [repositorio de paquetes de Lunele](https://github.com/iMacnucintosh/lunele-packages) e instálalo con pacman:
+Viene con Sylenara: [su instalador](https://github.com/iMacnucintosh/sylenara-shell/blob/main/README.es.md#instalación) lo instala. Por separado, en Arch Linux, añade el [repositorio de paquetes de Sylenara](https://github.com/iMacnucintosh/sylenara-packages) e instálalo con pacman:
 
 ```sh
 sudo pacman -S things-git
@@ -66,15 +66,15 @@ make install
 
 Instala `things`, `things.desktop` («Things») y `things.svg` en `~/.local`.
 
-## Integración con Lunele
+## Integración con Sylenara
 
-- **Tema**: Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y lo recarga en caliente. Lo escribe `_sync_things` en `scripts/lunele-quiet.py` de Lunele en cada apply. Sin fichero usa una paleta oscura por defecto.
-- **Extensiones**: es el gestor de extensiones de la shell (ver arriba); el contrato entre ambos vive en el `AGENTS.md` de Lunele.
+- **Tema**: Things lee `~/.config/things/theme.json` (mismo formato que Seeker: `mode` + paleta Material + `transparency`) y lo recarga en caliente. Lo escribe `_sync_things` en `scripts/sylenara-quiet.py` de Sylenara en cada apply. Sin fichero usa una paleta oscura por defecto.
+- **Extensiones**: es el gestor de extensiones de la shell (ver arriba); el contrato entre ambos vive en el `AGENTS.md` de Sylenara.
 - **Actualizaciones**: pregunta a la shell qué paquetes tienen una nueva versión (`qs ipc call updates list`).
 
 ## Privilegios
 
-No se usa polkit. Sigue el patrón del servicio Updates de Lunele, en C++:
+No se usa polkit. Sigue el patrón del servicio Updates de Sylenara, en C++:
 
 1. Diálogo propio de contraseña (Material You) cuando una operación necesita root.
 2. Verificación con `sudo -k` + `sudo -S -p '' -v` (contraseña por stdin, que se cierra: sudo nunca queda esperando).
@@ -101,15 +101,15 @@ Pruebas sin tocar el sistema:
 ./things --dump-search blender   # búsqueda unificada en texto (sin GUI)
 ./things --dump-installed --filter-kind dep
 ./things --dump-detail aur:yay
-./things --dump-hub              # filas del hub de Lunele (THINGS_HUB_INDEX=<index.json> lo lee de un fichero en vez de la red)
+./things --dump-hub              # filas del hub de Sylenara (THINGS_HUB_INDEX=<index.json> lo lee de un fichero en vez de la red)
 ./things --hub-op install:<id>   # (dev) encola una operación del hub sin hacer clic; con THINGS_HUB_INDEX y
-                                 # LUNELE_HUB_TEST_PREFIX=file://<carpeta de zips> se prueba todo el flujo en local
+                                 # SYLENARA_HUB_TEST_PREFIX=file://<carpeta de zips> se prueba todo el flujo en local
 dev/run-demos.sh                 # capturas offscreen: recorrido de la UI + flujo de contraseña con un sudo falso
 ```
 
 ```
 src/Backend.*       búsqueda unificada, instalados y detalle (QProcess + QNetworkAccessManager)
-src/HubCatalog.*    catálogo del hub de Lunele (índice, caché, validación) cruzado con lo instalado
+src/HubCatalog.*    catálogo del hub de Sylenara (índice, caché, validación) cruzado con lo instalado
 src/Operations.*    cola de instalar/eliminar, salida en vivo, vistas previas y diagnóstico de errores
 src/Privilege.*     contraseña en RAM + socket askpass
 src/Theme.*         tema en vivo desde theme.json

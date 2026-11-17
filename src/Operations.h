@@ -51,7 +51,7 @@ public:
     bool preparing() const { return m_preparing > 0; }
     void setDryRun(bool on) { m_dryRun = on; }
     Privilege *privilege() { return &m_priv; }
-    /// Catalog of the Lunele Hub: where the extensions to install or remove are looked up.
+    /// Catalog of the Sylenara Hub: where the extensions to install or remove are looked up.
     void setHub(HubCatalog *hub) { m_hub = hub; }
 
     /// kind: "install" | "remove"

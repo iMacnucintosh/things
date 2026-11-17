@@ -1270,7 +1270,7 @@ void Backend::loadFiles(const QString &source, const QString &id) {
 void Backend::loadShellUpdates() {
     if (which(QStringLiteral("qs")).isEmpty())
         return;
-    run(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("lunele"), QStringLiteral("ipc"), QStringLiteral("call"),
+    run(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("sylenara"), QStringLiteral("ipc"), QStringLiteral("call"),
                                QStringLiteral("updates"), QStringLiteral("list")},
         [this](int code, const QByteArray &out, const QByteArray &) {
             const QJsonObject o = QJsonDocument::fromJson(out).object();
@@ -1283,21 +1283,21 @@ void Backend::loadShellUpdates() {
                 const QString from = e.value(QLatin1String("from")).toString();
                 const QString to = e.value(QLatin1String("to")).toString();
                 if (src == QLatin1String("EXTENSION"))
-                    continue; // the Lunele section marks those itself, from the hub
+                    continue; // the Sylenara section marks those itself, from the hub
                 if (src.startsWith(QLatin1String("FLATPAK"))) {
                     // `from` is the application id; Flatpak gives no old version here
                     if (Validate::flatpakId(from))
                         next.insert(QStringLiteral("flatpak:") + from, {QString(), to});
                     continue;
                 }
-                // Lunele's own: its package name, built locally (listed as foreign, so AUR, or pacman)
-                const QString name = src == QLatin1String("LUNELE") ? e.value(QLatin1String("pkg")).toString()
+                // Sylenara's own: its package name, built locally (listed as foreign, so AUR, or pacman)
+                const QString name = src == QLatin1String("SYLENARA") ? e.value(QLatin1String("pkg")).toString()
                                                                         : e.value(QLatin1String("name")).toString();
                 if (!Validate::pacmanName(name))
                     continue;
                 if (src != QLatin1String("AUR"))
                     next.insert(QStringLiteral("pacman:") + name, {from, to});
-                if (src == QLatin1String("AUR") || src == QLatin1String("LUNELE"))
+                if (src == QLatin1String("AUR") || src == QLatin1String("SYLENARA"))
                     next.insert(QStringLiteral("aur:") + name, {from, to});
             }
             m_shellUpdates = next;
@@ -1326,7 +1326,7 @@ void Backend::matchShellUpdates() {
             if (inst == m_instPacman.constEnd() || inst->source != source)
                 continue;
             have = inst->installedVersion.isEmpty() ? inst->version : inst->installedVersion;
-            // Lunele's say "0.5.5" for 0.5.5.r0.g…-1
+            // Sylenara's say "0.5.5" for 0.5.5.r0.g…-1
             if (!from.isEmpty() && have != from && !have.startsWith(from + QLatin1Char('.')) && !have.startsWith(from + QLatin1Char('-')))
                 continue;
         }
@@ -1339,7 +1339,7 @@ void Backend::matchShellUpdates() {
 }
 
 void Backend::openShellUpdates() {
-    QProcess::startDetached(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("lunele"), QStringLiteral("ipc"),
+    QProcess::startDetached(QStringLiteral("qs"), {QStringLiteral("-c"), QStringLiteral("sylenara"), QStringLiteral("ipc"),
                                                    QStringLiteral("call"), QStringLiteral("nexus"), QStringLiteral("openPage"),
                                                    QStringLiteral("updates")});
 }
