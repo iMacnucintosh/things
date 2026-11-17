@@ -18,6 +18,7 @@ pkgbase = things-git
 	optdepends = python: install Sylenara extensions (uses its ext.py)
 	provides = things
 	conflicts = things
+	options = !debug
 	source = git+https://github.com/iMacnucintosh/things.git
 	sha256sums = SKIP
 
